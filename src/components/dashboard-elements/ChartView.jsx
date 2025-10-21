@@ -1,4 +1,3 @@
-import { Paper } from '@mui/material'
 import { LineChart } from '@mui/x-charts'
 
 export function ChartView() {
@@ -18,43 +17,41 @@ export function ChartView() {
     ]
 
     return (
-        <Paper elevation={3} sx={{ p: 3 }}>
-            <LineChart
-                xAxis={[{ scaleType: 'point', data: dataset.map((d) => d.time), showMark: false }]}
-                series={[
-                    {
-                        data: dataset.map((d) => d.logs),
-                        showMark: false,
-                        area: true,
-                        label: 'Count',
-                        color: '#29BAE2',
-                    },
-                ]}
-                grid={{ vertical: true, horizontal: true }}
-                margin={{ left: 0, bottom: 0 }}
-                height={520}
-                sx={{
-                    '& .MuiAreaElement-root': { fill: 'url(#Gradient)' },
-                    '& .MuiLineElement-root': { strokeWidth: 4 },
-                }}
-                slotProps={{
-                    legend: {
-                        direction: 'horizontal',
-                        position: { vertical: 'top', horizontal: 'start' },
-                        sx: {
-                            marginLeft: 6,
-                            fontSize: 15,
-                            '& .MuiChartsLegend-series': {
-                                width: 100,
-                            },
+        <LineChart
+            xAxis={[{ scaleType: 'point', data: dataset.map((d) => d.time), showMark: false }]}
+            series={[
+                {
+                    data: dataset.map((d) => d.logs),
+                    showMark: false,
+                    area: true,
+                    label: 'Count',
+                    color: '#29BAE2',
+                },
+            ]}
+            grid={{ vertical: true, horizontal: true }}
+            margin={{ left: 0, bottom: 0 }}
+            height={520}
+            sx={{
+                '& .MuiAreaElement-root': { fill: 'url(#Gradient)' },
+                '& .MuiLineElement-root': { strokeWidth: 4 },
+            }}
+            slotProps={{
+                legend: {
+                    direction: 'horizontal',
+                    position: { vertical: 'top', horizontal: 'start' },
+                    sx: {
+                        marginLeft: 6,
+                        fontSize: 15,
+                        '& .MuiChartsLegend-series': {
+                            width: 100,
                         },
                     },
-                }}>
-                <linearGradient id="Gradient" x1="0%" y1="120%" x2="0%" y2="0%">
-                    <stop offset="0" stopColor="#FFFFFF77" />
-                    <stop offset="1" stopColor="#29BAE277" />
-                </linearGradient>
-            </LineChart>
-        </Paper>
+                },
+            }}>
+            <linearGradient id="Gradient" x1="0%" y1="120%" x2="0%" y2="0%">
+                <stop offset="0" stopColor="#FFFFFF77" />
+                <stop offset="1" stopColor="#29BAE277" />
+            </linearGradient>
+        </LineChart>
     )
 }
