@@ -1,12 +1,38 @@
-# React + Vite
+<h1 align="center">SFI Monitoring Platform</h1>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<p align="center">
+  <strong>Une plateforme de monitoring des données de la pare-feu Fortigate venant d'elasticsearch</strong>
+</p>
 
-Currently, two official plugins are available:
+<p align="center">
+  <!-- Badges -->
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+  <img src="https://img.shields.io/github/last-commit/josoavj/sfiDashMonitoring" alt="Last Commit">
+  <img src="https://img.shields.io/github/stars/josoavj/sfiDashMonitoring?style=social" alt="GitHub Stars">
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### A propos
 
-## Expanding the ESLint configuration
+- **Description :** Plateforme de monitoring des journaux, venant d'un pare-feu Fortigate. 
+- **Structure :**
+    - **Base de données :** elasticsearch
+    - **Front-end :** ReactJS
+    - **Back-end :** NodeJS (ExpressJS)
+### ✨ Fonctionnalités
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 👥 Équipe
+
+- Front-end :
+    - [Koloina](https://github.com/koulienathalie)
+- Back-end :
+    - [josoavj](https://github.com/josoavj)
+    - [haritsimba](https://github.com/haritsimba)
+
+### Autres
+
+- Test d'intégration NodeJS vers elasticsearch : [nodeServerToElasticsearch](https://github.com/josoavj/elasticsearch-nodejs-server)
+- Configuration d'elasticsearch : [basicConf](https://github.com/josoavj/elasticsearch-config)
+
+### 📃 Licence
+
+This project can be used as a personal project. If you'd like to contribute, please contact one of the current contributors.
