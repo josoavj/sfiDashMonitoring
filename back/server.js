@@ -1,10 +1,19 @@
-// back/server.js
 require('dotenv').config();
 const express = require('express');
 const { Client } = require('@elastic/elasticsearch');
 const cors = require('cors');
+const http = require('http');
+const { Server } = require('socket.io');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+        methods: ['GET', 'POST']
+    }
+});
+
 const PORT = process.env.PORT || 3001;
 
 // Configuration Elasticsearch
@@ -25,9 +34,158 @@ esClient.ping()
     .then(() => console.log('✅ Connecté à Elasticsearch'))
     .catch(err => console.error('❌ Erreur connexion Elasticsearch:', err.message));
 
-// ============= ROUTES =============
+// ============= WEBSOCKET REAL-TIME STREAMING =============
 
-// Santé du cluster
+let lastCheckTimestamp = new Date();
+let pollingInterval = null;
+let connectedClients = 0;
+
+// Fonction pour récupérer les nouveaux logs
+async function fetchNewLogs() {
+    try {
+        const now = new Date();
+        const result = await esClient.search({
+            index: process.env.ES_INDEX || 'filebeat-*',
+            body: {
+                size: 100,
+                query: {
+                    range: {
+                        '@timestamp': {
+                            gt: lastCheckTimestamp.toISOString(),
+                            lte: now.toISOString()
+                        }
+                    }
+                },
+                sort: [{ '@timestamp': { order: 'desc' } }]
+            }
+        });
+
+        if (result.hits.hits.length > 0) {
+            lastCheckTimestamp = now;
+            return result.hits.hits;
+        }
+
+        lastCheckTimestamp = now;
+        return [];
+    } catch (error) {
+        console.error('Erreur fetch new logs:', error.message);
+        return [];
+    }
+}
+
+// Streaming continu vers les clients
+function startLogStreaming() {
+    if (pollingInterval) return;
+
+    pollingInterval = setInterval(async () => {
+        if (connectedClients === 0) return;
+
+        const newLogs = await fetchNewLogs();
+        if (newLogs.length > 0) {
+            io.emit('new-logs', {
+                logs: newLogs,
+                count: newLogs.length,
+                timestamp: new Date().toISOString()
+            });
+            console.log(`📡 ${newLogs.length} nouveaux logs envoyés`);
+        }
+    }, 2000); // Vérification toutes les 2 secondes
+}
+
+function stopLogStreaming() {
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval = null;
+        console.log('⏸️  Streaming arrêté');
+    }
+}
+
+// Gestion des connexions WebSocket
+io.on('connection', (socket) => {
+    connectedClients++;
+    console.log(`🔌 Client connecté (Total: ${connectedClients})`);
+
+    // Démarrer le streaming si c'est le premier client
+    if (connectedClients === 1) {
+        lastCheckTimestamp = new Date();
+        startLogStreaming();
+    }
+
+    // Envoyer l'état initial
+    socket.emit('connected', {
+        message: 'Connecté au serveur de logs',
+        timestamp: new Date().toISOString()
+    });
+
+    // Client demande les logs initiaux
+    socket.on('request-initial-logs', async (data) => {
+        try {
+            const { timeRange = '15m', size = 100 } = data;
+            const now = new Date();
+            const ranges = {
+                '15m': 15 * 60 * 1000,
+                '1h': 60 * 60 * 1000,
+                '24h': 24 * 60 * 60 * 1000,
+                '7d': 7 * 24 * 60 * 60 * 1000
+            };
+
+            const result = await esClient.search({
+                index: process.env.ES_INDEX || 'filebeat-*',
+                body: {
+                    size,
+                    query: {
+                        range: {
+                            '@timestamp': {
+                                gte: new Date(now - ranges[timeRange]).toISOString(),
+                                lte: now.toISOString()
+                            }
+                        }
+                    },
+                    sort: [{ '@timestamp': { order: 'desc' } }]
+                }
+            });
+
+            socket.emit('initial-logs', {
+                logs: result.hits.hits,
+                total: result.hits.total.value
+            });
+        } catch (error) {
+            socket.emit('error', { message: error.message });
+        }
+    });
+
+    // Client change l'intervalle de streaming
+    socket.on('change-interval', (interval) => {
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+            pollingInterval = setInterval(async () => {
+                if (connectedClients === 0) return;
+                const newLogs = await fetchNewLogs();
+                if (newLogs.length > 0) {
+                    io.emit('new-logs', {
+                        logs: newLogs,
+                        count: newLogs.length,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            }, interval * 1000);
+        }
+    });
+
+    // Déconnexion
+    socket.on('disconnect', () => {
+        connectedClients--;
+        console.log(`🔌 Client déconnecté (Restants: ${connectedClients})`);
+
+        // Arrêter le streaming si plus de clients
+        if (connectedClients === 0) {
+            stopLogStreaming();
+        }
+    });
+});
+
+// ============= API REST (pour compatibilité) =============
+
 app.get('/api/health', async (req, res) => {
     try {
         const health = await esClient.cluster.health();
@@ -37,6 +195,10 @@ app.get('/api/health', async (req, res) => {
             elasticsearch: {
                 version: info.version.number,
                 cluster_name: info.cluster_name
+            },
+            websocket: {
+                connected_clients: connectedClients,
+                streaming_active: pollingInterval !== null
             }
         });
     } catch (error) {
@@ -44,7 +206,6 @@ app.get('/api/health', async (req, res) => {
     }
 });
 
-// Recherche de logs
 app.post('/api/search', async (req, res) => {
     try {
         const {
@@ -59,7 +220,6 @@ app.post('/api/search', async (req, res) => {
         const mustClauses = [];
         const filterClauses = [];
 
-        // Filtre temporel
         if (timeRange?.from && timeRange?.to) {
             filterClauses.push({
                 range: {
@@ -71,7 +231,6 @@ app.post('/api/search', async (req, res) => {
             });
         }
 
-        // Recherche textuelle
         if (query && query !== '*') {
             mustClauses.push({
                 query_string: {
@@ -109,7 +268,6 @@ app.post('/api/search', async (req, res) => {
     }
 });
 
-// Statistiques et agrégations
 app.post('/api/stats', async (req, res) => {
     try {
         const { timeRange, fields = ['event.action', 'source.ip'] } = req.body;
@@ -123,7 +281,6 @@ app.post('/api/stats', async (req, res) => {
             }
         };
 
-        // Agrégations dynamiques par champ
         fields.forEach(field => {
             const aggName = field.replace(/\./g, '_');
             aggs[aggName] = {
@@ -165,7 +322,6 @@ app.post('/api/stats', async (req, res) => {
     }
 });
 
-// Top N sources IP
 app.post('/api/top-sources', async (req, res) => {
     try {
         const { timeRange, size = 10, field = 'source.ip' } = req.body;
@@ -200,73 +356,26 @@ app.post('/api/top-sources', async (req, res) => {
     }
 });
 
-// Liste des index disponibles
-app.get('/api/indices', async (req, res) => {
-    try {
-        const indices = await esClient.cat.indices({ format: 'json' });
-        res.json(indices.filter(idx => idx.index.startsWith('filebeat')));
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Mapping des champs d'un index
-app.get('/api/fields/:index', async (req, res) => {
-    try {
-        const mapping = await esClient.indices.getMapping({
-            index: req.params.index
-        });
-        res.json(mapping);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Stream de logs en temps réel (derniers N secondes)
-app.get('/api/realtime', async (req, res) => {
-    try {
-        const { seconds = 10, size = 50 } = req.query;
-        const now = new Date();
-        const from = new Date(now - seconds * 1000);
-
-        const result = await esClient.search({
-            index: process.env.ES_INDEX || 'filebeat-*',
-            body: {
-                size: parseInt(size),
-                query: {
-                    range: {
-                        '@timestamp': {
-                            gte: from.toISOString(),
-                            lte: now.toISOString()
-                        }
-                    }
-                },
-                sort: [{ '@timestamp': { order: 'desc' } }]
-            }
-        });
-
-        res.json({
-            total: result.hits.total.value,
-            hits: result.hits.hits,
-            timestamp: now.toISOString()
-        });
-    } catch (error) {
-        console.error('Erreur realtime:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
 // ============= DÉMARRAGE =============
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`
-  🚀 Serveur API démarré
-  📡 URL: http://localhost:${PORT}
+  🚀 Serveur API + WebSocket démarré
+  📡 API REST: http://localhost:${PORT}
+  🔌 WebSocket: ws://localhost:${PORT}
   🔍 Elasticsearch: ${process.env.ES_NODE || 'http://localhost:9200'}
   📊 Index: ${process.env.ES_INDEX || 'filebeat-*'}
   `);
 });
 
-// Gestion des erreurs non gérées
 process.on('unhandledRejection', (err) => {
     console.error('Erreur non gérée:', err);
+});
+
+process.on('SIGTERM', () => {
+    console.log('SIGTERM reçu, fermeture...');
+    stopLogStreaming();
+    server.close(() => {
+        console.log('Serveur fermé');
+        process.exit(0);
+    });
 });
