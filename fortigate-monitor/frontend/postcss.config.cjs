@@ -9,9 +9,9 @@ try {
   tailwindPlugin = require('tailwindcss');
 }
 
-export default {
-  plugins: {
-    [tailwindPlugin]: {},
-    autoprefixer: {},
-  },
-}
+module.exports = {
+  plugins: [
+    tailwindPlugin,
+    require('autoprefixer'),
+  ],
+};
