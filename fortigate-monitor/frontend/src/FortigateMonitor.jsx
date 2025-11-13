@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Search, Activity, Shield, AlertCircle, RefreshCw, Clock, Zap, Wifi, WifiOff, Volume2, VolumeX, TrendingUp, Network, Lock, Globe, BarChart3 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import io from 'socket.io-client';
@@ -16,6 +16,10 @@ export default function FortigateMonitor() {
     const [protocols, setProtocols] = useState(null);
     const [securityEvents, setSecurityEvents] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [searchPage, setSearchPage] = useState(1);
+    const [perPage, setPerPage] = useState(25);
+    const [totalHits, setTotalHits] = useState(0);
     const [loading, setLoading] = useState(false);
     const [timeRange, setTimeRange] = useState('1h');
     const [health, setHealth] = useState(null);
@@ -28,6 +32,7 @@ export default function FortigateMonitor() {
 
     const socketRef = useRef(null);
     const audioRef = useRef(null);
+    const searchTimeout = useRef(null);
 
     useEffect(() => {
         const socket = io(WS_URL, {
@@ -151,6 +156,7 @@ export default function FortigateMonitor() {
     }, [timeRange]);
 
     const handleSearch = async () => {
+        // debounce-safe search used by UI
         setLoading(true);
         try {
             const res = await fetch(`${API_URL}/search`, {
@@ -158,17 +164,27 @@ export default function FortigateMonitor() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     query: searchQuery || '*',
-                    size: 100,
+                    size: perPage,
+                    from: (searchPage - 1) * perPage,
                     timeRange: getTimeRange()
                 })
             });
             const data = await res.json();
-            setLogs(data.hits || []);
+            setSearchResults(data.hits || []);
+            setTotalHits(data.total || (data.hits || []).length);
         } catch (err) {
             console.error('Erreur recherche:', err);
         }
         setLoading(false);
     };
+
+    const debouncedSearch = useCallback((q) => {
+        if (searchTimeout.current) clearTimeout(searchTimeout.current);
+        searchTimeout.current = setTimeout(() => {
+            setSearchPage(1);
+            handleSearch();
+        }, 350);
+    }, [perPage, timeRange]);
 
     const formatBytes = (bytes) => {
         if (!bytes || bytes === 0) return '0 B';
@@ -197,6 +213,10 @@ export default function FortigateMonitor() {
         if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
         return date.toLocaleTimeString('fr-FR');
     };
+    const bandwidthChartData = useMemo(() => {
+        if (!bandwidth || !Array.isArray(bandwidth)) return [];
+        return bandwidth.map(d => ({ time: d.time, bytes: d.bytes }));
+    }, [bandwidth]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6">
@@ -240,7 +260,7 @@ export default function FortigateMonitor() {
                 </div>
 
                 {/* Time Range */}
-                <div className="flex gap-2 mt-4">
+                <div className="flex gap-2 mt-4 items-center">
                     <Clock className="w-5 h-5 text-slate-400 mt-1" />
                     {['15m', '1h', '6h', '24h', '7d'].map((range) => (
                         <button
@@ -281,37 +301,157 @@ export default function FortigateMonitor() {
                     </button>
                 ))}
             </div>
-
             {/* Content basé sur l'onglet actif */}
             {activeTab === 'overview' && (
-                <div className="text-center py-20">
-                    <Shield className="w-20 h-20 mx-auto text-blue-400 mb-4" />
-                    <h2 className="text-2xl font-bold mb-2">Interface de test Fortigate</h2>
-                    <p className="text-slate-400">Connecté à Elasticsearch</p>
-                    {health && (
-                        <div className="mt-4 inline-block bg-slate-800 p-4 rounded-lg">
-                            <p className="text-sm text-slate-300">Cluster: <span className="font-bold">{health.elasticsearch?.cluster_name}</span></p>
-                            <p className="text-sm text-slate-300">Version: <span className="font-bold">{health.elasticsearch?.version}</span></p>
-                            <p className="text-sm text-slate-300">Status: <span className="font-bold text-green-400">{health.cluster?.status}</span></p>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left: quick metrics & search */}
+                    <div className="lg:col-span-1 space-y-4">
+                        <div className="bg-slate-800 p-4 rounded-lg">
+                            <h3 className="font-semibold">Recherche Elasticsearch</h3>
+                            <div className="mt-3 flex gap-2">
+                                <input
+                                    className="flex-1 bg-slate-700 px-3 py-2 rounded outline-none"
+                                    placeholder="Requête (KQL / lucene) ou *"
+                                    value={searchQuery}
+                                    onChange={(e) => { setSearchQuery(e.target.value); debouncedSearch(e.target.value); }}
+                                />
+                                <button onClick={handleSearch} className="px-3 py-2 bg-blue-600 rounded">{loading ? '...' : <Search className="w-4 h-4" />}</button>
+                            </div>
+                            <div className="mt-3 text-sm text-slate-400 flex items-center gap-2">
+                                <span>Hits: {totalHits}</span>
+                                <span>Page: {searchPage}</span>
+                            </div>
+                            <div className="mt-3 flex gap-2">
+                                <button onClick={() => { setSearchPage(p => Math.max(1, p - 1)); handleSearch(); }} className="px-2 py-1 bg-slate-700 rounded">Prev</button>
+                                <button onClick={() => { setSearchPage(p => p + 1); handleSearch(); }} className="px-2 py-1 bg-slate-700 rounded">Next</button>
+                                <select value={perPage} onChange={e => { setPerPage(Number(e.target.value)); setSearchPage(1); }} className="ml-auto bg-slate-700 px-2 py-1 rounded">
+                                    <option value={10}>10</option>
+                                    <option value={25}>25</option>
+                                    <option value={50}>50</option>
+                                </select>
+                            </div>
+                            <div className="mt-3 max-h-48 overflow-auto">
+                                {searchResults.map((r, i) => (
+                                    <div key={i} className="p-2 bg-slate-700 rounded mb-2 text-xs">
+                                        <div className="font-medium">{r._index} · {formatTimestamp(r._source?.['@timestamp'] || r._source?.timestamp)}</div>
+                                        <pre className="overflow-x-auto text-[11px]">{JSON.stringify(r._source, null, 2)}</pre>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    )}
+
+                        <div className="bg-slate-800 p-4 rounded-lg">
+                            <h4 className="font-semibold">Statut du cluster</h4>
+                            {health ? (
+                                <div className="mt-2 text-sm text-slate-300">
+                                    <div>Cluster: <span className="font-bold">{health.elasticsearch?.cluster_name}</span></div>
+                                    <div>Version: <span className="font-bold">{health.elasticsearch?.version}</span></div>
+                                    <div>Status: <span className={`font-bold ${health.cluster?.status === 'green' ? 'text-green-400' : 'text-yellow-400'}`}>{health.cluster?.status}</span></div>
+                                </div>
+                            ) : <div className="text-slate-400">Aucun état</div>}
+                        </div>
+                    </div>
+
+                    {/* Middle: charts */}
+                    <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-slate-800 p-4 rounded-lg h-64">
+                            <h4 className="font-semibold mb-2">Bande passante (temps)</h4>
+                            {bandwidthChartData.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="85%">
+                                    <AreaChart data={bandwidthChartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                                        <defs>
+                                            <linearGradient id="colorBytes" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <XAxis dataKey="time" tick={{ fontSize: 10 }} />
+                                        <YAxis tickFormatter={(v) => formatBytes(v)} />
+                                        <Tooltip formatter={(v) => formatBytes(v)} />
+                                        <Area type="monotone" dataKey="bytes" stroke="#3b82f6" fillOpacity={1} fill="url(#colorBytes)" />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            ) : <div className="text-slate-400">Aucune donnée</div>}
+                        </div>
+
+                        <div className="bg-slate-800 p-4 rounded-lg h-64">
+                            <h4 className="font-semibold mb-2">Protocoles</h4>
+                            {protocols && protocols.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="85%">
+                                    <PieChart>
+                                        <Pie data={protocols} dataKey="value" nameKey="protocol" outerRadius={80} innerRadius={30}>
+                                            {protocols.map((entry, idx) => (
+                                                <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            ) : <div className="text-slate-400">Aucune donnée</div>}
+                        </div>
+
+                        <div className="bg-slate-800 p-4 rounded-lg md:col-span-2">
+                            <h4 className="font-semibold mb-2">Top Talkers</h4>
+                            <div className="max-h-48 overflow-auto">
+                                {topBandwidth && topBandwidth.length > 0 ? (
+                                    <table className="w-full text-sm">
+                                        <thead className="text-slate-400 text-left">
+                                            <tr><th>IP</th><th className="text-right">Bytes</th><th className="text-right">Bps</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            {topBandwidth.map((t, i) => (
+                                                <tr key={i} className="border-t border-slate-700">
+                                                    <td className="py-2">{t.ip}</td>
+                                                    <td className="py-2 text-right">{formatBytes(t.bytes)}</td>
+                                                    <td className="py-2 text-right">{formatBps(t.bytes, 60)}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : <div className="text-slate-400">Aucune donnée</div>}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
 
             {activeTab === 'logs' && (
                 <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
-                    <h3 className="text-xl font-bold mb-4">Logs en temps réel</h3>
-                    <p className="text-slate-400">Total reçus: {totalReceived}</p>
-                    <p className="text-slate-400">Affichés: {logs.length}</p>
-                    {logs.length > 0 && (
-                        <div className="mt-4 space-y-2">
-                            {logs.slice(0, 10).map((log, idx) => (
-                                <div key={idx} className="bg-slate-700 p-3 rounded text-sm">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-bold">Logs en temps réel</h3>
+                        <div className="flex items-center gap-2">
+                            <div className="text-slate-400">Nouveaux: {newLogsCount}</div>
+                            <div className="text-slate-400">Total: {totalReceived}</div>
+                            <div className="text-slate-400">Affichés: {logs.length}</div>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="md:col-span-2 max-h-[60vh] overflow-auto">
+                            {logs.length > 0 ? logs.map((log, idx) => (
+                                <div key={idx} className="bg-slate-700 p-3 rounded mb-2 text-sm">
+                                    <div className="text-xs text-slate-400">{formatTimestamp(log._source?.['@timestamp'] || log._source?.timestamp)}</div>
                                     <pre className="text-xs overflow-x-auto">{JSON.stringify(log._source, null, 2)}</pre>
                                 </div>
-                            ))}
+                            )) : <div className="text-slate-400">Aucun log</div>}
                         </div>
-                    )}
+
+                        <div className="md:col-span-1 space-y-3">
+                            <div className="bg-slate-700 p-3 rounded">
+                                <div className="text-sm">Intervalle stream (s)</div>
+                                <input type="range" min={1} max={10} value={streamInterval} onChange={e => setStreamInterval(Number(e.target.value))} />
+                                <div className="text-xs text-slate-400">{streamInterval}s</div>
+                            </div>
+
+                            <div className="bg-slate-700 p-3 rounded">
+                                <div className="text-sm">Contrôles</div>
+                                <div className="mt-2 flex gap-2">
+                                    <button onClick={() => socketRef.current && socketRef.current.emit('pause-stream')} className="px-2 py-1 bg-slate-600 rounded">Pause</button>
+                                    <button onClick={() => socketRef.current && socketRef.current.emit('resume-stream')} className="px-2 py-1 bg-slate-600 rounded">Resume</button>
+                                    <button onClick={() => { setLogs([]); setTotalReceived(0); }} className="px-2 py-1 bg-red-700 rounded">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
