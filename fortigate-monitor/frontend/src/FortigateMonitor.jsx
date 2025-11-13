@@ -12,6 +12,7 @@ export default function FortigateMonitor() {
     const [logs, setLogs] = useState([]);
     const [stats, setStats] = useState(null);
     const [bandwidth, setBandwidth] = useState(null);
+    const [bandwidthRealtime, setBandwidthRealtime] = useState([]);
     const [topBandwidth, setTopBandwidth] = useState([]);
     const [protocols, setProtocols] = useState(null);
     const [securityEvents, setSecurityEvents] = useState(null);
@@ -57,6 +58,23 @@ export default function FortigateMonitor() {
         socket.on('initial-logs', (data) => {
             console.log(`📥 ${data.logs.length} logs initiaux`);
             setLogs(data.logs);
+            // Seed bandwidth realtime from initial logs
+            try {
+                const totalByBucket = {};
+                data.logs.forEach(l => {
+                    const ts = l._source?.['@timestamp'] || l._source?.timestamp || new Date().toISOString();
+                    const t = Math.floor(new Date(ts).getTime() / (streamInterval * 1000)) * (streamInterval * 1000);
+                    const key = new Date(t).toISOString();
+                    const bytes = l._source?.network?.bytes || l._source?.source?.bytes || l._source?.destination?.bytes || 0;
+                    totalByBucket[key] = (totalByBucket[key] || 0) + bytes;
+                });
+                const seeded = Object.keys(totalByBucket).sort().map(k => ({ time: k, bytes: totalByBucket[k] }));
+                if (seeded.length > 0) setBandwidthRealtime(prev => {
+                    const merged = [...prev, ...seeded];
+                    // keep last 120 entries
+                    return merged.slice(-120);
+                });
+            } catch (e) { console.debug('seed bandwidth error', e); }
         });
 
         socket.on('new-logs', (data) => {
@@ -70,6 +88,24 @@ export default function FortigateMonitor() {
             }
 
             setTimeout(() => setNewLogsCount(0), 2000);
+            // Update realtime bandwidth from incoming logs
+            try {
+                const now = Date.now();
+                const bucketMs = streamInterval * 1000;
+                const bucketKey = new Date(Math.floor(now / bucketMs) * bucketMs).toISOString();
+                const added = data.logs.reduce((acc, l) => acc + (l._source?.network?.bytes || l._source?.source?.bytes || l._source?.destination?.bytes || 0), 0);
+                if (added > 0) {
+                    setBandwidthRealtime(prev => {
+                        const newPrev = [...prev];
+                        if (newPrev.length > 0 && newPrev[newPrev.length - 1].time === bucketKey) {
+                            newPrev[newPrev.length - 1].bytes += added;
+                        } else {
+                            newPrev.push({ time: bucketKey, bytes: added });
+                        }
+                        return newPrev.slice(-120);
+                    });
+                }
+            } catch (e) { console.debug('realtime bandwidth update error', e); }
         });
 
         return () => socket.disconnect();
@@ -214,9 +250,19 @@ export default function FortigateMonitor() {
         return date.toLocaleTimeString('fr-FR');
     };
     const bandwidthChartData = useMemo(() => {
-        if (!bandwidth || !Array.isArray(bandwidth)) return [];
-        return bandwidth.map(d => ({ time: d.time, bytes: d.bytes }));
-    }, [bandwidth]);
+        // Prefer realtime derived data when available
+        if (bandwidthRealtime && bandwidthRealtime.length > 0) {
+            return bandwidthRealtime.map(d => ({ time: d.time, bytes: d.bytes }));
+        }
+        // Otherwise try the API-provided bandwidth timeline
+        if (bandwidth && bandwidth.timeline && Array.isArray(bandwidth.timeline)) {
+            return bandwidth.timeline.map(b => ({
+                time: b.key_as_string || (b.key && new Date(b.key).toISOString()) || b.time,
+                bytes: (b.total_bytes && b.total_bytes.value) || b.bytes || 0
+            }));
+        }
+        return [];
+    }, [bandwidth, bandwidthRealtime]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6">
@@ -410,6 +456,50 @@ export default function FortigateMonitor() {
                                     </table>
                                 ) : <div className="text-slate-400">Aucune donnée</div>}
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'bandwidth' && (
+                <div className="bg-slate-800 p-6 rounded-lg">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-bold">Bande passante — Temps réel</h3>
+                        <div className="text-sm text-slate-400">Source: {bandwidthRealtime.length > 0 ? 'Realtime (logs)' : 'API'}</div>
+                    </div>
+
+                    <div className="h-96">
+                        {bandwidthChartData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={bandwidthChartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                                    <XAxis dataKey="time" tick={{ fontSize: 10 }} />
+                                    <YAxis tickFormatter={(v) => formatBytes(v)} />
+                                    <Tooltip formatter={(v) => formatBytes(v)} />
+                                    <Area type="monotone" dataKey="bytes" stroke="#3b82f6" fillOpacity={0.3} fill="#3b82f6" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        ) : <div className="text-slate-400">Aucune donnée de bande passante</div>}
+                    </div>
+
+                    <div className="mt-4">
+                        <h4 className="font-semibold mb-2">Top consommateurs</h4>
+                        <div className="max-h-48 overflow-auto">
+                            {topBandwidth && topBandwidth.length > 0 ? (
+                                <table className="w-full text-sm">
+                                    <thead className="text-slate-400 text-left">
+                                        <tr><th>IP</th><th className="text-right">Bytes</th><th className="text-right">Bps</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        {topBandwidth.map((t, i) => (
+                                            <tr key={i} className="border-t border-slate-700">
+                                                <td className="py-2">{t.key || t.ip}</td>
+                                                <td className="py-2 text-right">{formatBytes(t.total_bytes?.value || t.bytes || t.doc_count)}</td>
+                                                <td className="py-2 text-right">{formatBps(t.total_bytes?.value || t.bytes || 0, 60)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : <div className="text-slate-400">Aucune donnée</div>}
                         </div>
                     </div>
                 </div>
