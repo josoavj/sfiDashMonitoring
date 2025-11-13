@@ -10,3 +10,65 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
+:root{
+    --bg-900: #0f1724; /* slate-900 variant */
+    --bg-800: #111827;
+    --card: rgba(17,24,39,0.6);
+    --glass: rgba(255,255,255,0.04);
+    --accent: #3b82f6;
+    --muted: #94a3b8;
+}
+
+/* Generic card used across the app */
+.card{
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 0.6rem;
+    padding: 1rem;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+}
+
+/* Glass effect for small components */
+.glass{
+    background: var(--glass);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255,255,255,0.03);
+    padding: 0.5rem;
+}
+
+/* Live badge */
+.badge-live{
+    background: linear-gradient(90deg,var(--accent),#06b6d4);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+/* Log entry subtle animation when added */
+@keyframes pulseIn {
+    from { transform: translateY(-6px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+.log-entry{
+    animation: pulseIn 260ms ease-out;
+}
+
+/* Monospace for pre tags in logs */
+pre{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; }
+
+/* Thin custom scrollbar for panels */
+::-webkit-scrollbar { height: 10px; width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 999px; }
+
+/* Small utility for muted text */
+.muted { color: var(--muted); }
+
+/* Buttons fallback styling (Tailwind covers most uses) */
+.btn { padding: 0.4rem 0.75rem; border-radius: 0.5rem; background: var(--accent); color: white; }
+
+/* Accessibility: focus outline for keyboard users */
+:focus { outline: 3px solid rgba(59,130,246,0.18); outline-offset: 2px; }

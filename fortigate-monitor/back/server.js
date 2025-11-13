@@ -10,9 +10,14 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
+// Allow common frontend dev origins or use FRONTEND_URL. In dev, permit Vite default port 5173.
+const allowedOrigins = process.env.FRONTEND_URL
+    ? [process.env.FRONTEND_URL]
+    : ['http://localhost:3000', 'http://localhost:5173'];
+
 const io = new Server(server, {
     cors: {
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+        origin: allowedOrigins,
         methods: ['GET', 'POST']
     }
 });
