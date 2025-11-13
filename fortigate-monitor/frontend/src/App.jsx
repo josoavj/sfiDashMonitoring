@@ -1,7 +1,7 @@
 import FortigateMonitor from './FortigateMonitor'
 
 function App() {
-    return <FortigateMonitor />
+  return <FortigateMonitor />
 }
 
 export default App
