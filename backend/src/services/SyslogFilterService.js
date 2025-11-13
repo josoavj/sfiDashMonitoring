@@ -64,16 +64,18 @@ class SyslogFilterService {
   }
 
   extractSeqNum(vwlquality) {
+    vwlquality = (vwlquality ?? '').toString();
     vwlquality = vwlquality.replace('Seq_num(', '');
     vwlquality = vwlquality.replace(/(port\d+).*/, '$1');
     return vwlquality.split(' ')[0];
   }
-
+  
   extractSeqPort(vwlquality) {
+    vwlquality = (vwlquality ?? '').toString();
     vwlquality = vwlquality.replace('Seq_num(', '');
     vwlquality = vwlquality.replace(/(port\d+).*/, '$1');
-    return vwlquality.split(' ')[1].replace('port', '');
-  }
+    return vwlquality.split(' ')[1]?.replace('port','') ?? '';
+  }  
 
   extractRelatedIps(relatedIps) {
     const relatedIpsObject = {};
