@@ -1,3 +1,4 @@
+// back/server.js
 require('dotenv').config();
 const express = require('express');
 const { Client } = require('@elastic/elasticsearch');
@@ -18,7 +19,8 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || 3001;
 
-// Configuration Elasticsearch avec certificat SSL
+// ============= CONFIGURATION ELASTICSEARCH =============
+
 const esConfig = {
     node: process.env.ES_NODE || 'https://localhost:9200',
     auth: process.env.ES_USERNAME ? {
@@ -29,7 +31,6 @@ const esConfig = {
 
 // Gestion du certificat SSL
 if (process.env.ES_CERT_PATH) {
-    // Option 1: Utiliser le certificat CA
     try {
         const caCert = fs.readFileSync(path.resolve(process.env.ES_CERT_PATH));
         esConfig.tls = {
@@ -42,13 +43,11 @@ if (process.env.ES_CERT_PATH) {
         process.exit(1);
     }
 } else if (process.env.ES_SSL_VERIFY === 'false') {
-    // Option 2: Désactiver la vérification SSL (NON RECOMMANDÉ en production)
     esConfig.tls = {
         rejectUnauthorized: false
     };
     console.warn('⚠️  Vérification SSL désactivée (non recommandé en production)');
 } else if (process.env.ES_FINGERPRINT) {
-    // Option 3: Utiliser le fingerprint du certificat
     esConfig.tls = {
         ca: undefined,
         rejectUnauthorized: false
@@ -74,7 +73,6 @@ let lastCheckTimestamp = new Date();
 let pollingInterval = null;
 let connectedClients = 0;
 
-// Fonction pour récupérer les nouveaux logs
 async function fetchNewLogs() {
     try {
         const now = new Date();
@@ -107,7 +105,6 @@ async function fetchNewLogs() {
     }
 }
 
-// Streaming continu vers les clients
 function startLogStreaming() {
     if (pollingInterval) return;
 
@@ -123,7 +120,7 @@ function startLogStreaming() {
             });
             console.log(`📡 ${newLogs.length} nouveaux logs envoyés`);
         }
-    }, 2000); // Vérification toutes les 2 secondes
+    }, 2000);
 }
 
 function stopLogStreaming() {
@@ -139,19 +136,16 @@ io.on('connection', (socket) => {
     connectedClients++;
     console.log(`🔌 Client connecté (Total: ${connectedClients})`);
 
-    // Démarrer le streaming si c'est le premier client
     if (connectedClients === 1) {
         lastCheckTimestamp = new Date();
         startLogStreaming();
     }
 
-    // Envoyer l'état initial
     socket.emit('connected', {
         message: 'Connecté au serveur de logs',
         timestamp: new Date().toISOString()
     });
 
-    // Client demande les logs initiaux
     socket.on('request-initial-logs', async (data) => {
         try {
             const { timeRange = '15m', size = 100 } = data;
@@ -188,7 +182,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Client change l'intervalle de streaming
     socket.on('change-interval', (interval) => {
         if (pollingInterval) {
             clearInterval(pollingInterval);
@@ -206,20 +199,19 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Déconnexion
     socket.on('disconnect', () => {
         connectedClients--;
         console.log(`🔌 Client déconnecté (Restants: ${connectedClients})`);
 
-        // Arrêter le streaming si plus de clients
         if (connectedClients === 0) {
             stopLogStreaming();
         }
     });
 });
 
-// ============= API REST (pour compatibilité) =============
+// ============= API REST ROUTES =============
 
+// Health check
 app.get('/api/health', async (req, res) => {
     try {
         const health = await esClient.cluster.health();
@@ -240,6 +232,7 @@ app.get('/api/health', async (req, res) => {
     }
 });
 
+// Recherche de logs
 app.post('/api/search', async (req, res) => {
     try {
         const {
@@ -302,6 +295,7 @@ app.post('/api/search', async (req, res) => {
     }
 });
 
+// Statistiques générales
 app.post('/api/stats', async (req, res) => {
     try {
         const { timeRange, fields = ['event.action', 'source.ip'] } = req.body;
@@ -356,6 +350,7 @@ app.post('/api/stats', async (req, res) => {
     }
 });
 
+// Top sources IP
 app.post('/api/top-sources', async (req, res) => {
     try {
         const { timeRange, size = 10, field = 'source.ip' } = req.body;
@@ -563,7 +558,7 @@ app.post('/api/protocols', async (req, res) => {
     }
 });
 
-// Actions et menaces
+// Actions et événements de sécurité
 app.post('/api/security-events', async (req, res) => {
     try {
         const { timeRange } = req.body;
@@ -625,26 +620,50 @@ app.post('/api/security-events', async (req, res) => {
     }
 });
 
-// ============= DÉMARRAGE =============
+// Liste des index disponibles
+app.get('/api/indices', async (req, res) => {
+    try {
+        const indices = await esClient.cat.indices({ format: 'json' });
+        res.json(indices.filter(idx => idx.index.startsWith('filebeat')));
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============= DÉMARRAGE DU SERVEUR =============
+
 server.listen(PORT, () => {
     console.log(`
-  🚀 Serveur API + WebSocket démarré
-  📡 API REST: http://localhost:${PORT}
-  🔌 WebSocket: ws://localhost:${PORT}
-  🔍 Elasticsearch: ${process.env.ES_NODE || 'http://localhost:9200'}
-  📊 Index: ${process.env.ES_INDEX || 'filebeat-*'}
+╔════════════════════════════════════════════════════╗
+║  🚀 Serveur Fortigate Monitor                      ║
+╠════════════════════════════════════════════════════╣
+║  📡 API REST:    http://localhost:${PORT}              ║
+║  🔌 WebSocket:   ws://localhost:${PORT}                ║
+║  🔍 Elasticsearch: ${esConfig.node}     ║
+║  📊 Index:       ${process.env.ES_INDEX || 'filebeat-*'}                ║
+╚════════════════════════════════════════════════════╝
   `);
 });
 
-process.on('unhandledRejection', (err) => {
-    console.error('Erreur non gérée:', err);
-});
-
+// Gestion gracieuse de l'arrêt
 process.on('SIGTERM', () => {
-    console.log('SIGTERM reçu, fermeture...');
+    console.log('\n⏹️  SIGTERM reçu, fermeture gracieuse...');
     stopLogStreaming();
     server.close(() => {
-        console.log('Serveur fermé');
+        console.log('✅ Serveur fermé proprement');
         process.exit(0);
     });
+});
+
+process.on('SIGINT', () => {
+    console.log('\n⏹️  SIGINT reçu, fermeture gracieuse...');
+    stopLogStreaming();
+    server.close(() => {
+        console.log('✅ Serveur fermé proprement');
+        process.exit(0);
+    });
+});
+
+process.on('unhandledRejection', (err) => {
+    console.error('❌ Erreur non gérée:', err);
 });
