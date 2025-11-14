@@ -127,7 +127,7 @@ export default function SettingsPage() {
   const logLevels = useMemo(() => ['debug', 'info', 'warn', 'error'], [])
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box sx={{ p: 2, pt: { xs: 10, sm: 9 }, mt: { xs: 2, sm: 1 } }}>
       <Card>
         <CardHeader title="Paramètres" subheader="Configuration de l'application et options avancées" />
         <CardContent>

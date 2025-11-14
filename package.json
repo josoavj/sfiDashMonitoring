@@ -1,19 +1,29 @@
 {
-    "name": "sfi_react",
+    "name": "sfi-dash-monitoring",
+    "description": "Dashboard de monitoring réseau SFI avec visualisation Elasticsearch et WebSocket temps réel",
     "private": true,
-    "version": "0.0.0",
+    "version": "1.0.0",
     "type": "module",
+    "author": "SFI Team",
+    "license": "MIT",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
         "lint": "eslint .",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "start": "npm run start:backend & npm run dev",
+        "start:backend": "cd backend && npm install && npm start",
+        "start:all": "concurrently \"npm run start:backend\" \"npm run dev\"",
+        "backend": "cd backend && npm start",
+        "frontend": "vite",
+        "setup": "npm install && cd backend && npm install && cd .."
     },
     "dependencies": {
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
         "@mui/icons-material": "^7.3.1",
         "@mui/material": "^7.3.1",
+        "@mui/system": "^7.3.1",
         "@mui/x-charts": "^8.10.2",
         "@mui/x-data-grid": "^8.11.3",
         "@sequelize/mariadb": "^7.0.0-alpha.47",
@@ -23,13 +33,14 @@
         "dotenv": "^17.2.3",
         "express": "^5.1.0",
         "jsonwebtoken": "^9.0.2",
+        "lucide-react": "^0.553.0",
         "mariadb": "^3.4.5",
         "react": "^19.1.1",
         "react-dom": "^19.1.1",
         "react-router-dom": "^7.8.1",
         "sequelize": "^6.37.7",
+        "socket.io-client": "^4.7.2",
         "uuid": "^13.0.0"
-        ,"socket.io-client": "^4.7.2"
     },
     "devDependencies": {
         "@eslint/js": "^9.33.0",
@@ -37,6 +48,7 @@
         "@types/react": "^19.1.10",
         "@types/react-dom": "^19.1.7",
         "@vitejs/plugin-react": "^5.0.0",
+        "concurrently": "^8.2.2",
         "eslint": "^9.33.0",
         "eslint-plugin-react-hooks": "^5.2.0",
         "eslint-plugin-react-refresh": "^0.4.20",

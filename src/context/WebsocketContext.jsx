@@ -18,25 +18,32 @@ export const WebSocketProvider = ({ children }) => {
         }
 
         // 🔌 Connexion Socket.IO
-        const socket = io(import.meta.env.VITE_BACKEND_WS_URL || "http://localhost:3001", {
+        const wsUrl = import.meta.env.VITE_BACKEND_WS_URL || import.meta.env.VITE_API_URL || 'http://localhost:3001'
+        console.log('[WebSocketContext] Tentative de connexion à:', wsUrl)
+        const socket = io(wsUrl, {
             auth: { token },
-            transports: ["websocket"],
+            transports: ["websocket", "polling"],
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            reconnectionAttempts: 5
         });
 
         socketRef.current = socket;
 
         socket.on("connect", () => {
-            console.log("🔌 WebSocket connectée !");
+            console.log("✅ WebSocket connectée !", socket.id);
             setConnected(true);
         });
 
-        socket.on("disconnect", () => {
-            console.log("❌ WebSocket déconnectée");
+        socket.on("disconnect", (reason) => {
+            console.warn("⚠️ WebSocket déconnectée:", reason);
             setConnected(false);
         });
 
         socket.on("connect_error", (err) => {
-            console.error("⚠️ WebSocket error:", err.message);
+            console.error("❌ WebSocket erreur de connexion:", err.message);
+            // Le socket.io va automatiquement réessayer
         });
 
         // Cleanup à la fermeture de l'onglet ou du component

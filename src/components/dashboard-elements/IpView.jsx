@@ -260,14 +260,14 @@ export function IpView() {
     }, [selectedIP, selectedField, pollMs, chartWindow])
 
     return (
-        <Box sx={{ p: 3, bgcolor: '#f5f7fa', minHeight: '100vh' }}>
+        <Box sx={{ width: '100%' }}>
             <Typography variant="h4" fontWeight={700} sx={{ mb: 3, color: '#1a1a2e' }}>
                 Surveillance réseau
             </Typography>
 
-            <Grid container spacing={3}>
-                {/* Source IPs */}
-                <Grid item xs={12} lg={4}>
+            <Grid container spacing={3} sx={{ width: '100%' }}>
+                {/* Source IPs - Half width on md and up, full on mobile */}
+                <Grid item xs={12} md={6} lg={6}>
                     <Card 
                         variant="outlined" 
                         sx={{ 
@@ -298,8 +298,8 @@ export function IpView() {
                             sx={{ pb: 1 }}
                         />
                         <Divider />
-                        <CardContent sx={{ p: 2 }}>
-                            <Box sx={{ height: 520, '& .MuiDataGrid-root': { border: 'none' } }}>
+                        <CardContent sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+                            <Box sx={{ flex: 1, '& .MuiDataGrid-root': { border: 'none' } }}>
                                 <DataGrid 
                                     columns={sourceColumn} 
                                     rows={srcRows} 
@@ -307,6 +307,7 @@ export function IpView() {
                                     rowHeight={52}
                                     disableColumnResize 
                                     sx={{ 
+                                        height: '100%',
                                         '& .MuiDataGrid-columnHeader': { 
                                             bgcolor: alpha('#52B57D', 0.05),
                                             fontWeight: 600,
@@ -330,8 +331,8 @@ export function IpView() {
                     </Card>
                 </Grid>
 
-                {/* Destination IPs */}
-                <Grid item xs={12} lg={4}>
+                {/* Destination IPs - Half width on md and up, full on mobile */}
+                <Grid item xs={12} md={6} lg={6}>
                     <Card 
                         variant="outlined"
                         sx={{ 
@@ -356,7 +357,7 @@ export function IpView() {
                             sx={{ pb: 1 }}
                         />
                         <Divider />
-                        <CardContent sx={{ p: 2 }}>
+                        <CardContent sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
                             <Paper 
                                 sx={{ 
                                     p: 1.5, 
@@ -364,15 +365,16 @@ export function IpView() {
                                     bgcolor: alpha('#29BAE2', 0.05),
                                     borderRadius: 2,
                                     border: '1px solid',
-                                    borderColor: alpha('#29BAE2', 0.2)
+                                    borderColor: alpha('#29BAE2', 0.2),
+                                    flexShrink: 0
                                 }}
                             >
                                 <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                     <SwapVert sx={{ fontSize: 16 }} />
-                                    Cliquez sur une ligne pour analyser la bande passante
+                                    Cliquez sur une ligne pour analyser
                                 </Typography>
                             </Paper>
-                            <Box sx={{ height: 520, '& .MuiDataGrid-root': { border: 'none' } }}>
+                            <Box sx={{ flex: 1, '& .MuiDataGrid-root': { border: 'none' } }}>
                                 <DataGrid 
                                     columns={destinationColumn} 
                                     rows={destRows} 
@@ -380,6 +382,7 @@ export function IpView() {
                                     rowHeight={52}
                                     disableColumnResize 
                                     sx={{ 
+                                        height: '100%',
                                         '& .MuiDataGrid-columnHeader': { 
                                             bgcolor: alpha('#29BAE2', 0.05),
                                             fontWeight: 600,
@@ -403,8 +406,8 @@ export function IpView() {
                     </Card>
                 </Grid>
 
-                {/* Bandwidth Chart */}
-                <Grid item xs={12} lg={4}>
+                {/* Bandwidth Chart - Full Width */}
+                <Grid item xs={12}>
                     <Card 
                         variant="outlined"
                         sx={{ 

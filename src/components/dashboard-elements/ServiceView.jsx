@@ -103,67 +103,69 @@ export function ServiceView() {
 	if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center' }}><CircularProgress /></Box>
 
 	return (
-		<Grid container spacing={2}>
-			<Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-				<FormControl size="small" sx={{ minWidth: 120 }}>
-					<InputLabel id="topn-label">Top N</InputLabel>
-					<Select labelId="topn-label" value={topNSelection} label="Top N" onChange={(e) => setTopNSelection(Number(e.target.value))}>
-						<MenuItem value={3}>Top 3</MenuItem>
-						<MenuItem value={5}>Top 5</MenuItem>
-						<MenuItem value={10}>Top 10</MenuItem>
-					</Select>
-				</FormControl>
+		<Box sx={{ width: '100%' }}>
+			<Grid container spacing={2} sx={{ width: '100%' }}>
+				<Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+					<FormControl size="small" sx={{ minWidth: 120 }}>
+						<InputLabel id="topn-label">Top N</InputLabel>
+						<Select labelId="topn-label" value={topNSelection} label="Top N" onChange={(e) => setTopNSelection(Number(e.target.value))}>
+							<MenuItem value={3}>Top 3</MenuItem>
+							<MenuItem value={5}>Top 5</MenuItem>
+							<MenuItem value={10}>Top 10</MenuItem>
+						</Select>
+					</FormControl>
 
-				<FormControl size="small" sx={{ minWidth: 140 }}>
-					<InputLabel id="window-label">Fenêtre (points)</InputLabel>
-					<Select labelId="window-label" value={windowSize} label="Fenêtre (points)" onChange={(e) => setWindowSize(Number(e.target.value))}>
-						<MenuItem value={30}>30 points</MenuItem>
-						<MenuItem value={60}>60 points</MenuItem>
-						<MenuItem value={120}>120 points</MenuItem>
-					</Select>
-				</FormControl>
-			</Grid>
-			<Grid item xs={12}>
-				{labels.length && series.length ? (
-					<LineChart
-						xAxis={[{ scaleType: 'point', data: labels, showMark: false }]}
-						series={series}
-						grid={{ vertical: true, horizontal: true }}
-						margin={{ left: 0, bottom: 0 }}
-						height={260}
-						sx={{ '& .MuiAreaElement-root': { fill: 'url(#SvcGradient)' }, '& .MuiLineElement-root': { strokeWidth: 2 } }}
-						slotProps={{ legend: { direction: 'horizontal', position: { vertical: 'top', horizontal: 'start' } } }}>
-						<linearGradient id="SvcGradient" x1="0%" y1="120%" x2="0%" y2="0%">
-							<stop offset="0" stopColor="#FFFFFF77" />
-							<stop offset="1" stopColor="#29BAE277" />
-						</linearGradient>
-					</LineChart>
-				) : (
-					<Typography color="text.secondary">Pas de données temps réel pour les services</Typography>
-				)}
-			</Grid>
+					<FormControl size="small" sx={{ minWidth: 140 }}>
+						<InputLabel id="window-label">Fenêtre (points)</InputLabel>
+						<Select labelId="window-label" value={windowSize} label="Fenêtre (points)" onChange={(e) => setWindowSize(Number(e.target.value))}>
+							<MenuItem value={30}>30 points</MenuItem>
+							<MenuItem value={60}>60 points</MenuItem>
+							<MenuItem value={120}>120 points</MenuItem>
+						</Select>
+					</FormControl>
+				</Grid>
+				<Grid item xs={12}>
+					{labels.length && series.length ? (
+						<LineChart
+							xAxis={[{ scaleType: 'point', data: labels, showMark: false }]}
+							series={series}
+							grid={{ vertical: true, horizontal: true }}
+							margin={{ left: 0, bottom: 0 }}
+							height={260}
+							sx={{ '& .MuiAreaElement-root': { fill: 'url(#SvcGradient)' }, '& .MuiLineElement-root': { strokeWidth: 2 } }}
+							slotProps={{ legend: { direction: 'horizontal', position: { vertical: 'top', horizontal: 'start' } } }}>
+							<linearGradient id="SvcGradient" x1="0%" y1="120%" x2="0%" y2="0%">
+								<stop offset="0" stopColor="#FFFFFF77" />
+								<stop offset="1" stopColor="#29BAE277" />
+							</linearGradient>
+						</LineChart>
+					) : (
+						<Typography color="text.secondary">Pas de données temps réel pour les services</Typography>
+					)}
+				</Grid>
 
-			<Grid item xs={6}>
-				<Typography fontWeight={600} sx={{ mb: 1 }}>Top Protocoles (instantané)</Typography>
-				{/* lightweight list will be filled from last received payloads if present in seriesRef */}
-				{Object.keys(seriesRef.current || {}).slice(0, 6).map((k) => (
-					<Box key={k} sx={{ display: 'flex', justifyContent: 'space-between', p: 1, bgcolor: 'background.paper', borderRadius: 1, mb: 1 }}>
-						<Typography fontWeight={700}>{k}</Typography>
-						<Typography>{((seriesRef.current[k]?.slice(-1)[0] || 0)).toFixed(2)} MB</Typography>
-					</Box>
-				))}
-			</Grid>
+				<Grid item xs={6}>
+					<Typography fontWeight={600} sx={{ mb: 1 }}>Top Protocoles (instantané)</Typography>
+					{/* lightweight list will be filled from last received payloads if present in seriesRef */}
+					{Object.keys(seriesRef.current || {}).slice(0, 6).map((k) => (
+						<Box key={k} sx={{ display: 'flex', justifyContent: 'space-between', p: 1, bgcolor: 'background.paper', borderRadius: 1, mb: 1 }}>
+							<Typography fontWeight={700}>{k}</Typography>
+							<Typography>{((seriesRef.current[k]?.slice(-1)[0] || 0)).toFixed(2)} MB</Typography>
+						</Box>
+					))}
+				</Grid>
 
-			<Grid item xs={6}>
-				<Typography fontWeight={600} sx={{ mb: 1 }}>Top Applications / Ports (instantané)</Typography>
-				{Object.keys(seriesRef.current || {}).slice(0, 6).map((k) => (
-					<Box key={k} sx={{ display: 'flex', justifyContent: 'space-between', p: 1, bgcolor: 'background.paper', borderRadius: 1, mb: 1 }}>
-						<Typography fontWeight={700}>{k}</Typography>
-						<Typography>{((seriesRef.current[k]?.slice(-1)[0] || 0)).toFixed(2)} MB</Typography>
-					</Box>
-				))}
+				<Grid item xs={6}>
+					<Typography fontWeight={600} sx={{ mb: 1 }}>Top Applications / Ports (instantané)</Typography>
+					{Object.keys(seriesRef.current || {}).slice(0, 6).map((k) => (
+						<Box key={k} sx={{ display: 'flex', justifyContent: 'space-between', p: 1, bgcolor: 'background.paper', borderRadius: 1, mb: 1 }}>
+							<Typography fontWeight={700}>{k}</Typography>
+							<Typography>{((seriesRef.current[k]?.slice(-1)[0] || 0)).toFixed(2)} MB</Typography>
+						</Box>
+					))}
+				</Grid>
 			</Grid>
-		</Grid>
+		</Box>
 	)
 }
 
