@@ -291,6 +291,107 @@ function mountApiRoutes(app, esClient, logService) {
       res.status(500).json({ error: err.message });
     }
   });
+
+  // Reports: Generate comprehensive network consumption report
+  app.post('/api/reports/generate', async (req, res) => {
+    try {
+      const { timeRange, limit = 20, includeServices = true } = req.body;
+      if (!timeRange?.from || !timeRange?.to) {
+        return res.status(400).json({ error: 'timeRange.from and timeRange.to required' });
+      }
+
+      // Fetch top IPs by total bytes
+      const topIPsRes = await esClient.search({
+        index: process.env.ES_INDEX || 'filebeat-*',
+        body: {
+          size: 0,
+          query: {
+            range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } }
+          },
+          aggs: {
+            top_ips: {
+              terms: { field: 'source.ip', size: limit },
+              aggs: {
+                total_bytes: { sum: { field: 'network.bytes' } },
+                sent_bytes: { sum: { field: 'source.bytes' } },
+                received_bytes: { sum: { field: 'destination.bytes' } },
+                connections: { cardinality: { field: 'destination.ip' } }
+              }
+            }
+          }
+        }
+      });
+
+      // Calculate total bytes for percentage
+      let totalNetworkBytes = 0;
+      const topIPs = (topIPsRes.aggregations?.top_ips?.buckets || []).map((b) => {
+        const bytes = b.total_bytes?.value || 0;
+        totalNetworkBytes += bytes;
+        return {
+          ip: b.key,
+          bytes,
+          bandwidth: (b.sent_bytes?.value || 0) + (b.received_bytes?.value || 0),
+          connections: b.connections?.value || 0
+        };
+      });
+
+      // Add percentages
+      const topIPsWithPercentage = topIPs.map((ip) => ({
+        ...ip,
+        percentage: totalNetworkBytes > 0 ? (ip.bytes / totalNetworkBytes) * 100 : 0
+      }));
+
+      // Fetch top services if requested
+      let topServices = [];
+      if (includeServices) {
+        const topServicesRes = await esClient.search({
+          index: process.env.ES_INDEX || 'filebeat-*',
+          body: {
+            size: 0,
+            query: {
+              range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } }
+            },
+            aggs: {
+              top_services: {
+                terms: { field: 'network.application', size: 20 },
+                aggs: {
+                  total_bytes: { sum: { field: 'network.bytes' } },
+                  connections: { cardinality: { field: 'destination.ip' } }
+                }
+              }
+            }
+          }
+        });
+
+        topServices = (topServicesRes.aggregations?.top_services?.buckets || []).map((b) => ({
+          name: b.key || 'Inconnu',
+          bytes: b.total_bytes?.value || 0,
+          bandwidth: (b.total_bytes?.value || 0) / ((Date.parse(timeRange.to) - Date.parse(timeRange.from)) / 1000 || 1),
+          connections: b.connections?.value || 0
+        }));
+      }
+
+      // Calculate summary statistics
+      const totalBytes = topIPsWithPercentage.reduce((sum, ip) => sum + ip.bytes, 0);
+      const totalConnections = topIPsWithPercentage.reduce((sum, ip) => sum + ip.connections, 0);
+      const timeDiffSeconds = (new Date(timeRange.to) - new Date(timeRange.from)) / 1000;
+      const avgBandwidth = totalBytes / (timeDiffSeconds || 1);
+
+      res.json({
+        topIPs: topIPsWithPercentage,
+        topServices,
+        summary: {
+          totalBytes,
+          totalConnections,
+          avgBandwidth,
+          timePeriod: `${new Date(timeRange.from).toLocaleString('fr-FR')} - ${new Date(timeRange.to).toLocaleString('fr-FR')}`
+        }
+      });
+    } catch (err) {
+      console.error('Erreur generate report:', err.message);
+      res.status(500).json({ error: err.message });
+    }
+  });
 }
 
 module.exports = { mountApiRoutes };
