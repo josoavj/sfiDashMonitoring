@@ -7,15 +7,19 @@ const { Server } = require('socket.io');
 const { createEsClientFromEnv } = require('./services/esClient');
 const logService = require('./services/logService');
 const { mountApiRoutes } = require('./routes/api');
+const { mountAuthRoutes } = require('./routes/auth');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const esClient = createEsClientFromEnv();
+const { sequelize } = require('./databases/Sequelize');
 
 // Mount API routes
 mountApiRoutes(app, esClient, logService);
+// Mount auth routes (signup/signin/signout)
+mountAuthRoutes(app);
 
 const PORT = process.env.PORT || 3001;
 const server = http.createServer(app);
@@ -60,9 +64,19 @@ io.on('connection', (socket) => {
 // Auto-start streaming when first client connects
 logService.startLogStreaming(io, esClient);
 
-server.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
-});
+async function init() {
+  try {
+    await sequelize.sync();
+    server.listen(PORT, () => {
+      console.log(`Server listening on http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error('Erreur initialisation base de données:', err);
+    process.exit(1);
+  }
+}
+
+init();
 
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down...');

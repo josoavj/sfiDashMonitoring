@@ -2,7 +2,8 @@ import { TextField, InputAdornment, IconButton } from '@mui/material'
 import { VisibilityOutlined, VisibilityOffOutlined } from '@mui/icons-material'
 import { useState } from 'react'
 
-export function InputFormAuth({ type, name, label }) {
+// now forwards other props (value, onChange, etc.) to TextField
+export function InputFormAuth({ type, name, label, ...rest }) {
     const [showPassword, setShowPassword] = useState(false)
     const isPassword = type === 'password'
 
@@ -43,6 +44,7 @@ export function InputFormAuth({ type, name, label }) {
                           }
                         : {},
             }}
+            {...rest}
         />
     )
 }
