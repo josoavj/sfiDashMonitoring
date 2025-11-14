@@ -1,3 +1,8 @@
+const bcrypt = require('bcrypt');
+const { authenticate } = require('../middlewares/authMiddleware');
+const { User } = require('../models/User');
+const { Setting } = require('../models/Setting');
+
 function mountApiRoutes(app, esClient, logService) {
   // health
   app.get('/api/health', async (req, res) => {
@@ -177,48 +182,114 @@ function mountApiRoutes(app, esClient, logService) {
     }
   });
 
-  // --- Mock endpoints for local/dev testing ---
-  // In-memory store (simple, non-persistent)
-  const _users = [
-    { id: 1, username: 'admin', email: 'admin@example.com', role: 'admin', createdAt: new Date().toISOString() },
-    { id: 2, username: 'user', email: 'user@example.com', role: 'user', createdAt: new Date().toISOString() }
-  ];
-  let _nextUserId = 3;
-  let _settings = { apiBase: process.env.FRONTEND_URL || 'http://localhost:5173', pollMs: 2000 };
-
-  app.get('/api/users', (req, res) => {
-    res.json({ users: _users });
+  // --- Persistent endpoints (Sequelize-backed) ---
+  // Users: require admin role for listing/creating/deleting
+  app.get('/api/users', authenticate, async (req, res) => {
+    try {
+      const requester = req.user?.sub ? await User.findByPk(req.user.sub) : null;
+      if (!requester || requester.role !== 'admin') return res.status(403).json({ error: 'Admin required' });
+      const users = await User.findAll({ attributes: ['id', 'firstName', 'lastName', 'email', 'role', 'createdAt'] });
+      res.json({ users });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   });
 
-  app.delete('/api/users/:id', (req, res) => {
-    const id = Number(req.params.id);
-    const idx = _users.findIndex(u => u.id === id);
-    if (idx === -1) return res.status(404).json({ error: 'user not found' });
-    _users.splice(idx, 1);
-    res.json({ ok: true });
+  app.post('/api/users', authenticate, async (req, res) => {
+    try {
+      const requester = req.user?.sub ? await User.findByPk(req.user.sub) : null;
+      if (!requester || requester.role !== 'admin') return res.status(403).json({ error: 'Admin required' });
+      const { firstName, lastName, email, password, role = 'user' } = req.body;
+      if (!email || !password || !firstName) return res.status(400).json({ error: 'firstName, email and password required' });
+      const hashed = await bcrypt.hash(password, 10);
+      const user = await User.create({ firstName, lastName, email, password: hashed, role });
+      res.status(201).json({ id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role, createdAt: user.createdAt });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   });
 
-  app.get('/api/settings', (req, res) => {
-    res.json(_settings);
+  app.delete('/api/users/:id', authenticate, async (req, res) => {
+    try {
+      const requester = req.user?.sub ? await User.findByPk(req.user.sub) : null;
+      if (!requester || requester.role !== 'admin') return res.status(403).json({ error: 'Admin required' });
+      const id = Number(req.params.id);
+      const user = await User.findByPk(id);
+      if (!user) return res.status(404).json({ error: 'user not found' });
+      await user.destroy();
+      res.json({ ok: true });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   });
 
-  app.post('/api/settings', (req, res) => {
-    const body = req.body || {};
-    _settings = { ..._settings, ...body };
-    res.json(_settings);
+  // Settings: key/value persisted in Settings table (admin only)
+  app.get('/api/settings', authenticate, async (req, res) => {
+    try {
+      const requester = req.user?.sub ? await User.findByPk(req.user.sub) : null;
+      if (!requester || requester.role !== 'admin') return res.status(403).json({ error: 'Admin required' });
+      const entries = await Setting.findAll();
+      const settings = {};
+      entries.forEach(e => { settings[e.key] = e.value; });
+      res.json(settings);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   });
 
-  // Simple current-user endpoint (mock)
-  app.get('/api/me', (req, res) => {
-    // In a real app, read token/session. Here we return admin for dev convenience.
-    res.json({ user: _users[0] });
+  app.post('/api/settings', authenticate, async (req, res) => {
+    try {
+      const requester = req.user?.sub ? await User.findByPk(req.user.sub) : null;
+      if (!requester || requester.role !== 'admin') return res.status(403).json({ error: 'Admin required' });
+      const body = req.body || {};
+      // accept either { key: value } pairs or { entries: [{key, value}, ...] }
+      if (Array.isArray(body.entries)) {
+        for (const e of body.entries) await Setting.upsert({ key: e.key, value: e.value });
+      } else {
+        for (const [k, v] of Object.entries(body)) {
+          await Setting.upsert({ key: k, value: v });
+        }
+      }
+      const entries = await Setting.findAll();
+      const settings = {};
+      entries.forEach(e => { settings[e.key] = e.value; });
+      res.json(settings);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   });
 
-  app.post('/api/me', (req, res) => {
-    const body = req.body || {};
-    // merge into first user
-    _users[0] = { ..._users[0], ...body };
-    res.json({ user: _users[0] });
+  // Current user endpoints (uses JWT from authenticate)
+  app.get('/api/me', authenticate, async (req, res) => {
+    try {
+      const uid = req.user?.sub;
+      if (!uid) return res.status(401).json({ error: 'Missing user' });
+      const user = await User.findByPk(uid, { attributes: ['id', 'firstName', 'lastName', 'email', 'role', 'createdAt'] });
+      res.json({ user });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post('/api/me', authenticate, async (req, res) => {
+    try {
+      const uid = req.user?.sub;
+      if (!uid) return res.status(401).json({ error: 'Missing user' });
+      const body = req.body || {};
+      const allowed = ['firstName', 'lastName', 'email', 'password'];
+      const updateData = {};
+      for (const k of allowed) {
+        if (body[k] !== undefined) {
+          if (k === 'password') updateData.password = await bcrypt.hash(body.password, 10);
+          else updateData[k] = body[k];
+        }
+      }
+      await User.update(updateData, { where: { id: uid } });
+      const user = await User.findByPk(uid, { attributes: ['id', 'firstName', 'lastName', 'email', 'role', 'createdAt'] });
+      res.json({ user });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   });
 }
 
