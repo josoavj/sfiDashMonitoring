@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { ThemeProvider, CssBaseline } from '@mui/material'
+import { CssBaseline } from '@mui/material'
+import { ThemeProvider } from '@mui/material/styles'
 import { SignUpComponent } from './components/SignUpComponent'
 import { LogInComponent } from './components/LogInComponent'
 import { DataVisualization } from './components/DataVisualization'
