@@ -11,7 +11,7 @@ function App() {
             <CssBaseline />
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<Navigate to="/auth/signup" replace />} />
+                    <Route path="/" element={<Navigate to="/visualization" replace />} />
                     <Route path="/auth/signup" element={<SignUpComponent />} />
                     <Route path="/auth/login" element={<LogInComponent />} />
                     <Route path="/visualization" element={<DataVisualization />} />
