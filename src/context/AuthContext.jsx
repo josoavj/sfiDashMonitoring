@@ -40,9 +40,8 @@ export function AuthProvider({ children }) {
             throw new Error(err.message || 'Erreur inscription')
         }
         const data = await res.json()
-        localStorage.setItem('accessToken', data.accessToken)
-        localStorage.setItem('refreshToken', data.refreshToken)
-        setUser({ accessToken: data.accessToken })
+        // NOTE: signup does NOT auto-login the user. The flow is: signup -> go to login page -> login
+        // Return server data so caller can show a notification and redirect.
         return data
     }
 

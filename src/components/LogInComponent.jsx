@@ -25,7 +25,8 @@ export function LogInComponent() {
         setError(null)
         try {
             await login(form.email, form.password)
-            navigate('/')
+            // After successful login navigate to DataVisualization
+            navigate('/visualization')
         } catch (err) {
             setError(err.message)
         } finally {

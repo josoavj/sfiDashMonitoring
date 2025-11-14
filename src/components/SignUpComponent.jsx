@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Box, Grid, Stack, Typography, Button } from '@mui/material'
+import { Box, Grid, Stack, Typography, Button, Snackbar, Alert } from '@mui/material'
 import { InputFormAuth } from './custom-elements/InputFormAuth'
 import { useState, useContext } from 'react'
 import AuthContext from '../context/AuthContext'
@@ -17,6 +17,8 @@ export function SignUpComponent() {
     const [form, setForm] = useState({ first_name: '', last_name: '', email: '', password: '' })
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
+    const [notify, setNotify] = useState({ open: false, severity: 'success', message: '' })
+
     function handleClick() {
         navigate('/auth/login')
     }
@@ -31,80 +33,76 @@ export function SignUpComponent() {
         setError(null)
         try {
             await signup(form.first_name, form.last_name, form.email, form.password)
-            navigate('/')
+            setNotify({ open: true, severity: 'success', message: 'Compte créé avec succès. Veuillez vous connecter.' })
+            // redirect to login after short delay to show notification
+            setTimeout(() => navigate('/auth/login'), 1200)
         } catch (err) {
             setError(err.message)
+            setNotify({ open: true, severity: 'error', message: err.message })
         } finally {
             setLoading(false)
         }
     }
+
     return (
-        <Grid component="form" onSubmit={handleSubmit} container spacing={2} sx={{ p: 2, width: '100%', height: '95vh' }}>
-            <Grid size={7.5} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 4 }}>
-                <Box component="img" src="/images/sfi_logo_secondary.png" sx={{ alignSelf: 'start', width: 55 }} />
+        <>
+            <Grid component="form" onSubmit={handleSubmit} container spacing={2} sx={{ p: 2, width: '100%', height: '95vh' }}>
+                <Grid size={7.5} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 4 }}>
+                    <Box component="img" src="/images/sfi_logo_secondary.png" sx={{ alignSelf: 'start', width: 55 }} />
 
-                <Stack
-                    spacing={5}
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        mt: 1,
-                        width: '75%',
-                    }}>
-                    <Stack spacing={1} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <Typography fontSize={30} fontWeight={600}>
-                            Rejoindre le dashboard
-                        </Typography>
-
-                        <Typography fontSize={14} fontWeight={400} sx={{ color: '#808080' }}>
-                            Rejoignez-nous maintenant pour rationaliser votre expérience dès le premier jour.
-                        </Typography>
-                    </Stack>
-
-                    {/* Section formulaire */}
-                    <Stack spacing={4} sx={{ width: '80%' }}>
-                        {inputItems.map((item, idx) => (
-                            <InputFormAuth key={idx} type={item.type} name={item.name} label={item.label} value={form[item.name] || ''} onChange={handleChange} />
-                        ))}
-                    </Stack>
-
-                    <Stack spacing={2} sx={{ display: 'flex', alignItems: 'center', width: '80%' }}>
-                        <Button
-                            type="submit"
-                            disabled={loading}
-                            variant="contained"
-                            sx={{ width: '100%', fontSize: 17, textTransform: 'none' }}
-                            size="large">
-                            {loading ? "Inscription..." : "S'inscrire"}
-                        </Button>
-                        {error && <Typography color="error">{error}</Typography>}
-
-                        {/* Pas de compte? */}
-                        <Typography sx={{ color: '#B3B3B3' }}>
-                            Vous avez déjà un compte ?{' '}
-                            <Typography
-                                component="span"
-                                fontWeight={500}
-                                onClick={handleClick}
-                                sx={{ textDecoration: 'underline', color: 'primary.main', cursor: 'pointer' }}>
-                                Connectez-vous
+                    <Stack
+                        spacing={5}
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            mt: 1,
+                            width: '75%',
+                        }}>
+                        <Stack spacing={1} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <Typography fontSize={30} fontWeight={600}>
+                                Rejoindre le dashboard
                             </Typography>
-                        </Typography>
+
+                            <Typography fontSize={14} fontWeight={400} sx={{ color: '#808080' }}>
+                                Rejoignez-nous maintenant pour rationaliser votre expérience dès le premier jour.
+                            </Typography>
+                        </Stack>
+
+                        {/* Section formulaire */}
+                        <Stack spacing={4} sx={{ width: '80%' }}>
+                            {inputItems.map((item, idx) => (
+                                <InputFormAuth key={idx} type={item.type} name={item.name} label={item.label} value={form[item.name] || ''} onChange={handleChange} />
+                            ))}
+                        </Stack>
+
+                        <Stack spacing={2} sx={{ display: 'flex', alignItems: 'center', width: '80%' }}>
+                            <Button type="submit" disabled={loading} variant="contained" sx={{ width: '100%', fontSize: 17, textTransform: 'none' }} size="large">
+                                {loading ? "Inscription..." : "S'inscrire"}
+                            </Button>
+                            {error && <Typography color="error">{error}</Typography>}
+
+                            {/* Pas de compte? */}
+                            <Typography sx={{ color: '#B3B3B3' }}>
+                                Vous avez déjà un compte ?{' '}
+                                <Typography component="span" fontWeight={500} onClick={handleClick} sx={{ textDecoration: 'underline', color: 'primary.main', cursor: 'pointer' }}>
+                                    Connectez-vous
+                                </Typography>
+                            </Typography>
+                        </Stack>
                     </Stack>
-                </Stack>
+                </Grid>
+
+                <Grid size={4.5} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                    <Box component="img" src="/images/right_side.png" sx={{ height: '100%', objectFit: 'cover' }} />
+                </Grid>
             </Grid>
 
-            <Grid
-                size={4.5}
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100%',
-                }}>
-                <Box component="img" src="/images/right_side.png" sx={{ height: '100%', objectFit: 'cover' }} />
-            </Grid>
-        </Grid>
+            <Snackbar open={notify.open} autoHideDuration={4000} onClose={() => setNotify({ ...notify, open: false })}>
+                <Alert onClose={() => setNotify({ ...notify, open: false })} severity={notify.severity} sx={{ width: '100%' }}>
+                    {notify.message}
+                </Alert>
+            </Snackbar>
+        </>
     )
 }

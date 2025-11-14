@@ -55,11 +55,17 @@ if [ ! -d "backend" ]; then
 fi
 echo -e "${GREEN}  ✓ Dossier backend trouvé${NC}"
 
-if [ ! -d "frontend" ]; then
-  echo -e "${RED}❌ Dossier 'frontend' introuvable${NC}"
+FRONTEND_DIR=""
+if [ -d "frontend" ]; then
+  FRONTEND_DIR="frontend"
+  echo -e "${GREEN}  ✓ Dossier frontend trouvé: ./frontend${NC}"
+elif [ -f "index.html" ] && [ -d "src" ]; then
+  FRONTEND_DIR="."
+  echo -e "${GREEN}  ✓ Frontend détecté à la racine du projet${NC}"
+else
+  echo -e "${RED}❌ Dossier 'frontend' introuvable et aucun frontend en racine détecté (index.html + src/)${NC}"
   exit 1
 fi
-echo -e "${GREEN}  ✓ Dossier frontend trouvé${NC}"
 
 # Install dependencies if missing
 if [ ! -d "backend/node_modules" ]; then
@@ -69,12 +75,12 @@ if [ ! -d "backend/node_modules" ]; then
 fi
 echo -e "${GREEN}  ✓ Dépendances backend OK${NC}"
 
-if [ ! -d "frontend/node_modules" ]; then
-  echo -e "${YELLOW}  ⚠ Dépendances frontend manquantes${NC}"
+if [ ! -d "$FRONTEND_DIR/node_modules" ]; then
+  echo -e "${YELLOW}  ⚠ Dépendances frontend manquantes (${FRONTEND_DIR})${NC}"
   echo -e "${BLUE}  📦 Installation en cours (frontend)...${NC}"
-  (cd frontend && npm install)
+  (cd "$FRONTEND_DIR" && npm install)
 fi
-echo -e "${GREEN}  ✓ Dépendances frontend OK${NC}\n"
+echo -e "${GREEN}  ✓ Dépendances frontend OK (${FRONTEND_DIR})${NC}\n"
 
 # Check .env
 if [ ! -f "backend/.env" ]; then
@@ -96,9 +102,10 @@ if ! kill -0 $BACKEND_PID 2>/dev/null; then
 fi
 echo -e "${GREEN}  ✓ Backend démarré (PID: $BACKEND_PID)${NC}\n"
 
-echo -e "${BLUE}🌐 Démarrage du frontend...${NC}"
-cd frontend
-nohup npm run dev > ../logs/frontend.log 2>&1 &
+echo -e "${BLUE}🌐 Démarrage du frontend (${FRONTEND_DIR})...${NC}"
+cd "$FRONTEND_DIR"
+# Redirect frontend logs to root logs directory
+nohup npm run dev > "$SCRIPT_DIR/logs/frontend.log" 2>&1 &
 FRONTEND_PID=$!
 cd "$SCRIPT_DIR"
 
