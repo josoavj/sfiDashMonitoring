@@ -1,0 +1,113 @@
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { Session } from "../models/Session.js";
+import { User } from "../models/User.js";
+
+const ACCESS_TOKEN_EXPIRATION = "15m";
+
+const REFRESH_TOKEN_EXPIRATION = "7d";
+
+// === REGISTER ===
+export const signUp = async (req, res) => {
+  try {
+    const { firstName, lastName, email, password } = req.body;
+
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) return res.status(400).json({ message: "Email déjà utilisé" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword
+    });
+
+    // Génération du JWT
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      name: user.firstName,
+    };
+
+    console.log(process.env.JWT_SECRET)
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRATION });
+    const refreshToken = jwt.sign({ sub: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRATION });
+
+    // Création d'une session
+    await Session.create({
+      userId: user.id,
+      userAgent: req.headers["user-agent"],
+      ipAddress: req.ip,
+      refreshToken
+    });
+
+    return res.status(201).json({
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      accessToken,
+      refreshToken
+    });
+
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+// === LOGIN ===
+export const signIn = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(401).json({ message: "Identifiants invalides" });
+
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) return res.status(401).json({ message: "Mot de passe incorrect" });
+
+    // Génération du JWT
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      name: user.firstName,
+    };
+
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRATION });
+    const refreshToken = jwt.sign({ sub: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRATION });
+
+    // Création d'une session
+    await Session.create({
+      userId: user.id,
+      userAgent: req.headers["user-agent"],
+      ipAddress: req.ip,
+      refreshToken
+    });
+
+    return res.status(200).json({
+      message: "Connexion réussie",
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+// === LOGOUT ===
+export const signOut = async (req, res) => {
+  try {
+    const userId = req.user.sub;
+
+    await Session.update({ revoked: true }, { where: { userId } });
+
+    return res.status(200).json({ message: "Déconnexion réussie" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Erreur serveur" });
+  }
+};
