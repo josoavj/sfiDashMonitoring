@@ -1,21 +1,29 @@
-import { useRef, useState } from 'react'
-import { AppBar, Toolbar, Box, Stack, Button, IconButton, Breadcrumbs, Link, Typography, Grid } from '@mui/material'
-import { KeyboardArrowDown, KeyboardArrowUp, NavigateNext, AccessTime, Loop } from '@mui/icons-material'
-import { AccountCircle, Notifications } from '@mui/icons-material'
+import { useState } from 'react'
+import { Box, Stack, Breadcrumbs, Link, Typography, Grid } from '@mui/material'
+import { NavigateNext, AccessTime, Loop } from '@mui/icons-material'
+import { DataMainView } from './dashboard-elements/DataMainView'
+import { MaxBytes } from './dashboard-elements/MaxBytes'
+import { useNav } from '../context/NavContext'
+const makeIcon = (IconComp) => <IconComp fontSize="15" sx={{ mx: 2 }} />
+
 export function DataVisualization() {
-    const [subItemActive, setSubItemActive] = useState({ title: 'Monitoring des services actifs', page: 'service' })
+    const { subItemActive } = useNav()
 
     const breadcrumbs = [
-        <Link color="text.dark" underline="none" fontSize={15}>
+        <Link color="text.dark" underline="none" fontSize={15} key="home">
             Accueil
         </Link>,
-        <Link color="text.dark" underline="none" fontSize={15}>
+        <Link color="text.dark" underline="none" fontSize={15} key="dash">
             Tableau de bord
         </Link>,
     ]
 
     if (subItemActive) {
-        breadcrumbs.push(<Typography color="primary.lighter" fontSize={15}>{subItemActive.title}</Typography>)
+        breadcrumbs.push(
+            <Typography color="primary.lighter" fontSize={15} key="sub">
+                {subItemActive.title}
+            </Typography>
+        )
     }
 
     return (
