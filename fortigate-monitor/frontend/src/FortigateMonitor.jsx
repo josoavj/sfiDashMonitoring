@@ -22,6 +22,8 @@ export default function FortigateMonitor() {
     const [perPage, setPerPage] = useState(25);
     const [totalHits, setTotalHits] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [searchError, setSearchError] = useState(null);
+    const [metricsError, setMetricsError] = useState(null);
     const [timeRange, setTimeRange] = useState('1h');
     const [health, setHealth] = useState(null);
     const [wsConnected, setWsConnected] = useState(false);
@@ -134,7 +136,7 @@ export default function FortigateMonitor() {
 
     const fetchAllMetrics = async () => {
         const range = getTimeRange();
-
+        setMetricsError(null);
         try {
             const [healthRes, statsRes, bandwidthRes, topBwRes, protocolsRes, securityRes] = await Promise.all([
                 fetch(`${API_URL}/health`),
@@ -142,46 +144,57 @@ export default function FortigateMonitor() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ timeRange: range })
-                }),
+                }).catch(e => ({ ok: false, _err: e })),
                 fetch(`${API_URL}/bandwidth`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ timeRange: range, interval: '5m' })
-                }),
+                }).catch(e => ({ ok: false, _err: e })),
                 fetch(`${API_URL}/top-bandwidth`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ timeRange: range, size: 10 })
-                }),
+                }).catch(e => ({ ok: false, _err: e })),
                 fetch(`${API_URL}/protocols`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ timeRange: range })
-                }),
+                }).catch(e => ({ ok: false, _err: e })),
                 fetch(`${API_URL}/security-events`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ timeRange: range })
-                })
+                }).catch(e => ({ ok: false, _err: e }))
             ]);
+
+            // parse safely: if some responses failed, ignore them and continue
+            const safeJson = async (r) => {
+                if (!r) return null;
+                if (r.ok === false && r._err) return { error: r._err.message || String(r._err) };
+                try { return await r.json(); } catch (e) { return { error: e.message }; }
+            };
 
             const [healthData, statsData, bandwidthData, topBwData, protocolsData, securityData] = await Promise.all([
-                healthRes.json(),
-                statsRes.json(),
-                bandwidthRes.json(),
-                topBwRes.json(),
-                protocolsRes.json(),
-                securityRes.json()
+                safeJson(healthRes),
+                safeJson(statsRes),
+                safeJson(bandwidthRes),
+                safeJson(topBwRes),
+                safeJson(protocolsRes),
+                safeJson(securityRes)
             ]);
 
-            setHealth(healthData);
-            setStats(statsData);
-            setBandwidth(bandwidthData);
-            setTopBandwidth(topBwData);
-            setProtocols(protocolsData);
-            setSecurityEvents(securityData);
+            if (healthData && !healthData.error) setHealth(healthData);
+            if (statsData && !statsData.error) setStats(statsData);
+            if (bandwidthData && !bandwidthData.error) setBandwidth(bandwidthData);
+            if (topBwData && !topBwData.error) setTopBandwidth(topBwData);
+            if (protocolsData && !protocolsData.error) setProtocols(protocolsData);
+            if (securityData && !securityData.error) setSecurityEvents(securityData);
+            // if at least one had an error, surface it
+            const errs = [healthData, statsData, bandwidthData, topBwData, protocolsData, securityData].filter(x => x && x.error).map(x => x.error);
+            if (errs.length > 0) setMetricsError(errs.join(' | '));
         } catch (error) {
             console.error('Erreur fetch metrics:', error);
+            setMetricsError(error.message || String(error));
         }
     };
 
@@ -304,6 +317,18 @@ export default function FortigateMonitor() {
                         )}
                     </div>
                 </div>
+
+                {/* Quick actions */}
+                <div className="mt-4 flex items-center gap-2">
+                    <a href="/?page=test-data" className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg shadow hover:from-blue-500 hover:to-indigo-500">Interface Test Data</a>
+                    <button onClick={() => fetchAllMetrics()} className="px-3 py-2 bg-slate-700 rounded-lg hover:bg-slate-600">Rafraîchir métriques</button>
+                </div>
+
+                {metricsError && (
+                    <div className="mt-4 p-3 bg-red-900/60 text-red-200 rounded-lg border border-red-700">
+                        <strong>Erreur métriques:</strong> {metricsError}
+                    </div>
+                )}
 
                 {/* Time Range */}
                 <div className="flex gap-2 mt-4 items-center">
