@@ -299,7 +299,7 @@ export function IpView() {
                         />
                         <Divider />
                         <CardContent sx={{ p: 2 }}>
-                            <Box sx={{ height: 380, '& .MuiDataGrid-root': { border: 'none' } }}>
+                            <Box sx={{ height: 520, '& .MuiDataGrid-root': { border: 'none' } }}>
                                 <DataGrid 
                                     columns={sourceColumn} 
                                     rows={srcRows} 
@@ -372,7 +372,7 @@ export function IpView() {
                                     Cliquez sur une ligne pour analyser la bande passante
                                 </Typography>
                             </Paper>
-                            <Box sx={{ height: 320, '& .MuiDataGrid-root': { border: 'none' } }}>
+                            <Box sx={{ height: 520, '& .MuiDataGrid-root': { border: 'none' } }}>
                                 <DataGrid 
                                     columns={destinationColumn} 
                                     rows={destRows} 
@@ -488,7 +488,7 @@ export function IpView() {
                                         series={bwSeries}
                                         grid={{ vertical: true, horizontal: true }}
                                         margin={{ left: 40, right: 10, top: 40, bottom: 30 }}
-                                        height={220}
+                                        height={340}
                                         sx={{ 
                                             '& .MuiAreaElement-root': { fillOpacity: 0.3 }, 
                                             '& .MuiLineElement-root': { strokeWidth: 2.5 } 
@@ -504,8 +504,8 @@ export function IpView() {
                                         }}
                                     />
                                 ) : (
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 220 }}>
-                                        <CircularProgress size={32} />
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 340 }}>
+                                        <CircularProgress size={36} />
                                     </Box>
                                 )}
                             </Paper>
