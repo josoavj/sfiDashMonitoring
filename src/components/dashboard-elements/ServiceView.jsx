@@ -1,4 +1,4 @@
-import { Grid, Typography, Box, CircularProgress } from '@mui/material'
+import { Grid, Typography, Box, CircularProgress, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { LineChart } from '@mui/x-charts'
 import { onThrottled } from '../../socketClient'
@@ -9,6 +9,10 @@ export function ServiceView() {
 	const [loading, setLoading] = useState(false)
 	const [labels, setLabels] = useState([])
 	const [series, setSeries] = useState([])
+	const [topNSelection, setTopNSelection] = useState(5)
+	const [topN, setTopN] = useState(5) // effective (debounced)
+	const [windowSize, setWindowSize] = useState(60)
+	const topNDebounceRef = useRef(null)
 
 	// keep series data in a ref to append without causing re-creation issues
 	const seriesRef = useRef({}) // key -> array of numbers
@@ -26,8 +30,8 @@ export function ServiceView() {
 				const lab = `${hh}:${mm}:${ss}`
 
 				const tops = payload?.topApplications || payload?.top || []
-				// determine top keys (limit to 5)
-				const keys = (tops || []).slice(0, 5).map((a) => a.key || a.name || a.ip || String(a))
+				// determine top keys (limit to topN)
+				const keys = (tops || []).slice(0, topN).map((a) => a.key || a.name || a.ip || String(a))
 
 				// ensure seriesRef contains entries for keys
 				keys.forEach((k) => { if (!seriesRef.current[k]) seriesRef.current[k] = [] })
@@ -38,7 +42,7 @@ export function ServiceView() {
 					const bytes = item?.bytes?.value || item?.value || item?.count || 0
 					const mb = Math.round((bytes / 1024 / 1024) * 100) / 100
 					seriesRef.current[k].push(mb)
-					if (seriesRef.current[k].length > 60) seriesRef.current[k].shift()
+					if (seriesRef.current[k].length > windowSize) seriesRef.current[k].shift()
 				})
 
 				// keep labels in sync
@@ -49,7 +53,7 @@ export function ServiceView() {
 
 				// rebuild series array for chart
 				const keysNow = Object.keys(seriesRef.current)
-				const newSeries = keysNow.map((k, i) => ({ data: seriesRef.current[k].slice(-60), label: k, color: COLORS[i % COLORS.length] }))
+				const newSeries = keysNow.map((k, i) => ({ data: seriesRef.current[k].slice(-windowSize), label: k, color: COLORS[i % COLORS.length] }))
 				setSeries(newSeries)
 				trackedKeysRef.current = keys
 			} catch (err) {
@@ -59,7 +63,7 @@ export function ServiceView() {
 
 		const unsubscribe = onThrottled('top-bandwidth', handler, 1000)
 		return () => { if (typeof unsubscribe === 'function') unsubscribe() }
-	}, [])
+	}, [topN, windowSize])
 
 	// initial fetch to populate lists (non-blocking)
 	useEffect(() => {
@@ -74,7 +78,7 @@ export function ServiceView() {
 				const data = await res.json()
 				// pre-seed seriesRef with current topApplications if present
 				const tops = data?.applications || data?.topApplications || []
-				tops.slice(0, 5).forEach((a) => {
+				tops.slice(0, topN).forEach((a) => {
 					const k = a.key || a.name || a.ip || String(a)
 					const bytes = a?.bytes?.value || a?.value || 0
 					seriesRef.current[k] = [Math.round((bytes / 1024 / 1024) * 100) / 100]
@@ -87,12 +91,38 @@ export function ServiceView() {
 				setLoading(false)
 			}
 		})()
-	}, [])
+	}, [topN, windowSize])
+
+	// debounce UI selection for topN to avoid flicker
+	useEffect(() => {
+		if (topNDebounceRef.current) clearTimeout(topNDebounceRef.current)
+		topNDebounceRef.current = setTimeout(() => setTopN(topNSelection), 350)
+		return () => { if (topNDebounceRef.current) clearTimeout(topNDebounceRef.current) }
+	}, [topNSelection])
 
 	if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center' }}><CircularProgress /></Box>
 
 	return (
 		<Grid container spacing={2}>
+			<Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+				<FormControl size="small" sx={{ minWidth: 120 }}>
+					<InputLabel id="topn-label">Top N</InputLabel>
+					<Select labelId="topn-label" value={topNSelection} label="Top N" onChange={(e) => setTopNSelection(Number(e.target.value))}>
+						<MenuItem value={3}>Top 3</MenuItem>
+						<MenuItem value={5}>Top 5</MenuItem>
+						<MenuItem value={10}>Top 10</MenuItem>
+					</Select>
+				</FormControl>
+
+				<FormControl size="small" sx={{ minWidth: 140 }}>
+					<InputLabel id="window-label">Fenêtre (points)</InputLabel>
+					<Select labelId="window-label" value={windowSize} label="Fenêtre (points)" onChange={(e) => setWindowSize(Number(e.target.value))}>
+						<MenuItem value={30}>30 points</MenuItem>
+						<MenuItem value={60}>60 points</MenuItem>
+						<MenuItem value={120}>120 points</MenuItem>
+					</Select>
+				</FormControl>
+			</Grid>
 			<Grid item xs={12}>
 				{labels.length && series.length ? (
 					<LineChart
