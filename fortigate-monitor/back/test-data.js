@@ -106,7 +106,7 @@ async function testData() {
                 console.log(`     ${bucket.key_as_string} → ${bts} bytes (${(bts/1024).toFixed(1)} KB)`);
             });
 
-            console.log('\n   Par protocole (top 10 by bytes):');
+            console.log('\n   Par protocole (top 20 by bytes):');
             (bwAgg.aggregations?.by_protocol?.buckets || []).forEach(p => {
                 const bts = p.bytes?.value || 0;
                 console.log(`     - ${p.key}: ${bts} bytes`);
