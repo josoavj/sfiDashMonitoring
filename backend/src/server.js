@@ -22,6 +22,7 @@ mountApiRoutes(app, esClient, logService);
 mountAuthRoutes(app);
 
 const PORT = process.env.PORT || 3001;
+const HOST = process.env.HOST || '0.0.0.0';
 const server = http.createServer(app);
 
 const allowedOrigins = process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : ['http://localhost:3000', 'http://localhost:5173'];
@@ -65,10 +66,10 @@ io.on('connection', (socket) => {
 logService.startLogStreaming(io, esClient);
 
 async function init() {
-  try {
+    try {
     await sequelize.sync();
-    server.listen(PORT, () => {
-      console.log(`Server listening on http://localhost:${PORT}`);
+    server.listen(PORT, HOST, () => {
+      console.log(`Server listening on http://${HOST}:${PORT}`);
     });
   } catch (err) {
     console.error('Erreur initialisation base de données:', err);
