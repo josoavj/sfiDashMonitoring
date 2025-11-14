@@ -75,18 +75,7 @@ function startLogStreaming(io, esClient, intervalMs = 2000) {
           const topProtocols = Object.keys(byProtocol).map(k => ({ protocol: k, bytes: byProtocol[k].bytes, count: byProtocol[k].count })).sort((a, b) => b.bytes - a.bytes).slice(0, 10);
           const topApplications = Object.keys(byApp).map(k => ({ name: k, bytes: byApp[k].bytes, count: byApp[k].count })).sort((a, b) => b.bytes - a.bytes).slice(0, 10);
 
-          // Emit top-bandwidth to everyone
           io.emit('top-bandwidth', { timestamp: new Date().toISOString(), intervalMs, top, topProtocols, topApplications });
-
-          // Additionally emit per-IP bandwidth delta to rooms `ip:<ip>` so subscribed clients receive updates
-          try {
-            for (const [ip, data] of Object.entries(bySource)) {
-              // sending to a room with no members is a no-op
-              io.to(`ip:${ip}`).emit('ip-bandwidth', { ip, bytes: data.bytes, count: data.count, timestamp: new Date().toISOString(), intervalMs });
-            }
-          } catch (e) {
-            console.error('Erreur en émettant ip-bandwidth:', e?.message || e);
-          }
           console.log(`📶 Bandwidth delta envoyé: total ${sumTotal} bytes (sent ${sumSent} / recv ${sumReceived}), top=${top.length}`);
         }
       } catch (err) {
