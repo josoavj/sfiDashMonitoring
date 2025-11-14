@@ -1,17 +1,8 @@
-// Try to load the new Tailwind PostCSS adapter if available, otherwise fall back to the
-// legacy `tailwindcss` plugin. This helps in environments where versions differ.
-let tailwindPlugin;
-try {
-  tailwindPlugin = require('@tailwindcss/postcss');
-} catch (err) {
-  // fallback to classic tailwindcss plugin
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  tailwindPlugin = require('tailwindcss');
-}
-
+// When using the @tailwindcss/vite plugin, Tailwind's transform is handled by Vite.
+// Keep PostCSS config minimal to only run autoprefixer so we avoid duplicate Tailwind
+// processing. If you prefer PostCSS-driven Tailwind, restore the tailwind plugin here.
 module.exports = {
   plugins: [
-    tailwindPlugin,
-    require('autoprefixer'),
-  ],
+    require('autoprefixer')
+  ]
 };

@@ -59,8 +59,68 @@ async function testData() {
                     console.log(`   ✅ ${field.padEnd(20)} : ${count} docs`);
                 }
             } catch (e) {
-                // Champ n'existe pas
+                console.debug(`   ❌ ${field.padEnd(20)} : ${e.message}`);
             }
+        }
+
+        // 2. Analyse détaillée de la bande passante (somme, top sources, histogramme)
+        console.log('\n2️⃣ Analyse détaillée de la bande passante:');
+        try {
+            // Window: De 06h30 aujourd'hui jusqu'à maintenant 
+            const now = new Date();
+            const start = new Date(now);
+            start.setHours(6, 30, 0, 0);
+            // If start is in the future (we're before 06:30), use yesterday 06:30
+            if (start > now) {
+                start.setDate(start.getDate() - 1);
+            }
+            const range = { gte: start.toISOString(), lte: now.toISOString() };
+            const bwAgg = await client.search({
+                index: process.env.ES_INDEX,
+                size: 0,
+                body: {
+                    query: { range: { '@timestamp': range } },
+                    aggs: {
+                        total_bytes: { sum: { field: 'network.bytes' } },
+                        avg_bytes: { avg: { field: 'network.bytes' } },
+                        top_sources_by_bytes: {
+                            terms: { field: 'source.ip', size: 20 },
+                            aggs: { bytes: { sum: { field: 'network.bytes' } } }
+                        },
+                        bandwidth_over_time: {
+                            date_histogram: { field: '@timestamp', fixed_interval: '1m' },
+                            aggs: { bytes: { sum: { field: 'network.bytes' } } }
+                        },
+                        by_protocol: { terms: { field: 'network.protocol', size: 20 }, aggs: { bytes: { sum: { field: 'network.bytes' } } } }
+                    }
+                }
+            });
+
+            const tot = bwAgg.aggregations?.total_bytes?.value || 0;
+            const avg = bwAgg.aggregations?.avg_bytes?.value || 0;
+            console.log(`   → Période analysée: ${start.toLocaleString('fr-FR')} → ${now.toLocaleString('fr-FR')}`);
+            console.log(`   → Total octets (network.bytes): ${tot} (${(tot/1024/1024).toFixed(2)} MB)`);
+            console.log(`   → Moyenne octets par doc: ${avg.toFixed(2)}`);
+
+            console.log('\n   Top sources par octets:');
+            (bwAgg.aggregations?.top_sources_by_bytes?.buckets || []).forEach((b, i) => {
+                const bytes = b.bytes?.value || 0;
+                console.log(`     ${i+1}. ${b.key} — ${bytes} bytes (${(bytes/1024/1024).toFixed(2)} MB) — docs: ${b.doc_count}`);
+            });
+
+            console.log('\n   Bande passante (histogramme 1m — last 1h):');
+            (bwAgg.aggregations?.bandwidth_over_time?.buckets || []).slice(-10).forEach(bucket => {
+                const bts = bucket.bytes?.value || 0;
+                console.log(`     ${bucket.key_as_string} → ${bts} bytes (${(bts/1024).toFixed(1)} KB)`);
+            });
+
+            console.log('\n   Par protocole (top 20 by bytes):');
+            (bwAgg.aggregations?.by_protocol?.buckets || []).forEach(p => {
+                const bts = p.bytes?.value || 0;
+                console.log(`     - ${p.key}: ${bts} bytes`);
+            });
+        } catch (e) {
+            console.error('   ❌ Impossible de calculer les agrégations de bande passante:', e.message);
         }
 
         // 3. Champs d'action
@@ -93,7 +153,7 @@ async function testData() {
         }
 
         // 4. Top IPs
-        console.log('\n4️⃣  Top 5 IPs sources:');
+        console.log('\n4️⃣  Top 20 IPs sources:');
         const ipFields = ['source.ip', 'srcip', 'src'];
         for (const field of ipFields) {
             try {
@@ -104,7 +164,7 @@ async function testData() {
                         query: { exists: { field } },
                         aggs: {
                             top_ips: {
-                                terms: { field, size: 5 }
+                                terms: { field, size: 20 }
                             }
                         }
                     }

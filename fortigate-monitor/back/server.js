@@ -12,7 +12,7 @@ const app = express();
 const server = http.createServer(app);
 const allowedOrigins = process.env.FRONTEND_URL
     ? [process.env.FRONTEND_URL]
-    : ['http://localhost:3000'];
+    : ['http://localhost:3000', 'http://localhost:5173'];
 
 const io = new Server(server, {
     cors: {
@@ -630,6 +630,35 @@ app.get('/api/indices', async (req, res) => {
         const indices = await esClient.cat.indices({ format: 'json' });
         res.json(indices.filter(idx => idx.index.startsWith('filebeat')));
     } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Échantillons de documents pour un consommateur (source.ip ou destination.ip)
+app.post('/api/consumer-samples', async (req, res) => {
+    try {
+        const { timeRange, ip, field = 'source.ip', size = 3 } = req.body;
+        if (!ip) return res.status(400).json({ error: 'ip required' });
+
+        const result = await esClient.search({
+            index: process.env.ES_INDEX || 'filebeat-*',
+            body: {
+                size,
+                sort: [{ '@timestamp': { order: 'desc' } }],
+                query: {
+                    bool: {
+                        must: [
+                            { term: { [field]: ip } }
+                        ],
+                        filter: timeRange && timeRange.from && timeRange.to ? [{ range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }] : []
+                    }
+                }
+            }
+        });
+
+        res.json({ hits: result.hits.hits });
+    } catch (error) {
+        console.error('Erreur consumer-samples:', error);
         res.status(500).json({ error: error.message });
     }
 });
