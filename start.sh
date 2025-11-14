@@ -90,7 +90,21 @@ fi
 
 echo -e "${BLUE}📡 Démarrage du backend...${NC}"
 cd backend
-NODE_ENV=development nohup node server.js > ../logs/backend.log 2>&1 &
+# Allow overriding host/domain via env or args
+FRONTEND_DOMAIN=${FRONTEND_DOMAIN:-${1:-sfimonitoring.com}}
+FRONTEND_PORT=${FRONTEND_PORT:-5173}
+BACKEND_PORT=${BACKEND_PORT:-3001}
+NODE_ENV=${NODE_ENV:-production}
+
+export FRONTEND_URL="http://${FRONTEND_DOMAIN}:${FRONTEND_PORT}"
+
+echo -e "${BLUE}  → FRONTEND_URL set to: ${FRONTEND_URL}${NC}"
+
+# Start backend (binds to HOST env if set by server)
+HOST=${HOST:-0.0.0.0}
+export HOST
+echo -e "${BLUE}  → Starting backend on ${HOST}:${BACKEND_PORT} (NODE_ENV=${NODE_ENV})...${NC}"
+FRONTEND_URL=$FRONTEND_URL NODE_ENV=$NODE_ENV PORT=$BACKEND_PORT HOST=$HOST nohup node server.js > ../logs/backend.log 2>&1 &
 BACKEND_PID=$!
 cd "$SCRIPT_DIR"
 
@@ -105,7 +119,10 @@ echo -e "${GREEN}  ✓ Backend démarré (PID: $BACKEND_PID)${NC}\n"
 echo -e "${BLUE}🌐 Démarrage du frontend (${FRONTEND_DIR})...${NC}"
 cd "$FRONTEND_DIR"
 # Redirect frontend logs to root logs directory
-nohup npm run dev > "$SCRIPT_DIR/logs/frontend.log" 2>&1 &
+# Expose frontend to network (--host 0.0.0.0) and set VITE API URL for client
+FRONTEND_API_URL=${FRONTEND_API_URL:-"http://${FRONTEND_DOMAIN}:${BACKEND_PORT}"}
+echo -e "${BLUE}  → Starting frontend dev server on 0.0.0.0:${FRONTEND_PORT} (API=${FRONTEND_API_URL})${NC}"
+VITE_API_URL=$FRONTEND_API_URL nohup npm run dev -- --host 0.0.0.0 --port $FRONTEND_PORT > "$SCRIPT_DIR/logs/frontend.log" 2>&1 &
 FRONTEND_PID=$!
 cd "$SCRIPT_DIR"
 
