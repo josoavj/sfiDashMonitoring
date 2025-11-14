@@ -4,7 +4,7 @@ import { North, South, Refresh } from '@mui/icons-material'
 import { SparklineSource } from '../custom-elements/SparklineSource'
 import { GaugeFlow } from '../custom-elements/GaugeFlow'
 import { useEffect, useState } from 'react'
-import socket from '../../socketClient'
+import { onThrottled } from '../../socketClient'
 
 export function IpView() {
     const [destRows, setDestRows] = useState([])
@@ -53,7 +53,6 @@ export function IpView() {
         const handler = (payload) => {
             try {
                 if (payload?.top) {
-                    // payload.top is expected to be top sources by bytes
                     const rows = (payload.top || []).map((b, i) => ({ id: i + 1, source_netflow: b.ip || b.key || b._key || '-', source_passage_number: b.count || b.doc_count || b.value || 0 }))
                     setSrcRows(rows)
                 }
@@ -62,8 +61,8 @@ export function IpView() {
             }
         }
 
-        socket.on('top-bandwidth', handler)
-        return () => { socket.off('top-bandwidth', handler) }
+        const unsubscribe = onThrottled('top-bandwidth', handler, 1500)
+        return () => { if (typeof unsubscribe === 'function') unsubscribe() }
     }, [])
 
     const now = new Date()
