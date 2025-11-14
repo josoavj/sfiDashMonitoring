@@ -94,6 +94,34 @@ function mountApiRoutes(app, esClient, logService) {
     }
   });
 
+  app.post('/api/bandwidth-by-ip', async (req, res) => {
+    try {
+      const { timeRange, interval = '1m', ip, field = 'source.ip' } = req.body;
+      if (!ip) return res.status(400).json({ error: 'ip required' });
+
+      const result = await esClient.search({
+        index: process.env.ES_INDEX || 'filebeat-*',
+        body: {
+          size: 0,
+          query: {
+            bool: {
+              must: [ { term: { [field]: ip } } ],
+              filter: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }
+            }
+          },
+          aggs: {
+            bandwidth_over_time: { date_histogram: { field: '@timestamp', fixed_interval: interval }, aggs: { total_bytes: { sum: { field: 'network.bytes' } }, sent_bytes: { sum: { field: 'source.bytes' } }, received_bytes: { sum: { field: 'destination.bytes' } } } }
+          }
+        }
+      });
+
+      res.json({ timeline: result.aggregations.bandwidth_over_time.buckets });
+    } catch (err) {
+      console.error('Erreur bandwidth-by-ip:', err.message);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   app.post('/api/top-bandwidth', async (req, res) => {
     try {
       const { timeRange, size = 10, type = 'source' } = req.body;
