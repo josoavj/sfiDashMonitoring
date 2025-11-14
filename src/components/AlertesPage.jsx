@@ -1,5 +1,5 @@
 import { Box, Typography, Paper, Grid, Card, CardHeader, CardContent, Avatar, Chip, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, IconButton, Tooltip, Stack, Alert, AlertTitle } from '@mui/material'
-import { TrendingUp, Warning, Refresh, Signal } from '@mui/icons-material'
+import { TrendingUp, Warning, Refresh, SignalCellularAlt } from '@mui/icons-material'
 import { useEffect, useState, useRef } from 'react'
 import { io } from 'socket.io-client'
 import { alpha } from '@mui/material/styles'
@@ -241,7 +241,7 @@ export function AlertesPage() {
                                                     />
                                                 </TableCell>
                                                 <TableCell align="center">
-                                                    <Signal sx={{ fontSize: 18, color: realtimeData[alert.ip] ? '#52B57D' : '#ccc' }} />
+                                                    <SignalCellularAlt sx={{ fontSize: 18, color: realtimeData[alert.ip] ? '#52B57D' : '#ccc' }} />
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -258,7 +258,7 @@ export function AlertesPage() {
                         <CardHeader
                             avatar={
                                 <Avatar sx={{ bgcolor: alpha('#29BAE2', 0.15), color: '#29BAE2' }}>
-                                    <Signal />
+                                    <SignalCellularAlt />
                                 </Avatar>
                             }
                             title={<Typography variant="h6" fontWeight={600}>Top Consommateurs Temps Réel</Typography>}
