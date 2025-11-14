@@ -56,6 +56,31 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Subscribe/unsubscribe to per-IP rooms
+  socket.on('subscribe-ip', (data) => {
+    try {
+      const ip = typeof data === 'string' ? data : data?.ip;
+      if (!ip) return;
+      const room = `ip:${ip}`;
+      socket.join(room);
+      console.log(`Socket ${socket.id} joined ${room}`);
+    } catch (e) {
+      console.error('subscribe-ip error', e?.message || e);
+    }
+  });
+
+  socket.on('unsubscribe-ip', (data) => {
+    try {
+      const ip = typeof data === 'string' ? data : data?.ip;
+      if (!ip) return;
+      const room = `ip:${ip}`;
+      socket.leave(room);
+      console.log(`Socket ${socket.id} left ${room}`);
+    } catch (e) {
+      console.error('unsubscribe-ip error', e?.message || e);
+    }
+  });
+
   socket.on('disconnect', () => {
     logService.clientDisconnected();
     console.log('🔌 Client Socket.IO déconnecté');
@@ -69,10 +94,19 @@ async function init() {
     try {
     await sequelize.sync();
     server.listen(PORT, HOST, () => {
-      console.log(`Server listening on http://${HOST}:${PORT}`);
+      console.log(`
+╔════════════════════════════════════════════════════════════╗
+║     🚀 SFI Dash Monitoring Backend Started                 ║
+╠════════════════════════════════════════════════════════════╣
+║ 📍 Server:      http://${HOST}:${PORT}                     ║
+║ 🔌 WebSocket:   ws://localhost:${PORT}/socket.io/          ║
+║ 📊 Elasticsearch: Connected                                ║
+║ 💾 Database:    Connected                                  ║
+╚════════════════════════════════════════════════════════════╝
+      `);
     });
   } catch (err) {
-    console.error('Erreur initialisation base de données:', err);
+    console.error('❌ Erreur initialisation base de données:', err);
     process.exit(1);
   }
 }

@@ -1,8 +1,28 @@
 import { io } from 'socket.io-client'
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const SOCKET_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_WS_URL || 'http://localhost:3001'
+console.log('[socketClient] Attempting to connect to:', SOCKET_URL)
 
-const socket = io(SOCKET_URL, { transports: ['websocket', 'polling'] })
+const socket = io(SOCKET_URL, {
+  transports: ['websocket', 'polling'],
+  reconnection: true,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  reconnectionAttempts: 5,
+  autoConnect: true
+})
+
+socket.on('connect', () => {
+  console.log('[socketClient] ✅ Connected successfully', socket.id)
+})
+
+socket.on('connect_error', (error) => {
+  console.warn('[socketClient] ❌ Connection error:', error.message)
+})
+
+socket.on('disconnect', (reason) => {
+  console.warn('[socketClient] ⚠️ Disconnected:', reason)
+})
 
 // Simple throttled subscriber registry
 const throttles = new Map() // event -> { ms, timer, lastPayload, handlers: Set }
