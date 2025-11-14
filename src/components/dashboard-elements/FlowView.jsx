@@ -1,6 +1,6 @@
 import { DataGrid } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
-import socket from '../../socketClient'
+import { onThrottled } from '../../socketClient'
 
 export function FlowView() {
     const [rows, setRows] = useState([])
@@ -54,8 +54,8 @@ export function FlowView() {
             }
         }
 
-        socket.on('new-logs', handler)
-        return () => { socket.off('new-logs', handler) }
+    const unsubscribe = onThrottled('new-logs', handler, 1000)
+    return () => { if (typeof unsubscribe === 'function') unsubscribe() }
     }, [])
 
     return (
