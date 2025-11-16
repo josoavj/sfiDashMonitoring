@@ -17,7 +17,8 @@ export function FlowView() {
         { 
             field: 'timespan', 
             headerName: 'DATE & HEURE', 
-            flex: 0.9,
+            flex: 0.7,
+            minWidth: 90,
             renderCell: (params) => {
                 const date = new Date(params.value)
                 const formattedDate = date.toLocaleDateString('fr-FR', { 
@@ -41,20 +42,22 @@ export function FlowView() {
         { 
             field: 'ipsource', 
             headerName: 'IP SOURCE', 
-            flex: 0.65,
+            flex: 0.5,
+            minWidth: 70,
             renderCell: (params) => (
-                <Stack direction="row" spacing={1} alignItems="center">
-                    <Avatar sx={{ width: 28, height: 28, bgcolor: alpha('#52B57D', 0.2), fontSize: 12 }}>
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                    <Avatar sx={{ width: 24, height: 24, bgcolor: alpha('#52B57D', 0.2), fontSize: 10 }}>
                         <Typography variant="caption" fontWeight={700} sx={{ color: '#52B57D' }}>S</Typography>
                     </Avatar>
-                    <Typography variant="body2" fontWeight={500}>{params.value}</Typography>
+                    <Typography variant="body2" fontWeight={500} sx={{ fontSize: '0.75rem' }}>{params.value}</Typography>
                 </Stack>
             )
         },
         { 
             field: 'source_port', 
-            headerName: 'PORT SOURCE', 
-            flex: 0.5,
+            headerName: 'P.SRC', 
+            flex: 0.35,
+            minWidth: 45,
             renderCell: (params) => (
                 <Chip 
                     label={params.value} 
@@ -63,28 +66,31 @@ export function FlowView() {
                         bgcolor: alpha('#52B57D', 0.15), 
                         color: '#52B57D',
                         fontWeight: 600,
-                        fontSize: '0.75rem'
+                        fontSize: '0.7rem',
+                        height: '18px'
                     }} 
                 />
             )
         },
         { 
             field: 'ipdestination', 
-            headerName: 'IP DESTINATION', 
-            flex: 0.65,
+            headerName: 'IP DEST', 
+            flex: 0.5,
+            minWidth: 70,
             renderCell: (params) => (
-                <Stack direction="row" spacing={1} alignItems="center">
-                    <Avatar sx={{ width: 28, height: 28, bgcolor: alpha('#29BAE2', 0.2), fontSize: 12 }}>
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                    <Avatar sx={{ width: 24, height: 24, bgcolor: alpha('#29BAE2', 0.2), fontSize: 10 }}>
                         <Typography variant="caption" fontWeight={700} sx={{ color: '#29BAE2' }}>D</Typography>
                     </Avatar>
-                    <Typography variant="body2" fontWeight={500}>{params.value}</Typography>
+                    <Typography variant="body2" fontWeight={500} sx={{ fontSize: '0.75rem' }}>{params.value}</Typography>
                 </Stack>
             )
         },
         { 
             field: 'dest_port', 
-            headerName: 'PORT DEST', 
-            flex: 0.5,
+            headerName: 'P.DST', 
+            flex: 0.35,
+            minWidth: 45,
             renderCell: (params) => (
                 <Chip 
                     label={params.value} 
@@ -93,7 +99,8 @@ export function FlowView() {
                         bgcolor: alpha('#29BAE2', 0.15), 
                         color: '#29BAE2',
                         fontWeight: 600,
-                        fontSize: '0.75rem'
+                        fontSize: '0.7rem',
+                        height: '18px'
                     }} 
                 />
             )
@@ -101,7 +108,8 @@ export function FlowView() {
         { 
             field: 'service', 
             headerName: 'SERVICE', 
-            flex: 0.6,
+            flex: 0.4,
+            minWidth: 50,
             renderCell: (params) => (
                 <Chip 
                     label={params.value} 
@@ -110,15 +118,17 @@ export function FlowView() {
                         bgcolor: alpha('#F4A460', 0.15), 
                         color: '#F4A460',
                         fontWeight: 600,
-                        fontSize: '0.75rem'
+                        fontSize: '0.7rem',
+                        height: '18px'
                     }} 
                 />
             )
         },
         { 
             field: 'protocol', 
-            headerName: 'PROTOCOLE', 
-            flex: 0.55,
+            headerName: 'PROTO', 
+            flex: 0.3,
+            minWidth: 40,
             renderCell: (params) => (
                 <Chip 
                     label={params.value.toUpperCase()} 
@@ -127,15 +137,17 @@ export function FlowView() {
                         bgcolor: alpha('#E05B5B', 0.15), 
                         color: '#E05B5B',
                         fontWeight: 600,
-                        fontSize: '0.75rem'
+                        fontSize: '0.7rem',
+                        height: '18px'
                     }} 
                 />
             )
         },
         { 
             field: 'direction', 
-            headerName: 'DIRECTION', 
-            flex: 0.5,
+            headerName: 'DIR', 
+            flex: 0.3,
+            minWidth: 40,
             renderCell: (params) => (
                 <Chip 
                     label={params.value} 
@@ -144,7 +156,8 @@ export function FlowView() {
                         bgcolor: params.value === 'inbound' ? alpha('#52B57D', 0.15) : alpha('#F4A460', 0.15), 
                         color: params.value === 'inbound' ? '#52B57D' : '#F4A460',
                         fontWeight: 600,
-                        fontSize: '0.75rem'
+                        fontSize: '0.7rem',
+                        height: '18px'
                     }} 
                 />
             )
@@ -267,14 +280,14 @@ export function FlowView() {
                                 <LineChart 
                                     xAxis={[{ data: chartLabels, scaleType: 'point' }]}
                                     series={chartData}
-                                    margin={{ top: 10, bottom: 40, left: 60, right: 10 }}
-                                    height={280}
+                                    margin={{ top: 10, bottom: 30, left: 50, right: 10 }}
+                                    height={250}
                                     slotProps={{
-                                        legend: { hidden: false },
+                                        legend: { hidden: true },
                                     }}
                                 />
                             ) : (
-                                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 10 }}>
+                                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 8 }}>
                                     En attente de données...
                                 </Typography>
                             )}
@@ -309,26 +322,36 @@ export function FlowView() {
                         />
                         <Divider />
                         <CardContent sx={{ p: 0 }}>
-                            <Box sx={{ height: '100%', minHeight: '450px' }}>
+                            <Box sx={{ height: '100%', minHeight: '450px', overflow: 'auto' }}>
                                 <DataGrid 
                                     columns={columns} 
                                     rows={rows} 
                                     hideFooter 
-                                    rowHeight={52}
+                                    rowHeight={48}
                                     disableColumnResize 
+                                    columnHeaderHeight={40}
                                     sx={{ 
                                         height: '100%',
                                         border: 'none',
+                                        '& .MuiDataGrid-root': {
+                                            fontSize: '0.8rem'
+                                        },
                                         '& .MuiDataGrid-columnHeader': { 
                                             bgcolor: alpha('#29BAE2', 0.05),
                                             fontWeight: 600,
-                                            fontSize: '0.85rem'
+                                            fontSize: '0.75rem',
+                                            whiteSpace: 'normal',
+                                            lineHeight: '1.2'
                                         }, 
                                         '& .MuiDataGrid-row': { 
                                             cursor: 'pointer',
                                             '&:hover': { bgcolor: alpha('#29BAE2', 0.05) },
                                             '&.Mui-selected': { bgcolor: alpha('#29BAE2', 0.1) }
-                                        } 
+                                        },
+                                        '& .MuiDataGrid-cell': {
+                                            fontSize: '0.75rem',
+                                            padding: '4px 8px'
+                                        }
                                     }} 
                                 />
                             </Box>
