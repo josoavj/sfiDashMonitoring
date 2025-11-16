@@ -16,18 +16,32 @@ export function FlowView() {
     const columns = [
         { 
             field: 'timespan', 
-            headerName: 'TIMESPAN', 
-            flex: 0.8,
-            renderCell: (params) => (
-                <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
-                    {new Date(params.value).toLocaleString('fr-FR')}
-                </Typography>
-            )
+            headerName: 'DATE & HEURE', 
+            flex: 0.9,
+            renderCell: (params) => {
+                const date = new Date(params.value)
+                const formattedDate = date.toLocaleDateString('fr-FR', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric' 
+                })
+                const formattedTime = date.toLocaleTimeString('fr-FR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    second: '2-digit' 
+                })
+                return (
+                    <Stack spacing={0.2}>
+                        <Typography variant="body2" fontWeight={500}>{formattedDate}</Typography>
+                        <Typography variant="caption" color="text.secondary">{formattedTime}</Typography>
+                    </Stack>
+                )
+            }
         },
         { 
             field: 'ipsource', 
             headerName: 'IP SOURCE', 
-            flex: 0.7,
+            flex: 0.65,
             renderCell: (params) => (
                 <Stack direction="row" spacing={1} alignItems="center">
                     <Avatar sx={{ width: 28, height: 28, bgcolor: alpha('#52B57D', 0.2), fontSize: 12 }}>
@@ -38,9 +52,26 @@ export function FlowView() {
             )
         },
         { 
+            field: 'source_port', 
+            headerName: 'PORT SOURCE', 
+            flex: 0.5,
+            renderCell: (params) => (
+                <Chip 
+                    label={params.value} 
+                    size="small" 
+                    sx={{ 
+                        bgcolor: alpha('#52B57D', 0.15), 
+                        color: '#52B57D',
+                        fontWeight: 600,
+                        fontSize: '0.75rem'
+                    }} 
+                />
+            )
+        },
+        { 
             field: 'ipdestination', 
             headerName: 'IP DESTINATION', 
-            flex: 0.7,
+            flex: 0.65,
             renderCell: (params) => (
                 <Stack direction="row" spacing={1} alignItems="center">
                     <Avatar sx={{ width: 28, height: 28, bgcolor: alpha('#29BAE2', 0.2), fontSize: 12 }}>
@@ -51,9 +82,9 @@ export function FlowView() {
             )
         },
         { 
-            field: 'destination', 
-            headerName: 'DESTINATION (Org)', 
-            flex: 0.7,
+            field: 'dest_port', 
+            headerName: 'PORT DEST', 
+            flex: 0.5,
             renderCell: (params) => (
                 <Chip 
                     label={params.value} 
@@ -62,8 +93,24 @@ export function FlowView() {
                         bgcolor: alpha('#29BAE2', 0.15), 
                         color: '#29BAE2',
                         fontWeight: 600,
-                        fontSize: '0.75rem',
-                        maxWidth: '150px'
+                        fontSize: '0.75rem'
+                    }} 
+                />
+            )
+        },
+        { 
+            field: 'service', 
+            headerName: 'SERVICE', 
+            flex: 0.6,
+            renderCell: (params) => (
+                <Chip 
+                    label={params.value} 
+                    size="small" 
+                    sx={{ 
+                        bgcolor: alpha('#F4A460', 0.15), 
+                        color: '#F4A460',
+                        fontWeight: 600,
+                        fontSize: '0.75rem'
                     }} 
                 />
             )
@@ -71,7 +118,7 @@ export function FlowView() {
         { 
             field: 'protocol', 
             headerName: 'PROTOCOLE', 
-            flex: 0.6,
+            flex: 0.55,
             renderCell: (params) => (
                 <Chip 
                     label={params.value.toUpperCase()} 
@@ -88,7 +135,7 @@ export function FlowView() {
         { 
             field: 'direction', 
             headerName: 'DIRECTION', 
-            flex: 0.6,
+            flex: 0.5,
             renderCell: (params) => (
                 <Chip 
                     label={params.value} 
@@ -115,7 +162,17 @@ export function FlowView() {
             const data = await res.json()
             if (res.ok) {
                 const hits = data.hits || []
-                const mapped = hits.map((h, i) => ({ id: i + 1, timespan: h._source?.['@timestamp'] || '', ipsource: h._source?.source?.ip || h._source?.client?.ip || '-', ipdestination: h._source?.destination?.ip || h._source?.host?.ip || '-', destination: h._source?.destination?.geo?.organization || '-', protocol: h._source?.network?.protocol || h._source?.network?.type || '-', direction: h._source?.event?.direction || '-' }))
+                const mapped = hits.map((h, i) => ({ 
+                    id: i + 1, 
+                    timespan: h._source?.['@timestamp'] || '', 
+                    ipsource: h._source?.source?.ip || h._source?.client?.ip || '-', 
+                    source_port: h._source?.source?.port || h._source?.client?.port || '-',
+                    ipdestination: h._source?.destination?.ip || h._source?.host?.ip || '-', 
+                    dest_port: h._source?.destination?.port || h._source?.host?.port || '-',
+                    service: h._source?.network?.application || h._source?.service?.name || h._source?.process?.name || '-',
+                    protocol: h._source?.network?.protocol || h._source?.network?.type || '-', 
+                    direction: h._source?.event?.direction || '-' 
+                }))
                 setRows(mapped)
                 
                 // Initialize chart with count
@@ -140,7 +197,17 @@ export function FlowView() {
                 // payload expected to contain an array of hits or logs
                 const hits = Array.isArray(payload) ? payload : (payload?.hits || payload?.logs || [])
                 if (!hits.length) return
-                const mapped = hits.map((h, i) => ({ id: Date.now() + i, timespan: h['@timestamp'] || h._source?.['@timestamp'] || '', ipsource: h._source?.source?.ip || h._source?.client?.ip || h.source?.ip || '-', ipdestination: h._source?.destination?.ip || h._source?.host?.ip || h.destination?.ip || '-', destination: h._source?.destination?.geo?.organization || '-', protocol: h._source?.network?.protocol || h._source?.network?.type || h.network?.protocol || '-', direction: h._source?.event?.direction || '-' }))
+                const mapped = hits.map((h, i) => ({ 
+                    id: Date.now() + i, 
+                    timespan: h['@timestamp'] || h._source?.['@timestamp'] || '', 
+                    ipsource: h._source?.source?.ip || h._source?.client?.ip || h.source?.ip || '-', 
+                    source_port: h._source?.source?.port || h._source?.client?.port || h.source?.port || '-',
+                    ipdestination: h._source?.destination?.ip || h._source?.host?.ip || h.destination?.ip || '-', 
+                    dest_port: h._source?.destination?.port || h._source?.host?.port || h.destination?.port || '-',
+                    service: h._source?.network?.application || h._source?.service?.name || h._source?.process?.name || h.network?.application || h.service?.name || h.process?.name || '-',
+                    protocol: h._source?.network?.protocol || h._source?.network?.type || h.network?.protocol || '-', 
+                    direction: h._source?.event?.direction || '-' 
+                }))
                 setRows((prev) => {
                     const next = [...mapped, ...prev].slice(0, 200)
                     return next
