@@ -116,7 +116,8 @@ logService.startLogStreaming(io, esClient);
 
 async function init() {
     try {
-    await sequelize.sync();
+    // Force sync to recreate tables with all columns
+    await sequelize.sync({ alter: true });
     server.listen(PORT, HOST, () => {
       console.log(`
 ╔════════════════════════════════════════════════════════════╗
@@ -125,7 +126,7 @@ async function init() {
 ║ 📍 Server:      http://${HOST}:${PORT}                     ║
 ║ 🔌 WebSocket:   ws://localhost:${PORT}/socket.io/          ║
 ║ 📊 Elasticsearch: Connected                                ║
-║ 💾 Database:    Connected                                  ║
+║ 💾 Database:    Connected (alter: true)                    ║
 ╚════════════════════════════════════════════════════════════╝
       `);
     });
