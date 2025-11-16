@@ -57,29 +57,6 @@ export default function ExplorationPage() {
   })
   const [pagination, setPagination] = useState({ from: 0, size: 50 })
 
-  // Construire la requête de recherche
-  const buildQuery = () => {
-    const conditions = []
-
-    if (filters.sourceIp) {
-      conditions.push(`source.ip:"${filters.sourceIp}"`)
-    }
-    if (filters.destinationIp) {
-      conditions.push(`destination.ip:"${filters.destinationIp}"`)
-    }
-    if (filters.sourcePort) {
-      conditions.push(`source.port:${filters.sourcePort}`)
-    }
-    if (filters.destinationPort) {
-      conditions.push(`destination.port:${filters.destinationPort}`)
-    }
-    if (filters.protocol) {
-      conditions.push(`network.protocol:"${filters.protocol}"`)
-    }
-
-    return conditions.length > 0 ? conditions.join(' AND ') : '*'
-  }
-
   // Effectuer la recherche
   const handleSearch = async () => {
     setLoading(true)
@@ -87,16 +64,20 @@ export default function ExplorationPage() {
     setResults([])
 
     try {
-      const query = buildQuery()
       const startDate = new Date(`${filters.startDate}T00:00:00Z`).getTime()
       const endDate = new Date(`${filters.endDate}T23:59:59Z`).getTime()
 
-      const response = await fetch(`${BACKEND_URL}/api/search`, {
+      // Utiliser l'endpoint spécialisé pour exploration
+      const response = await fetch(`${BACKEND_URL}/api/exploration/search`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          query,
+          sourceIp: filters.sourceIp || undefined,
+          destinationIp: filters.destinationIp || undefined,
+          sourcePort: filters.sourcePort || undefined,
+          destinationPort: filters.destinationPort || undefined,
+          protocol: filters.protocol || undefined,
           from: pagination.from,
           size: pagination.size,
           timeRange: {
@@ -116,7 +97,7 @@ export default function ExplorationPage() {
 
       // Calculer les stats
       if (data.hits.length > 0) {
-        const totalBytes = data.hits.reduce((sum, hit) => sum + (hit._source.network?.bytes || 0), 0)
+        const totalBytes = data.hits.reduce((sum, hit) => sum + (hit._source['network.bytes'] || 0), 0)
         const avgBytes = totalBytes / data.hits.length
         const services = new Set(data.hits.map(hit => hit._source['network.application'] || 'Unknown'))
 
