@@ -72,7 +72,39 @@ export function DataMainView({ page }) {
 	// Main dashboard: when page is 'view' or undefined, show a composed dashboard
 	if (!page || page === 'view') {
 		return (
-			<Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}><SocketStatus /></Box>
+			<>
+				<Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}><SocketStatus /></Box>
+				<Box sx={{ p: { xs: 2, sm: 3, md: 4 }, pt: 0 }}>
+					<Grid container spacing={2}>
+						<Grid item xs={12} md={8}>
+							<Paper sx={{ p: 1 }}>
+								<ChartView />
+							</Paper>
+						</Grid>
+
+						<Grid item xs={12} md={4}>
+							<Paper sx={{ p: 1, mb: 2 }}>
+								<BandwidthView />
+							</Paper>
+							<Paper sx={{ p: 1 }}>
+								<ServiceView />
+							</Paper>
+						</Grid>
+
+						<Grid item xs={12} md={6}>
+							<Paper sx={{ p: 1 }}>
+								<IpView />
+							</Paper>
+						</Grid>
+
+						<Grid item xs={12} md={6}>
+							<Paper sx={{ p: 1 }}>
+								<FlowView />
+							</Paper>
+						</Grid>
+					</Grid>
+				</Box>
+			</>
 		)
 	}
 
