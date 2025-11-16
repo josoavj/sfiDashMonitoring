@@ -23,7 +23,7 @@ import {
   MenuItem,
   Divider
 } from '@mui/material'
-import { Search as SearchIcon, Download as DownloadIcon, FilterList as FilterIconMUI } from '@mui/icons-material'
+import { Search as SearchIcon, Download as DownloadIcon, FilterList as FilterIconMUI, Explore as ExploreIcon } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
@@ -43,7 +43,9 @@ export default function ExplorationPage() {
     endDate: new Date().toISOString().split('T')[0]
   })
 
-  const [searchMode, setSearchMode] = useState('advanced') // 'simple' ou 'advanced'
+  const [searchMode, setSearchMode] = useState('advanced') // 'simple', 'advanced', ou 'iprange'
+  const [ipRangeStart, setIpRangeStart] = useState('')
+  const [ipRangeEnd, setIpRangeEnd] = useState('')
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -66,12 +68,26 @@ export default function ExplorationPage() {
       const startDate = new Date(`${filters.startDate}T00:00:00Z`).getTime()
       const endDate = new Date(`${filters.endDate}T23:59:59Z`).getTime()
 
-      // Utiliser l'endpoint spécialisé pour exploration
-      const response = await fetch(`${BACKEND_URL}/api/exploration/search`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
+      let endpoint = `${BACKEND_URL}/api/exploration/search`
+      let body = {}
+
+      if (searchMode === 'iprange' && ipRangeStart && ipRangeEnd) {
+        // Recherche par plage d'IPs
+        endpoint = `${BACKEND_URL}/api/exploration/ip-range`
+        body = {
+          startIp: ipRangeStart,
+          endIp: ipRangeEnd,
+          field: 'source.ip',
+          from: pagination.from,
+          size: pagination.size,
+          timeRange: {
+            from: startDate,
+            to: endDate
+          }
+        }
+      } else {
+        // Recherche avancée standard
+        body = {
           sourceIp: filters.sourceIp || undefined,
           destinationIp: filters.destinationIp || undefined,
           sourcePort: filters.sourcePort || undefined,
@@ -85,7 +101,14 @@ export default function ExplorationPage() {
           },
           sortField: '@timestamp',
           sortOrder: 'desc'
-        })
+        }
+      }
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body)
       })
 
       if (!response.ok) throw new Error('Erreur lors de la recherche')
@@ -131,6 +154,9 @@ export default function ExplorationPage() {
       startDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       endDate: new Date().toISOString().split('T')[0]
     })
+    setIpRangeStart('')
+    setIpRangeEnd('')
+    setSearchMode('advanced')
     setResults([])
     setStats({ totalBytes: 0, avgBytes: 0, uniqueServices: 0, packetCount: 0 })
     setPagination({ from: 0, size: 50 })
@@ -162,16 +188,52 @@ export default function ExplorationPage() {
     >
       <Box sx={{ maxWidth: '1400px', mx: 'auto' }}>
       {/* En-tête */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
-          🔍 Exploration
-        </Typography>
-        <Typography variant="body2" color="textSecondary">
-          Recherche personnalisée dans les données Elasticsearch
-        </Typography>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 4,
+          background: 'linear-gradient(135deg, #1976D2 0%, #1565C0 100%)',
+          borderRadius: 2,
+          color: 'white',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+          <ExploreIcon sx={{ fontSize: 40 }} />
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+              Exploration
+            </Typography>
+            <Typography sx={{ opacity: 0.9 }}>
+              Recherche personnalisée et avancée dans les données réseau Elasticsearch
+            </Typography>
+          </Box>
+        </Box>
+      </Paper>
+
+      {/* Mode de recherche */}
+      <Box sx={{ mb: 3, display: 'flex', gap: 1 }}>
+        <Button
+          variant={searchMode === 'advanced' ? 'contained' : 'outlined'}
+          onClick={() => {
+            setSearchMode('advanced')
+            setIpRangeStart('')
+            setIpRangeEnd('')
+          }}
+          sx={{ fontWeight: searchMode === 'advanced' ? 'bold' : 'normal' }}
+        >
+          Recherche Avancée
+        </Button>
+        <Button
+          variant={searchMode === 'iprange' ? 'contained' : 'outlined'}
+          onClick={() => setSearchMode('iprange')}
+          sx={{ fontWeight: searchMode === 'iprange' ? 'bold' : 'normal' }}
+        >
+          Plage d'IPs
+        </Button>
       </Box>
 
-      {/* Panneau de recherche */}
+      {searchMode === 'advanced' && (
       <Paper
         sx={{
           p: 3,
@@ -181,7 +243,7 @@ export default function ExplorationPage() {
         }}
       >
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-          Filtres de recherche
+          Filtres de recherche - Recherche Avancée
         </Typography>
 
         {/* Mode de recherche */}
@@ -333,6 +395,101 @@ export default function ExplorationPage() {
           </Button>
         </Box>
       </Paper>
+      )}
+
+      {searchMode === 'iprange' && (
+      <Paper
+        sx={{
+          p: 3,
+          mb: 3,
+          backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)',
+          border: `1px solid ${theme.palette.divider}`
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+          Recherche par Plage d'IPs
+        </Typography>
+
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              size="small"
+              label="IP de début"
+              placeholder="ex: 192.168.1.1"
+              value={ipRangeStart}
+              onChange={(e) => setIpRangeStart(e.target.value)}
+              variant="outlined"
+              helperText="Format: XXX.XXX.XXX.XXX"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              size="small"
+              label="IP de fin"
+              placeholder="ex: 192.168.255.255"
+              value={ipRangeEnd}
+              onChange={(e) => setIpRangeEnd(e.target.value)}
+              variant="outlined"
+              helperText="Format: XXX.XXX.XXX.XXX"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Date de début"
+              type="date"
+              value={filters.startDate}
+              onChange={(e) => handleFilterChange('startDate', e.target.value)}
+              variant="outlined"
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Date de fin"
+              type="date"
+              value={filters.endDate}
+              onChange={(e) => handleFilterChange('endDate', e.target.value)}
+              variant="outlined"
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+        </Grid>
+
+        {/* Boutons d'action */}
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="outlined"
+            color="warning"
+            onClick={handleReset}
+          >
+            Réinitialiser
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<SearchIcon />}
+            onClick={handleSearch}
+            disabled={loading || !ipRangeStart || !ipRangeEnd}
+            sx={{
+              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+              '&:hover': {
+                boxShadow: `0 8px 24px ${theme.palette.primary.main}40`
+              }
+            }}
+          >
+            {loading ? 'Recherche...' : 'Rechercher par plage'}
+          </Button>
+        </Box>
+      </Paper>
+      )}
 
       {/* Messages d'erreur */}
       {error && (
