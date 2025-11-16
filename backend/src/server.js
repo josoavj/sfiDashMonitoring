@@ -9,6 +9,11 @@ const logService = require('./services/logService');
 const { mountApiRoutes } = require('./routes/api');
 const { mountAuthRoutes } = require('./routes/auth');
 
+// Import models to register them with Sequelize before sync
+const { User } = require('./models/User');
+const { Session } = require('./models/Session');
+const { Setting } = require('./models/Setting');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
