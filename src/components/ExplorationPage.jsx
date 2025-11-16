@@ -36,9 +36,7 @@ export default function ExplorationPage() {
   // État de la recherche
   const [filters, setFilters] = useState({
     sourceIp: '',
-    destinationIp: '',
     sourcePort: '',
-    destinationPort: '14', // Port 14 par défaut
     protocol: '',
     startDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0]
@@ -87,12 +85,10 @@ export default function ExplorationPage() {
           }
         }
       } else {
-        // Recherche avancée standard
+        // Recherche avancée standard - IP source uniquement
         body = {
           sourceIp: filters.sourceIp || undefined,
-          destinationIp: filters.destinationIp || undefined,
           sourcePort: filters.sourcePort || undefined,
-          destinationPort: filters.destinationPort || undefined,
           protocol: filters.protocol || undefined,
           from: pagination.from,
           size: pagination.size,
@@ -304,19 +300,6 @@ export default function ExplorationPage() {
             />
           </Grid>
 
-          {/* IP Destination */}
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              fullWidth
-              size="small"
-              label="IP Destination"
-              placeholder="ex: 10.0.0.1"
-              value={filters.destinationIp}
-              onChange={(e) => handleFilterChange('destinationIp', e.target.value)}
-              variant="outlined"
-            />
-          </Grid>
-
           {/* Port Source */}
           <Grid item xs={12} sm={6} md={4}>
             <TextField
@@ -327,20 +310,6 @@ export default function ExplorationPage() {
               type="number"
               value={filters.sourcePort}
               onChange={(e) => handleFilterChange('sourcePort', e.target.value)}
-              variant="outlined"
-            />
-          </Grid>
-
-          {/* Port Destination */}
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Port Destination"
-              placeholder="ex: 14"
-              type="number"
-              value={filters.destinationPort}
-              onChange={(e) => handleFilterChange('destinationPort', e.target.value)}
               variant="outlined"
             />
           </Grid>
@@ -414,8 +383,13 @@ export default function ExplorationPage() {
             disabled={loading}
             sx={{
               background: 'linear-gradient(135deg, #02647E 0%, #72BDD1 100%)',
+              color: 'white',
+              fontWeight: 600,
               '&:hover': {
                 boxShadow: '0 8px 24px rgba(2, 100, 126, 0.4)'
+              },
+              '&:disabled': {
+                color: 'rgba(255, 255, 255, 0.7)'
               }
             }}
           >
@@ -508,8 +482,13 @@ export default function ExplorationPage() {
             disabled={loading || !ipRangeStart || !ipRangeEnd}
             sx={{
               background: 'linear-gradient(135deg, #02647E 0%, #72BDD1 100%)',
+              color: 'white',
+              fontWeight: 600,
               '&:hover': {
                 boxShadow: '0 8px 24px rgba(2, 100, 126, 0.4)'
+              },
+              '&:disabled': {
+                color: 'rgba(255, 255, 255, 0.7)'
               }
             }}
           >
