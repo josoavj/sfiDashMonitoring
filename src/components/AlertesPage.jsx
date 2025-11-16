@@ -162,24 +162,51 @@ export function AlertesPage() {
     }
 
     return (
-        <Box sx={{ width: '100%', p: 3 }}>
+        <Box sx={{ 
+          width: '100%', 
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
+          p: { xs: 2, sm: 3, md: 4 },
+          pt: { xs: 10, sm: 9, md: 8 }, 
+          mt: { xs: 2, sm: 1 } 
+        }}>
+            <Box sx={{ maxWidth: '1800px', mx: 'auto' }}>
             {/* Header */}
-            <Box sx={{ mb: 4 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h4" fontWeight={700} sx={{ color: '#1a1a2e', display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Warning sx={{ fontSize: 32, color: '#E05B5B' }} />
-                        Alertes
-                    </Typography>
-                    <Tooltip title="Actualiser">
-                        <IconButton onClick={() => { loadAlerts(); loadTopConsumers(); }} sx={{ bgcolor: 'action.hover' }}>
-                            <Refresh />
-                        </IconButton>
-                    </Tooltip>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                mb: 3,
+                background: 'linear-gradient(135deg, #02647E 0%, #72BDD1 100%)',
+                borderRadius: 2,
+                color: 'white',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                <Warning sx={{ fontSize: 40 }} />
+                <Box>
+                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                    Alertes
+                  </Typography>
+                  <Typography sx={{ opacity: 0.9 }}>
+                    Surveillance des IPs consommatrices et alertes temps réel
+                  </Typography>
                 </Box>
-                <Alert severity="info">
-                    <AlertTitle>Surveillance des alertes</AlertTitle>
-                    Affichage des IPs consommatrices depuis 06h30 du matin et consommation temps réel
-                </Alert>
+              </Box>
+            </Paper>
+
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                <Tooltip title="Actualiser">
+                  <IconButton onClick={() => { loadAlerts(); loadTopConsumers(); }} sx={{ bgcolor: 'action.hover' }}>
+                    <Refresh />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+              <Alert severity="info">
+                <AlertTitle>Surveillance des alertes</AlertTitle>
+                Affichage des IPs consommatrices depuis 06h30 du matin et consommation temps réel
+              </Alert>
             </Box>
 
             <Grid container spacing={3}>
@@ -363,6 +390,7 @@ export function AlertesPage() {
                     to { transform: rotate(360deg); }
                 }
             `}</style>
+            </Box>
         </Box>
     )
 }

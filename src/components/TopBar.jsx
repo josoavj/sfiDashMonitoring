@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react'
 import { AppBar, Toolbar, Box, Stack, Button, IconButton } from '@mui/material'
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material'
-import { AccountCircle, Notifications } from '@mui/icons-material'
+import { AccountCircle } from '@mui/icons-material'
 import { VisualizationMenu } from './custom-elements/VisualisationMenu'
+import { NotificationButton } from './NotificationButton'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useNav } from '../context/NavContext'
 
@@ -12,7 +13,7 @@ export default function TopBar() {
   const navigate = useNavigate()
   const location = useLocation()
   const { subItemActive } = useNav()
-  const navItems = ['Tableau de bord', 'Rapports', 'Alertes', 'Paramètres']
+  const navItems = ['Tableau de bord', 'Exploration', 'Rapports', 'Alertes', 'Paramètres']
 
   // Ne pas afficher la TopBar sur les pages d'authentification
   const isAuthPage = location.pathname === '/auth/login' || location.pathname === '/auth/signup'
@@ -24,6 +25,8 @@ export default function TopBar() {
   const isItemActive = (item) => {
     if (item === 'Tableau de bord') {
       return location.pathname === '/visualization'
+    } else if (item === 'Exploration') {
+      return location.pathname === '/exploration'
     } else if (item === 'Rapports') {
       return location.pathname === '/reports'
     } else if (item === 'Paramètres') {
@@ -51,6 +54,9 @@ export default function TopBar() {
                       if (item === 'Tableau de bord') {
                         anchorEl ? handleMenuClose() : handleMenuOpen()
                         navigate('/visualization')
+                      } else if (item === 'Exploration') {
+                        handleMenuClose()
+                        navigate('/exploration')
                       } else if (item === 'Rapports') {
                         handleMenuClose()
                         navigate('/reports')
@@ -100,9 +106,7 @@ export default function TopBar() {
         </Box>
 
         <Box sx={{ ml: 'auto', mr: 4.5 }}>
-          <IconButton sx={{ color: 'common.white' }} title="Notifications">
-            <Notifications />
-          </IconButton>
+          <NotificationButton />
 
           <IconButton sx={{ color: 'common.white' }} onClick={() => navigate('/profile')} title="Mon profil">
             <AccountCircle sx={{ fontSize: 35 }} />

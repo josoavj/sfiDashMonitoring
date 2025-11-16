@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Paper, Avatar, Typography, TextField, Button, CircularProgress, Snackbar, Alert, Grid, Card, CardHeader, CardContent, Divider, Chip } from '@mui/material'
+import { Box, Paper, Avatar, Typography, TextField, Button, CircularProgress, Snackbar, Alert, Grid, Card, CardHeader, CardContent, Divider, Chip, Stack } from '@mui/material'
 import { alpha } from '@mui/material/styles'
 import LogoutIcon from '@mui/icons-material/Logout'
 import SaveIcon from '@mui/icons-material/Save'
@@ -10,6 +10,8 @@ import LockIcon from '@mui/icons-material/Lock'
 import EmailIcon from '@mui/icons-material/Email'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import VerifiedIcon from '@mui/icons-material/Verified'
+import NotificationsIcon from '@mui/icons-material/Notifications'
+import SecurityIcon from '@mui/icons-material/Security'
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null)
@@ -73,13 +75,18 @@ export default function ProfilePage() {
     try {
       const apiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/auth/signout'
       await fetch(apiUrl, { method: 'POST' })
-      window.location.href = '/login'
+      // Effacer les données stockées (matcher AuthContext)
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      localStorage.removeItem('auth:user')
+      // Redirection vers la page de connexion
+      window.location.href = '/auth/login'
     } catch (err) {
       setNotice({ severity: 'error', message: 'Impossible de se déconnecter' })
     }
   }
 
-  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, pt: { xs: 10, sm: 9 }, mt: { xs: 2, sm: 1 }, minHeight: '100vh' }}><CircularProgress sx={{ color: '#02647E' }} /></Box>
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, pt: { xs: 10, sm: 9, md: 8 }, minHeight: '100vh' }}><CircularProgress sx={{ color: '#02647E' }} /></Box>
 
   const fullName = ((profile?.firstName || '') + (profile?.lastName ? ' ' + profile.lastName : '') || 'Utilisateur').trim()
   const initials = fullName.split(' ').map(n => n.charAt(0).toUpperCase()).join('').slice(0, 2)
@@ -87,264 +94,350 @@ export default function ProfilePage() {
   const isAdmin = profile?.role === 'admin'
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 3 }, pt: { xs: 10, sm: 9, md: 8 }, mt: { xs: 2, sm: 1 }, minHeight: '100vh', bgcolor: '#f5f7fa' }}>
-      <Box sx={{ maxWidth: 1100, mx: 'auto' }}>
-        {/* Header Card with Profile Overview */}
-        <Card sx={{ mb: 3, bgcolor: '#fff', boxShadow: '0 2px 12px rgba(2, 100, 126, 0.1)', border: `1px solid ${alpha('#02647E', 0.1)}` }}>
-          <Box sx={{
-            background: `linear-gradient(135deg, #02647E 0%, #72BDD1 100%)`,
-            p: { xs: 2, sm: 3, md: 4 },
-            color: 'white',
-            display: 'flex',
-            alignItems: 'flex-end',
-            gap: 3,
-            flexWrap: { xs: 'wrap', sm: 'nowrap' }
-          }}>
-            <Avatar sx={{
-              width: { xs: 60, sm: 80, md: 100 },
-              height: { xs: 60, sm: 80, md: 100 },
-              bgcolor: alpha('#fff', 0.3),
+    <Box sx={{ 
+      width: '100%', 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
+      p: { xs: 2, sm: 3, md: 4 },
+      pt: { xs: 10, sm: 9, md: 8 },
+      mt: { xs: 2, sm: 1 }
+    }}>
+      <Box sx={{ maxWidth: '1800px', mx: 'auto' }}>
+      {/* Header with Gradient Background */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 4,
+          mb: 4,
+          background: `linear-gradient(135deg, #02647E 0%, #72BDD1 100%)`,
+          borderRadius: 2,
+          color: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 3,
+          flexWrap: { xs: 'wrap', sm: 'nowrap' }
+        }}
+      >
+        <Avatar sx={{
+          width: { xs: 70, sm: 90, md: 110 },
+          height: { xs: 70, sm: 90, md: 110 },
+          bgcolor: alpha('#fff', 0.25),
+          color: '#fff',
+          fontSize: { xs: '2rem', md: '2.5rem' },
+          fontWeight: 700,
+          border: '4px solid rgba(255,255,255,0.4)',
+          flexShrink: 0
+        }}>
+          {initials}
+        </Avatar>
+        <Box sx={{ flex: 1, minWidth: '250px' }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>{fullName}</Typography>
+          <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1 }}>
+            <Typography variant="body2" sx={{ opacity: 0.95, display: 'flex', alignItems: 'center', gap: 0.7 }}>
+              <EmailIcon sx={{ fontSize: 18 }} />
+              {profile?.email}
+            </Typography>
+          </Stack>
+          <Chip
+            icon={isAdmin ? <VerifiedIcon /> : undefined}
+            label={isAdmin ? 'Administrateur' : 'Utilisateur'}
+            size="small"
+            sx={{
+              bgcolor: alpha('#fff', 0.25),
               color: '#fff',
-              fontSize: { xs: '1.5rem', md: '2rem' },
               fontWeight: 700,
-              border: '3px solid rgba(255,255,255,0.5)',
-              flexShrink: 0
-            }}>
-              {initials}
-            </Avatar>
-            <Box sx={{ flex: 1, minWidth: '200px' }}>
-              <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5 }}>{fullName}</Typography>
-              <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap', mb: 1 }}>
-                <Typography variant="body2" sx={{ opacity: 0.9, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <EmailIcon sx={{ fontSize: 16 }} />
-                  {profile?.email}
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                <Chip
-                  icon={isAdmin ? <VerifiedIcon /> : undefined}
-                  label={isAdmin ? 'Administrateur' : 'Utilisateur'}
-                  size="small"
-                  sx={{
-                    bgcolor: isAdmin ? alpha('#E05B5B', 0.3) : alpha('#52B57D', 0.3),
-                    color: isAdmin ? '#fff' : '#fff',
-                    fontWeight: 600
-                  }}
-                />
-              </Box>
-            </Box>
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end', width: { xs: '100%', sm: 'auto' } }}>
-              {!editMode ? (
-                <>
-                  <Button
-                    variant="outlined"
-                    startIcon={<EditIcon />}
-                    onClick={() => setEditMode(true)}
-                    sx={{ borderColor: '#fff', color: '#fff', '&:hover': { bgcolor: alpha('#fff', 0.15) } }}
-                  >
-                    Modifier
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    startIcon={<LogoutIcon />}
-                    onClick={signOut}
-                    sx={{ borderColor: '#fff', color: '#fff', '&:hover': { bgcolor: alpha('#fff', 0.15) } }}
-                  >
-                    Déconnexion
-                  </Button>
-                </>
-              ) : null}
-            </Box>
-          </Box>
-        </Card>
+              fontSize: '0.85rem'
+            }}
+          />
+        </Box>
+        <Stack direction="row" spacing={1} sx={{ width: { xs: '100%', sm: 'auto' }, justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
+          {!editMode ? (
+            <>
+              <Button
+                variant="contained"
+                startIcon={<EditIcon />}
+                onClick={() => setEditMode(true)}
+                sx={{ 
+                  bgcolor: alpha('#fff', 0.2), 
+                  color: '#fff', 
+                  fontWeight: 600,
+                  '&:hover': { bgcolor: alpha('#fff', 0.3) } 
+                }}
+              >
+                Modifier
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<LogoutIcon />}
+                onClick={signOut}
+                sx={{ 
+                  bgcolor: alpha('#E05B5B', 0.3), 
+                  color: '#fff', 
+                  fontWeight: 600,
+                  '&:hover': { bgcolor: alpha('#E05B5B', 0.5) } 
+                }}
+              >
+                Déconnexion
+              </Button>
+            </>
+          ) : null}
+        </Stack>
+      </Paper>
 
-        {/* Main Content Grid */}
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          {/* Left Column: Personal Info */}
-          <Grid item xs={12} md={6}>
-            <Card sx={{ height: '100%', boxShadow: '0 2px 8px rgba(2, 100, 126, 0.08)', border: `1px solid ${alpha('#02647E', 0.1)}` }}>
-              <CardHeader
-                avatar={<PersonIcon sx={{ color: '#02647E' }} />}
-                title="Informations Personnelles"
-                titleTypographyProps={{ variant: 'h6', sx: { color: '#02647E', fontWeight: 700 } }}
-                sx={{ pb: 1.5 }}
-              />
-              <Divider />
-              <CardContent>
-                {editMode ? (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <TextField
-                      label="Prénom"
-                      fullWidth
-                      value={profile?.firstName || ''}
-                      onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
-                      variant="outlined"
-                      size="small"
-                    />
-                    <TextField
-                      label="Nom"
-                      fullWidth
-                      value={profile?.lastName || ''}
-                      onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
-                      variant="outlined"
-                      size="small"
-                    />
-                    <TextField
-                      label="Email"
-                      fullWidth
-                      type="email"
-                      value={profile?.email || ''}
-                      onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                      variant="outlined"
-                      size="small"
-                    />
-                  </Box>
-                ) : (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                    <Box>
-                      <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>Prénom</Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 500, color: '#02647E' }}>{profile?.firstName || '—'}</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>Nom</Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 500, color: '#02647E' }}>{profile?.lastName || '—'}</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>Email</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 500, color: '#02647E', fontFamily: 'monospace' }}>{profile?.email || '—'}</Typography>
-                    </Box>
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Right Column: Account Info */}
-          <Grid item xs={12} md={6}>
-            <Card sx={{ height: '100%', boxShadow: '0 2px 8px rgba(2, 100, 126, 0.08)', border: `1px solid ${alpha('#02647E', 0.1)}` }}>
-              <CardHeader
-                avatar={<LockIcon sx={{ color: '#02647E' }} />}
-                title="Compte et Sécurité"
-                titleTypographyProps={{ variant: 'h6', sx: { color: '#02647E', fontWeight: 700 } }}
-                sx={{ pb: 1.5 }}
-              />
-              <Divider />
-              <CardContent>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>Rôle</Typography>
-                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                      <Typography variant="body1" sx={{ fontWeight: 500, color: '#02647E' }}>
-                        {isAdmin ? 'Administrateur' : 'Utilisateur Standard'}
-                      </Typography>
-                      <Chip
-                        label={isAdmin ? 'PRIVILÉGIÉ' : 'STANDARD'}
-                        size="small"
-                        sx={{
-                          bgcolor: isAdmin ? alpha('#E05B5B', 0.15) : alpha('#72BDD1', 0.15),
-                          color: isAdmin ? '#E05B5B' : '#02647E',
-                          fontWeight: 700,
-                          fontSize: '0.65rem'
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                  <Divider />
-                  <Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-                      <CalendarTodayIcon sx={{ fontSize: 16, color: '#72BDD1' }} />
-                      <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5 }}>Membre depuis</Typography>
-                    </Box>
-                    <Typography variant="body2" sx={{ fontWeight: 500, color: '#02647E' }}>{createdDate}</Typography>
-                  </Box>
-                  <Divider />
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>ID Utilisateur</Typography>
-                    <Typography variant="caption" sx={{ fontFamily: 'monospace', color: '#666', fontSize: '0.8rem' }}>{profile?.id || 'N/A'}</Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-
-        {/* Security Section - Password Change */}
-        {editMode && (
-          <Card sx={{ boxShadow: '0 2px 8px rgba(2, 100, 126, 0.08)', border: `1px solid ${alpha('#02647E', 0.1)}`, mb: 3 }}>
+      {/* Main Content Grid */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        {/* Personal Information */}
+        <Grid item xs={12} md={6}>
+          <Card sx={{ 
+            height: '100%',
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            transition: 'all 0.3s',
+            '&:hover': { boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }
+          }}>
             <CardHeader
-              avatar={<LockIcon sx={{ color: '#02647E' }} />}
-              title="Changer le mot de passe"
-              titleTypographyProps={{ variant: 'h6', sx: { color: '#02647E', fontWeight: 700 } }}
-              subheader="Optionnel - laissez vide pour conserver votre mot de passe actuel"
-              sx={{ pb: 1.5 }}
+              avatar={<Avatar sx={{ bgcolor: alpha('#02647E', 0.15), color: '#02647E' }}><PersonIcon /></Avatar>}
+              title={<Typography variant="h6" fontWeight={600}>Informations Personnelles</Typography>}
+              sx={{ pb: 1 }}
             />
             <Divider />
-            <CardContent>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+            <CardContent sx={{ p: 3 }}>
+              {editMode ? (
+                <Stack spacing={2}>
                   <TextField
-                    label="Nouveau mot de passe"
-                    type="password"
+                    label="Prénom"
                     fullWidth
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    variant="outlined"
-                    size="small"
-                    placeholder="Min. 6 caractères"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    label="Confirmer le mot de passe"
-                    type="password"
-                    fullWidth
-                    value={passwordConfirm}
-                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                    value={profile?.firstName || ''}
+                    onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
                     variant="outlined"
                     size="small"
                   />
-                </Grid>
-              </Grid>
+                  <TextField
+                    label="Nom"
+                    fullWidth
+                    value={profile?.lastName || ''}
+                    onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
+                    variant="outlined"
+                    size="small"
+                  />
+                  <TextField
+                    label="Email"
+                    fullWidth
+                    type="email"
+                    value={profile?.email || ''}
+                    onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                    variant="outlined"
+                    size="small"
+                  />
+                </Stack>
+              ) : (
+                <Stack spacing={2.5}>
+                  <Box>
+                    <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>Prénom</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 500, color: '#02647E' }}>{profile?.firstName || '—'}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>Nom</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 500, color: '#02647E' }}>{profile?.lastName || '—'}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>Email</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 500, color: '#02647E', fontFamily: 'monospace' }}>{profile?.email || '—'}</Typography>
+                  </Box>
+                </Stack>
+              )}
             </CardContent>
           </Card>
-        )}
+        </Grid>
 
-        {/* Action Buttons */}
-        {editMode && (
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-            <Button
-              variant="outlined"
-              startIcon={<CancelIcon />}
-              onClick={() => {
-                setEditMode(false)
-                setPassword('')
-                setPasswordConfirm('')
-              }}
-              disabled={saving}
-              sx={{ color: '#666', borderColor: '#ccc' }}
-            >
-              Annuler
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<SaveIcon />}
-              onClick={save}
-              disabled={saving}
-              sx={{
-                background: `linear-gradient(135deg, #02647E 0%, #72BDD1 100%)`,
-                color: '#fff',
-                fontWeight: 600
-              }}
-            >
-              {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
-            </Button>
-          </Box>
-        )}
+        {/* Account & Security */}
+        <Grid item xs={12} md={6}>
+          <Card sx={{ 
+            height: '100%',
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            transition: 'all 0.3s',
+            '&:hover': { boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }
+          }}>
+            <CardHeader
+              avatar={<Avatar sx={{ bgcolor: alpha('#52B57D', 0.15), color: '#52B57D' }}><SecurityIcon /></Avatar>}
+              title={<Typography variant="h6" fontWeight={600}>Sécurité & Compte</Typography>}
+              sx={{ pb: 1 }}
+            />
+            <Divider />
+            <CardContent sx={{ p: 3 }}>
+              <Stack spacing={2}>
+                <Box>
+                  <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>Rôle</Typography>
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <Typography variant="body1" sx={{ fontWeight: 500, color: '#02647E' }}>
+                      {isAdmin ? 'Administrateur' : 'Utilisateur Standard'}
+                    </Typography>
+                    <Chip
+                      label={isAdmin ? 'PRIVILÉGIÉ' : 'STANDARD'}
+                      size="small"
+                      sx={{
+                        bgcolor: isAdmin ? alpha('#E05B5B', 0.15) : alpha('#72BDD1', 0.15),
+                        color: isAdmin ? '#E05B5B' : '#02647E',
+                        fontWeight: 700,
+                        fontSize: '0.65rem'
+                      }}
+                    />
+                  </Box>
+                </Box>
+                <Divider />
+                <Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                    <CalendarTodayIcon sx={{ fontSize: 16, color: '#72BDD1' }} />
+                    <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5 }}>Membre depuis</Typography>
+                  </Box>
+                  <Typography variant="body2" sx={{ fontWeight: 500, color: '#02647E' }}>{createdDate}</Typography>
+                </Box>
+                <Divider />
+                <Box>
+                  <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>ID Utilisateur</Typography>
+                  <Typography variant="caption" sx={{ fontFamily: 'monospace', color: '#666', fontSize: '0.8rem' }}>{profile?.id || 'N/A'}</Typography>
+                </Box>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
-        {/* Snackbar Notifications */}
-        <Snackbar open={!!notice} autoHideDuration={6000} onClose={() => setNotice(null)}>
-          {notice ? <Alert onClose={() => setNotice(null)} severity={notice.severity} sx={{ width: '100%' }}>{notice.message}</Alert> : null}
-        </Snackbar>
+      {/* Password Change Section */}
+      {editMode && (
+        <Card sx={{ 
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'divider',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+          mb: 3
+        }}>
+          <CardHeader
+            avatar={<Avatar sx={{ bgcolor: alpha('#E05B5B', 0.15), color: '#E05B5B' }}><LockIcon /></Avatar>}
+            title={<Typography variant="h6" fontWeight={600}>Changer le mot de passe</Typography>}
+            subheader="Optionnel - laissez vide pour conserver votre mot de passe actuel"
+            sx={{ pb: 1.5 }}
+          />
+          <Divider />
+          <CardContent sx={{ p: 3 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Nouveau mot de passe"
+                  type="password"
+                  fullWidth
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  variant="outlined"
+                  size="small"
+                  placeholder="Min. 6 caractères"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Confirmer le mot de passe"
+                  type="password"
+                  fullWidth
+                  value={passwordConfirm}
+                  onChange={(e) => setPasswordConfirm(e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Preferences & Notifications Section */}
+      <Card sx={{ 
+        borderRadius: 3,
+        border: '1px solid',
+        borderColor: 'divider',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+        mb: 3
+      }}>
+        <CardHeader
+          avatar={<Avatar sx={{ bgcolor: alpha('#29BAE2', 0.15), color: '#29BAE2' }}><NotificationsIcon /></Avatar>}
+          title={<Typography variant="h6" fontWeight={600}>Préférences & Notifications</Typography>}
+          sx={{ pb: 1 }}
+        />
+        <Divider />
+        <CardContent sx={{ p: 3 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#02647E' }}>Alertes par Email</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Recevoir les notifications importantes par email</Typography>
+                <Chip label="Activé" sx={{ bgcolor: alpha('#52B57D', 0.15), color: '#52B57D', fontWeight: 600 }} />
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#02647E' }}>Rapports Hebdomadaires</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Résumé hebdomadaire de l'activité réseau</Typography>
+                <Chip label="Activé" sx={{ bgcolor: alpha('#52B57D', 0.15), color: '#52B57D', fontWeight: 600 }} />
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#02647E' }}>Thème Sombre</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Utiliser l'interface sombre (bientôt disponible)</Typography>
+                <Chip label="Désactivé" sx={{ bgcolor: alpha('#999', 0.15), color: '#666', fontWeight: 600 }} />
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#02647E' }}>Données Personnelles</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Partage des données d'utilisation pour amélioration</Typography>
+                <Chip label="Autorisé" sx={{ bgcolor: alpha('#52B57D', 0.15), color: '#52B57D', fontWeight: 600 }} />
+              </Box>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
+      {/* Action Buttons */}
+      {editMode && (
+        <Stack direction="row" spacing={2} sx={{ justifyContent: 'flex-end' }}>
+          <Button
+            variant="outlined"
+            startIcon={<CancelIcon />}
+            onClick={() => {
+              setEditMode(false)
+              setPassword('')
+              setPasswordConfirm('')
+            }}
+            disabled={saving}
+            sx={{ color: '#666', borderColor: '#ddd' }}
+          >
+            Annuler
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<SaveIcon />}
+            onClick={save}
+            disabled={saving}
+            sx={{
+              background: `linear-gradient(135deg, #02647E 0%, #72BDD1 100%)`,
+              color: '#fff',
+              fontWeight: 600
+            }}
+          >
+            {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+          </Button>
+        </Stack>
+      )}
+
+      {/* Snackbar Notifications */}
+      <Snackbar open={!!notice} autoHideDuration={6000} onClose={() => setNotice(null)}>
+        {notice ? <Alert onClose={() => setNotice(null)} severity={notice.severity} sx={{ width: '100%' }}>{notice.message}</Alert> : null}
+      </Snackbar>
       </Box>
     </Box>
   )

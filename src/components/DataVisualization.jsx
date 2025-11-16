@@ -67,8 +67,7 @@ export function DataVisualization() {
             sx={{
                 minHeight: '100vh',
                 background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
-                pt: { xs: 10, sm: 9, md: 8 },
-                mt: { xs: 2, sm: 1 },
+                pt: { xs: 11, sm: 10, md: 9 },
                 p: (subItemActive?.page === 'bandwidth' || subItemActive?.page === 'ipsource' || subItemActive?.page === 'flow' || subItemActive?.page === 'service') ? 0 : { xs: 2, sm: 3, md: 4 },
             }}
         >

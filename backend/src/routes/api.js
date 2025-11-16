@@ -392,6 +392,203 @@ function mountApiRoutes(app, esClient, logService) {
       res.status(500).json({ error: err.message });
     }
   });
+
+  // Advanced exploration search with multiple filters
+  app.post('/api/exploration/search', async (req, res) => {
+    try {
+      const {
+        timeRange,
+        sourceIp,
+        destinationIp,
+        sourcePort,
+        destinationPort,
+        protocol,
+        from = 0,
+        size = 50,
+        sortField = '@timestamp',
+        sortOrder = 'desc'
+      } = req.body;
+
+      const mustClauses = [];
+      const filterClauses = [];
+
+      // Time range filter
+      if (timeRange?.from && timeRange?.to) {
+        filterClauses.push({
+          range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } }
+        });
+      }
+
+      // IP filters
+      if (sourceIp) {
+        mustClauses.push({ term: { 'source.ip': sourceIp } });
+      }
+      if (destinationIp) {
+        mustClauses.push({ term: { 'destination.ip': destinationIp } });
+      }
+
+      // Port filters
+      if (sourcePort) {
+        mustClauses.push({ term: { 'source.port': parseInt(sourcePort) } });
+      }
+      if (destinationPort) {
+        mustClauses.push({ term: { 'destination.port': parseInt(destinationPort) } });
+      }
+
+      // Protocol filter
+      if (protocol) {
+        mustClauses.push({ term: { 'network.protocol': protocol.toLowerCase() } });
+      }
+
+      const result = await esClient.search({
+        index: process.env.ES_INDEX || 'filebeat-*',
+        from,
+        size,
+        body: {
+          query: {
+            bool: {
+              must: mustClauses.length > 0 ? mustClauses : [{ match_all: {} }],
+              filter: filterClauses
+            }
+          },
+          sort: [{ [sortField]: { order: sortOrder } }]
+        }
+      });
+
+      res.json({
+        total: result.hits.total.value,
+        hits: result.hits.hits,
+        took: result.took
+      });
+    } catch (err) {
+      console.error('Erreur exploration search:', err.message);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // IP range search
+  app.post('/api/exploration/ip-range', async (req, res) => {
+    try {
+      const {
+        timeRange,
+        startIp,
+        endIp,
+        field = 'source.ip',
+        size = 10
+      } = req.body;
+
+      if (!startIp || !endIp) {
+        return res.status(400).json({ error: 'startIp and endIp are required' });
+      }
+
+      // Convert IP strings to numbers for comparison
+      const ipToNumber = (ip) => {
+        const parts = ip.split('.');
+        return (parseInt(parts[0]) * 16777216) + (parseInt(parts[1]) * 65536) + (parseInt(parts[2]) * 256) + parseInt(parts[3]);
+      };
+
+      const startNum = ipToNumber(startIp);
+      const endNum = ipToNumber(endIp);
+
+      const result = await esClient.search({
+        index: process.env.ES_INDEX || 'filebeat-*',
+        body: {
+          size: 0,
+          query: {
+            bool: {
+              filter: [
+                timeRange?.from && timeRange?.to ? { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } } : { match_all: {} }
+              ]
+            }
+          },
+          aggs: {
+            ip_distribution: {
+              terms: { field, size },
+              aggs: {
+                total_bytes: { sum: { field: 'network.bytes' } },
+                services: { terms: { field: 'network.application', size: 5 } }
+              }
+            }
+          }
+        }
+      });
+
+      // Filter results by IP range
+      const filtered = result.aggregations.ip_distribution.buckets.filter(bucket => {
+        try {
+          const ipNum = ipToNumber(bucket.key);
+          return ipNum >= startNum && ipNum <= endNum;
+        } catch {
+          return false;
+        }
+      });
+
+      res.json({
+        results: filtered,
+        total: filtered.length
+      });
+    } catch (err) {
+      console.error('Erreur IP range search:', err.message);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Service consumption by port
+  app.post('/api/exploration/services-by-port', async (req, res) => {
+    try {
+      const {
+        timeRange,
+        port,
+        field = 'destination.port'
+      } = req.body;
+
+      if (!port) {
+        return res.status(400).json({ error: 'port is required' });
+      }
+
+      const result = await esClient.search({
+        index: process.env.ES_INDEX || 'filebeat-*',
+        body: {
+          size: 0,
+          query: {
+            bool: {
+              must: [{ term: { [field]: parseInt(port) } }],
+              filter: timeRange?.from && timeRange?.to ? [
+                { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }
+              ] : []
+            }
+          },
+          aggs: {
+            services: {
+              terms: { field: 'network.application', size: 20 }
+            },
+            by_source_ip: {
+              terms: { field: 'source.ip', size: 20 },
+              aggs: {
+                total_bytes: { sum: { field: 'network.bytes' } },
+                services: { terms: { field: 'network.application', size: 5 } }
+              }
+            },
+            total_bytes: { sum: { field: 'network.bytes' } },
+            avg_bytes: { avg: { field: 'network.bytes' } }
+          }
+        }
+      });
+
+      res.json({
+        services: result.aggregations.services.buckets,
+        topSources: result.aggregations.by_source_ip.buckets,
+        stats: {
+          totalBytes: result.aggregations.total_bytes.value,
+          avgBytes: Math.round(result.aggregations.avg_bytes.value || 0),
+          portQueried: port
+        }
+      });
+    } catch (err) {
+      console.error('Erreur services by port:', err.message);
+      res.status(500).json({ error: err.message });
+    }
+  });
 }
 
 module.exports = { mountApiRoutes };
