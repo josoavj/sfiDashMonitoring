@@ -8,6 +8,7 @@ import SettingsPage from './components/SettingsPage'
 import ProfilePage from './components/ProfilePage'
 import ReportsPage from './components/ReportsPage'
 import { AlertesPage } from './components/AlertesPage'
+import ExplorationPage from './components/ExplorationPage'
 import TopBar from './components/TopBar'
 import { NavProvider } from './context/NavContext'
 import theme from './theme'
@@ -24,6 +25,7 @@ function App() {
                     <Route path="/auth/signup" element={<SignUpComponent />} />
                     <Route path="/auth/login" element={<LogInComponent />} />
                     <Route path="/visualization" element={<DataVisualization />} />
+                    <Route path="/exploration" element={<ExplorationPage />} />
                     <Route path="/reports" element={<ReportsPage />} />
                     <Route path="/alerts" element={<AlertesPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
