@@ -70,6 +70,21 @@ if [ ! -f "package.json" ] || [ ! -d "src" ]; then
 fi
 echo -e "${GREEN}  ✓ Frontend trouvé${NC}\n"
 
+# Create necessary directories
+echo -e "${BLUE}📁 Création des répertoires...${NC}"
+mkdir -p data
+mkdir -p logs
+echo -e "${GREEN}  ✓ Répertoires créés${NC}\n"
+
+# Setup backend .env if missing
+if [ ! -f "backend/.env" ]; then
+  echo -e "${YELLOW}  ⚠ backend/.env manquant${NC}"
+  if [ -f "backend/envDefault" ]; then
+    cp backend/envDefault backend/.env
+    echo -e "${GREEN}  ✓ Créé à partir de envDefault${NC}"
+  fi
+fi
+
 # Install backend dependencies if missing
 if [ ! -d "backend/node_modules" ]; then
   echo -e "${YELLOW}  ⚠ Dépendances backend manquantes${NC}"
