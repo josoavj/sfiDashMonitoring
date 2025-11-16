@@ -385,9 +385,9 @@ export default function ExplorationPage() {
             onClick={handleSearch}
             disabled={loading}
             sx={{
-              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+              background: 'linear-gradient(135deg, #02647E 0%, #72BDD1 100%)',
               '&:hover': {
-                boxShadow: `0 8px 24px ${theme.palette.primary.main}40`
+                boxShadow: '0 8px 24px rgba(2, 100, 126, 0.4)'
               }
             }}
           >
@@ -415,12 +415,12 @@ export default function ExplorationPage() {
             <TextField
               fullWidth
               size="small"
-              label="IP de début"
+              label="IP Client (début)"
               placeholder="ex: 192.168.1.1"
               value={ipRangeStart}
               onChange={(e) => setIpRangeStart(e.target.value)}
               variant="outlined"
-              helperText="Format: XXX.XXX.XXX.XXX"
+              helperText="Première IP source (machine client)"
             />
           </Grid>
 
@@ -428,12 +428,12 @@ export default function ExplorationPage() {
             <TextField
               fullWidth
               size="small"
-              label="IP de fin"
+              label="IP Client (fin)"
               placeholder="ex: 192.168.255.255"
               value={ipRangeEnd}
               onChange={(e) => setIpRangeEnd(e.target.value)}
               variant="outlined"
-              helperText="Format: XXX.XXX.XXX.XXX"
+              helperText="Dernière IP source (machine client)"
             />
           </Grid>
 
@@ -479,9 +479,9 @@ export default function ExplorationPage() {
             onClick={handleSearch}
             disabled={loading || !ipRangeStart || !ipRangeEnd}
             sx={{
-              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+              background: 'linear-gradient(135deg, #02647E 0%, #72BDD1 100%)',
               '&:hover': {
-                boxShadow: `0 8px 24px ${theme.palette.primary.main}40`
+                boxShadow: '0 8px 24px rgba(2, 100, 126, 0.4)'
               }
             }}
           >
@@ -555,108 +555,130 @@ export default function ExplorationPage() {
       )}
 
       {!loading && results.length > 0 && (
-        <Paper elevation={2} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-          <Box sx={{ p: 3, borderBottom: `1px solid ${theme.palette.divider}`, backgroundColor: 'rgba(0, 0, 0, 0.02)' }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-              {totalResults} résultats trouvés (affichage {pagination.from + 1}-{Math.min(pagination.from + pagination.size, totalResults)})
-            </Typography>
-          </Box>
-
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow sx={{ backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)' }}>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Timestamp</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>IP Source</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>IP Destination</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Ports</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }} align="right">Données (bytes)</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Service</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Protocole</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {results.map((row, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{
-                      '&:hover': {
-                        backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)'
-                      }
-                    }}
-                  >
-                    <TableCell sx={{ fontSize: '0.875rem' }}>
+        <>
+        <Paper elevation={2} sx={{ borderRadius: 2, p: 3, mb: 3 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+            📊 Résultats en Vue Moderne ({totalResults} trouvés)
+          </Typography>
+          
+          <Grid container spacing={2}>
+            {results.slice(pagination.from, pagination.from + pagination.size).map((row, index) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+                <Paper
+                  elevation={1}
+                  sx={{
+                    p: 2.5,
+                    borderRadius: 2,
+                    background: `linear-gradient(135deg, ${row['network.protocol'] === 'tcp' ? '#2196F3' : '#FF9800'}08 0%, transparent 100%)`,
+                    border: `1px solid ${row['network.protocol'] === 'tcp' ? '#2196F3' : '#FF9800'}20`,
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      boxShadow: `0 8px 16px ${row['network.protocol'] === 'tcp' ? '#2196F3' : '#FF9800'}30`,
+                      transform: 'translateY(-4px)'
+                    }
+                  }}
+                >
+                  {/* En-tête avec timestamp */}
+                  <Box sx={{ mb: 1.5, pb: 1.5, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
+                    <Typography variant="caption" sx={{ fontSize: '0.75rem', color: 'textSecondary' }}>
                       {formatDate(row['@timestamp'])}
-                    </TableCell>
-                    <TableCell>
+                    </Typography>
+                  </Box>
+
+                  {/* IPs */}
+                  <Box sx={{ mb: 1.5 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
+                      🔹 Flot
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
                       <Chip
                         label={row['source.ip'] || 'N/A'}
                         size="small"
                         variant="outlined"
-                        sx={{ fontFamily: 'monospace' }}
+                        sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}
                       />
-                    </TableCell>
-                    <TableCell>
+                      <Typography sx={{ fontSize: '0.75rem', fontWeight: 600 }}>→</Typography>
                       <Chip
                         label={row['destination.ip'] || 'N/A'}
                         size="small"
                         variant="outlined"
-                        sx={{ fontFamily: 'monospace' }}
+                        sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}
                       />
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '0.875rem' }}>
-                      {row['source.port']} → {row['destination.port']}
-                    </TableCell>
-                    <TableCell align="right">
-                      <Chip
-                        label={formatBytes(row['network.bytes'] || 0)}
-                        size="small"
-                        color={row['network.bytes'] > 1000000 ? 'error' : 'default'}
-                        variant="outlined"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={row['network.application'] || 'Unknown'}
-                        size="small"
-                        color="primary"
-                        variant="filled"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={row['network.protocol']?.toUpperCase() || 'N/A'}
-                        size="small"
-                        sx={{
-                          backgroundColor: row['network.protocol'] === 'tcp' ? '#2196F3' : '#FF9800',
-                          color: 'white'
-                        }}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                    </Box>
+                  </Box>
 
-          {/* Pagination */}
-          <Box sx={{ p: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-            <Button
-              size="small"
-              disabled={pagination.from === 0}
-              onClick={() => setPagination(prev => ({ ...prev, from: Math.max(0, prev.from - prev.size) }))}
-            >
-              Précédent
-            </Button>
-            <Button
-              size="small"
-              disabled={pagination.from + pagination.size >= totalResults}
-              onClick={() => setPagination(prev => ({ ...prev, from: prev.from + prev.size }))}
-            >
-              Suivant
-            </Button>
-          </Box>
+                  {/* Ports */}
+                  <Box sx={{ mb: 1.5 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
+                      🔌 Ports
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.875rem', fontFamily: 'monospace' }}>
+                      {row['source.port']} → {row['destination.port']}
+                    </Typography>
+                  </Box>
+
+                  {/* Service et Protocole */}
+                  <Box sx={{ mb: 1.5, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    <Chip
+                      label={row['network.application'] || 'Unknown'}
+                      size="small"
+                      color="primary"
+                      variant="filled"
+                      sx={{ fontSize: '0.75rem' }}
+                    />
+                    <Chip
+                      label={row['network.protocol']?.toUpperCase() || 'N/A'}
+                      size="small"
+                      sx={{
+                        backgroundColor: row['network.protocol'] === 'tcp' ? '#2196F3' : '#FF9800',
+                        color: 'white',
+                        fontSize: '0.75rem'
+                      }}
+                    />
+                  </Box>
+
+                  {/* Données */}
+                  <Box sx={{ pt: 1.5, borderTop: '1px solid rgba(0,0,0,0.1)' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
+                      📦 Données
+                    </Typography>
+                    <Chip
+                      label={formatBytes(row['network.bytes'] || 0)}
+                      size="small"
+                      color={row['network.bytes'] > 1000000 ? 'error' : 'success'}
+                      variant="filled"
+                      sx={{ fontSize: '0.75rem' }}
+                    />
+                  </Box>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
         </Paper>
+
+        {/* Pagination */}
+        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
+          <Button
+            size="small"
+            variant="outlined"
+            disabled={pagination.from === 0}
+            onClick={() => setPagination(prev => ({ ...prev, from: Math.max(0, prev.from - prev.size) }))}
+          >
+            ← Précédent
+          </Button>
+          <Typography sx={{ alignSelf: 'center', fontSize: '0.875rem', fontWeight: 600 }}>
+            Page {Math.floor(pagination.from / pagination.size) + 1}
+          </Typography>
+          <Button
+            size="small"
+            variant="outlined"
+            disabled={pagination.from + pagination.size >= totalResults}
+            onClick={() => setPagination(prev => ({ ...prev, from: prev.from + prev.size }))}
+          >
+            Suivant →
+          </Button>
+        </Box>
+        </>
       )}
 
       {!loading && results.length === 0 && totalResults === 0 && (
