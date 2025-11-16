@@ -3,8 +3,10 @@ import { Box, Card, CardHeader, CardContent, Button, IconButton, CircularProgres
 import DeleteIcon from '@mui/icons-material/Delete'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import { DataGrid } from '@mui/x-data-grid'
+import { useNotifications } from '../context/NotificationContext'
 
 export default function UserManagement() {
+  const { addNotification } = useNotifications()
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(false)
   const [notice, setNotice] = useState(null)
@@ -24,7 +26,9 @@ export default function UserManagement() {
       setRows(list.map(u => ({ id: u.id || u._id || u.username, username: u.username, email: u.email, createdAt: u.createdAt })))
     } catch (err) {
       console.warn('loadUsers error', err)
-      setNotice({ severity: 'warning', message: 'Impossible de charger la liste des utilisateurs (vérifiez votre authentification)' })
+      const errorMsg = 'Impossible de charger la liste des utilisateurs (vérifiez votre authentification)'
+      setNotice({ severity: 'warning', message: errorMsg })
+      addNotification(errorMsg, 'error')
     } finally {
       setLoading(false)
     }
@@ -41,11 +45,15 @@ export default function UserManagement() {
       
       const res = await fetch(`/api/users/${id}`, { method: 'DELETE', headers })
       if (!res.ok) throw new Error('delete failed')
-      setNotice({ severity: 'success', message: 'Utilisateur supprimé' })
+      const successMsg = 'Utilisateur supprimé'
+      setNotice({ severity: 'success', message: successMsg })
+      addNotification(successMsg, 'success')
       loadUsers()
     } catch (err) {
       console.error(err)
-      setNotice({ severity: 'error', message: 'Échec suppression' })
+      const errorMsg = 'Échec suppression'
+      setNotice({ severity: 'error', message: errorMsg })
+      addNotification(errorMsg, 'error')
     }
   }
 
