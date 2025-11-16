@@ -162,7 +162,7 @@ export function AlertesPage() {
     }
 
     return (
-        <Box sx={{ width: '100%', p: 3 }}>
+        <Box sx={{ width: '100%', p: 3, pt: { xs: 10, sm: 9 }, mt: { xs: 2, sm: 1 } }}>
             {/* Header */}
             <Paper
               elevation={0}
