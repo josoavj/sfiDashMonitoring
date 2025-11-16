@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Backend API - Accessible sur le réseau
+  backend:
+    build:
+      context: ..
+      dockerfile: deployed/Dockerfile.backend
+    container_name: sfi-monitoring-backend
+    ports:
+      - "3001:3001"  # Accessible depuis le réseau
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - HOST=0.0.0.0  # Écoute sur toutes les interfaces
+      - FRONTEND_URL=http://${SERVER_IP:-192.168.1.100} http://${SERVER_HOSTNAME:-sfi-monitoring}
+    volumes:
+      - ./logs:/app/logs
+      - ../backend/.env:/app/backend/.env:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend - Servie par nginx
+  frontend:
+    build:
+      context: ..
+      dockerfile: deployed/Dockerfile.frontend
+      args:
+        - VITE_API_URL=http://${SERVER_IP:-192.168.1.100}:3001
+        - VITE_BACKEND_WS_URL=ws://${SERVER_IP:-192.168.1.100}:3001
+        - VITE_ENV=production
+    container_name: sfi-monitoring-frontend
+    ports:
+      - "80:80"  # Accessible depuis le réseau
+      # - "443:443"  # HTTPS (décommentez avec SSL)
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      # - ./ssl:/etc/nginx/ssl:ro  # Pour HTTPS
+    depends_on:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/index.html || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  logs:
+    driver: local
