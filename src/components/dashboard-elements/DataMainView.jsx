@@ -73,8 +73,9 @@ export function DataMainView({ page }) {
 	if (!page || page === 'view') {
 		return (
 			<>
-				<Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}><SocketStatus /></Box>
-				<Grid container spacing={2}>
+				<Box sx={{ display: 'flex', justifyContent: 'center', mb: 1, pt: { xs: 10, sm: 9, md: 8 } }}><SocketStatus /></Box>
+				<Box sx={{ p: { xs: 2, sm: 3, md: 4 }, pt: 0 }}>
+					<Grid container spacing={2}>
 					<Grid item xs={12} md={8}>
 						<Paper sx={{ p: 1 }}>
 							<ChartView />
@@ -102,6 +103,7 @@ export function DataMainView({ page }) {
 						</Paper>
 					</Grid>
 				</Grid>
+				</Box>
 			</>
 		)
 	}
@@ -113,7 +115,7 @@ export function DataMainView({ page }) {
 		const padding = page === 'flow' ? 0 : 2
 
 		return (
-			<Box sx={{ width: '100%' }}>
+			<Box sx={{ width: '100%', pt: { xs: 10, sm: 9, md: 8 } }}>
 				{renderFullPageHeader(config)}
 				<Box sx={{ width: '100%', p: padding, pt: 0, mt: 0 }}>
 					<Component />

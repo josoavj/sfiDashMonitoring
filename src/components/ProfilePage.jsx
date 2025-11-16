@@ -81,7 +81,7 @@ export default function ProfilePage() {
     }
   }
 
-  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, pt: { xs: 10, sm: 9 }, mt: { xs: 2, sm: 1 }, minHeight: '100vh' }}><CircularProgress sx={{ color: '#02647E' }} /></Box>
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, pt: { xs: 10, sm: 9, md: 8 }, minHeight: '100vh' }}><CircularProgress sx={{ color: '#02647E' }} /></Box>
 
   const fullName = ((profile?.firstName || '') + (profile?.lastName ? ' ' + profile.lastName : '') || 'Utilisateur').trim()
   const initials = fullName.split(' ').map(n => n.charAt(0).toUpperCase()).join('').slice(0, 2)
@@ -92,12 +92,11 @@ export default function ProfilePage() {
     <Box sx={{ 
       width: '100%', 
       minHeight: '100vh', 
-      pt: { xs: 10, sm: 9, md: 8 },
-      p: { xs: 2, sm: 3, md: 4 },
       background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
-      maxWidth: '1800px',
-      mx: 'auto'
+      pt: { xs: 10, sm: 9, md: 8 },
+      p: { xs: 2, sm: 3, md: 4 }
     }}>
+      <Box sx={{ maxWidth: '1800px', mx: 'auto' }}>
       {/* Header with Gradient Background */}
       <Paper
         elevation={0}
@@ -433,6 +432,7 @@ export default function ProfilePage() {
       <Snackbar open={!!notice} autoHideDuration={6000} onClose={() => setNotice(null)}>
         {notice ? <Alert onClose={() => setNotice(null)} severity={notice.severity} sx={{ width: '100%' }}>{notice.message}</Alert> : null}
       </Snackbar>
+      </Box>
     </Box>
   )
 }
