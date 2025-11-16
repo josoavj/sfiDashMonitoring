@@ -1,9 +1,9 @@
 import { DataGrid } from '@mui/x-data-grid'
 import { useEffect, useState, useRef } from 'react'
-import { Box, Grid, Card, CardHeader, CardContent, Avatar, Typography, Stack, Chip, alpha, Divider } from '@mui/material'
+import { Box, Grid, Card, CardHeader, CardContent, Avatar, Typography, Stack, Chip, alpha, Divider, IconButton, Tooltip } from '@mui/material'
 import { LineChart } from '@mui/x-charts'
 import { onThrottled } from '../../socketClient'
-import { Cloud, TrendingUp } from '@mui/icons-material'
+import { Cloud, TrendingUp, Refresh } from '@mui/icons-material'
 
 export function FlowView() {
     const [rows, setRows] = useState([])
@@ -272,7 +272,14 @@ export function FlowView() {
                             }
                             title={<Typography variant="h6" fontWeight={600}>Collecte des logs</Typography>}
                             subheader="Nombre de logs collectés en temps réel"
-                            sx={{ pb: 1 }}
+                            action={
+                                <Tooltip title="Actualiser">
+                                    <IconButton size="small" onClick={loadFlows} disabled={loading} sx={{ bgcolor: alpha('#29BAE2', 0.1) }}>
+                                        <Refresh sx={{ color: '#29BAE2', animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+                                    </IconButton>
+                                </Tooltip>
+                            }
+                            sx={{ pb: 1, '@keyframes spin': { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } } }}
                         />
                         <Divider />
                         <CardContent sx={{ p: 2 }}>
@@ -318,7 +325,14 @@ export function FlowView() {
                             }
                             title={<Typography variant="h6" fontWeight={600}>Flux réseau</Typography>}
                             subheader={`${rows.length} flux affichés (max 200)`}
-                            sx={{ pb: 1 }}
+                            action={
+                                <Tooltip title="Actualiser">
+                                    <IconButton size="small" onClick={loadFlows} disabled={loading} sx={{ bgcolor: alpha('#52B57D', 0.1) }}>
+                                        <Refresh sx={{ color: '#52B57D', animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+                                    </IconButton>
+                                </Tooltip>
+                            }
+                            sx={{ pb: 1, '@keyframes spin': { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } } }}
                         />
                         <Divider />
                         <CardContent sx={{ p: 0 }}>
