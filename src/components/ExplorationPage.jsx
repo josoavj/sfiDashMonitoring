@@ -324,8 +324,17 @@ export default function ExplorationPage() {
                 value={filters.protocol}
                 onChange={(e) => handleFilterChange('protocol', e.target.value)}
                 label="Protocole"
+                displayEmpty
+                renderValue={(value) => {
+                  if (value === '') {
+                    return <span style={{ opacity: 0.6 }}>Sélectionner protocole...</span>
+                  }
+                  return value.toUpperCase()
+                }}
               >
-                <MenuItem value="">-- Tous les protocoles --</MenuItem>
+                <MenuItem value="">
+                  <em>-- Tous les protocoles --</em>
+                </MenuItem>
                 <MenuItem value="tcp">TCP</MenuItem>
                 <MenuItem value="udp">UDP</MenuItem>
                 <MenuItem value="icmp">ICMP</MenuItem>
