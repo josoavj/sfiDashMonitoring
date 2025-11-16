@@ -316,14 +316,16 @@ export default function ExplorationPage() {
 
           {/* Protocole */}
           <Grid item xs={12} sm={6} md={4}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Protocole</InputLabel>
+            <FormControl fullWidth size="small" variant="outlined">
+              <InputLabel id="protocol-label">Protocole</InputLabel>
               <Select
+                labelId="protocol-label"
+                id="protocol-select"
                 value={filters.protocol}
                 onChange={(e) => handleFilterChange('protocol', e.target.value)}
                 label="Protocole"
               >
-                <MenuItem value="">-- Tous --</MenuItem>
+                <MenuItem value="">-- Tous les protocoles --</MenuItem>
                 <MenuItem value="tcp">TCP</MenuItem>
                 <MenuItem value="udp">UDP</MenuItem>
                 <MenuItem value="icmp">ICMP</MenuItem>
