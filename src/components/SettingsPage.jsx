@@ -20,6 +20,7 @@ import {
   Select,
   Typography,
   IconButton,
+  Paper,
 } from '@mui/material'
 import FileUploadIcon from '@mui/icons-material/FileUpload'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -127,9 +128,37 @@ export default function SettingsPage() {
   const logLevels = useMemo(() => ['debug', 'info', 'warn', 'error'], [])
 
   return (
-    <Box sx={{ p: 2, pt: { xs: 10, sm: 9 }, mt: { xs: 2, sm: 1 } }}>
+    <Box sx={{ 
+      width: '100%', 
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
+      p: { xs: 2, sm: 3, md: 4 },
+      pt: { xs: 10, sm: 9, md: 8 }, 
+      mt: { xs: 2, sm: 1 } 
+    }}>
+      <Box sx={{ maxWidth: '1800px', mx: 'auto' }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 3,
+          background: 'linear-gradient(135deg, #02647E 0%, #72BDD1 100%)',
+          borderRadius: 2,
+          color: 'white',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+              Paramètres
+            </Typography>
+            <Typography sx={{ opacity: 0.9 }}>
+              Configuration de l'application et options avancées
+            </Typography>
+          </Box>
+        </Box>
+      </Paper>
       <Card>
-        <CardHeader title="Paramètres" subheader="Configuration de l'application et options avancées" />
         <CardContent>
           {loading ? (
             <CircularProgress />
@@ -258,6 +287,7 @@ export default function SettingsPage() {
       <Snackbar open={!!notice} autoHideDuration={6000} onClose={() => setNotice(null)}>
         {notice ? <Alert onClose={() => setNotice(null)} severity={notice.severity} sx={{ width: '100%' }}>{notice.message}</Alert> : null}
       </Snackbar>
+      </Box>
     </Box>
   )
 }

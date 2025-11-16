@@ -26,3 +26,19 @@ ES_CERT_PATH=./certs/http_ca.crt
 PORT=3001
 FRONTEND_URL=http://localhost:3000
 NODE_ENV=development
+HOST=0.0.0.0
+
+# ==========================================
+# JWT Configuration
+# ==========================================
+JWT_SECRET=your_super_secret_jwt_key_change_in_production
+JWT_REFRESH_SECRET=your_super_secret_refresh_key_change_in_production
+
+# ==========================================
+# Database (optionnel - SQLite par défaut)
+# ==========================================
+# DB_NAME=monitoring
+# DB_USERNAME=user
+# DB_PASSWORD=password
+# DB_HOST=localhost
+# DB_DIALECT=mariadb
