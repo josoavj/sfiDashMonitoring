@@ -317,44 +317,29 @@ function BandwidthView() {
 
     return (
         <Box sx={{ width: '100%' }}>
-            {/* Header avec stats */}
-            <Paper elevation={0} sx={{ p: 3, mb: 3, borderRadius: 2, background: 'linear-gradient(135deg, #02647E 0%, #72BDD1 100%)', color: 'white' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <TrendingUpIcon sx={{ fontSize: 40, color: 'white' }} />
-                        <Box>
-                            <Typography fontSize={24} fontWeight={700} color="white">
-                                Bande Passante
-                            </Typography>
-                            <Typography fontSize={14} sx={{ color: 'rgba(255,255,255,0.9)' }}>
-                                Surveillance réseau en temps réel
-                            </Typography>
-                        </Box>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Tooltip title="Actualiser tout">
-                            <IconButton
-                                size="large"
-                                onClick={refreshAll}
-                                disabled={refreshLoading}
-                                sx={{
-                                    bgcolor: 'rgba(255,255,255,0.2)',
-                                    color: 'white',
-                                    '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' }
-                                }}
-                            >
-                                <RefreshIcon className={refreshLoading ? 'rotate-animation' : ''} />
-                            </IconButton>
-                        </Tooltip>
-                        <Paper elevation={3} sx={{ px: 3, py: 1.5, bgcolor: 'white' }}>
-                            <Typography fontSize={12} color="text.secondary">Total (5 min)</Typography>
-                            <Typography fontSize={20} fontWeight={700} sx={{ color: '#02647E' }}>
-                                {totalMB.toLocaleString()} MB
-                            </Typography>
-                        </Paper>
-                    </Box>
-                </Box>
-            </Paper>
+            {/* Stats Total en haut à droite */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mb: 3, alignItems: 'center' }}>
+                <Tooltip title="Actualiser tout">
+                    <IconButton
+                        size="large"
+                        onClick={refreshAll}
+                        disabled={refreshLoading}
+                        sx={{
+                            bgcolor: 'rgba(2, 100, 126, 0.1)',
+                            color: '#02647E',
+                            '&:hover': { bgcolor: 'rgba(2, 100, 126, 0.2)' }
+                        }}
+                    >
+                        <RefreshIcon className={refreshLoading ? 'rotate-animation' : ''} />
+                    </IconButton>
+                </Tooltip>
+                <Paper elevation={2} sx={{ px: 3, py: 1.5, bgcolor: 'white' }}>
+                    <Typography fontSize={12} color="text.secondary">Total (5 min)</Typography>
+                    <Typography fontSize={20} fontWeight={700} sx={{ color: '#02647E' }}>
+                        {totalMB.toLocaleString()} MB
+                    </Typography>
+                </Paper>
+            </Box>
 
             {/* Graphique */}
             <Paper elevation={0} sx={{ p: 3, mb: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
