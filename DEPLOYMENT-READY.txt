@@ -1,0 +1,112 @@
+═══════════════════════════════════════════════════════════════════
+ SFI DASHBOARD - DÉPLOIEMENT PRODUCTION
+═══════════════════════════════════════════════════════════════════
+
+✅ TESTS LOCAUX: TOUS PASSENT
+
+Frontend:
+  ✅ React, Vite, Socket.io
+  ✅ Source code OK
+  ✅ Configuration vite.config.js OK
+
+Backend:
+  ✅ Express, Socket.io, Elasticsearch, Sequelize
+  ✅ Server.js OK
+  ✅ Configuration .env OK
+  ✅ Certificat Elasticsearch OK
+
+═══════════════════════════════════════════════════════════════════
+ DÉPLOIEMENT RAPIDE (5-10 minutes)
+═══════════════════════════════════════════════════════════════════
+
+MACHINE LOCALE:
+  $ scp deployed/install-production.sh user@172.27.28.14:/tmp/
+
+SERVEUR UBUNTU (172.27.28.14):
+  $ ssh user@172.27.28.14
+  $ sudo bash /tmp/install-production.sh
+
+Le script fait:
+  ✓ Installe Node.js 18+, Nginx, Git
+  ✓ Crée utilisateur 'sfi' avec sudo sans password
+  ✓ Prépare /opt/sfiDashMonitoring
+  ✓ Installe dépendances npm
+  ✓ Compile frontend
+  ✓ Configure Nginx
+  ✓ Crée service Systemd
+  ✓ Démarre le service
+
+═══════════════════════════════════════════════════════════════════
+ APRÈS INSTALLATION
+═══════════════════════════════════════════════════════════════════
+
+1. Configurer les secrets (IMPORTANT):
+   $ sudo nano /opt/sfiDashMonitoring/backend/.env
+   
+   Générer deux secrets:
+   $ openssl rand -base64 32
+   
+   Remplacer:
+   JWT_SECRET=<secret1>
+   JWT_REFRESH_SECRET=<secret2>
+
+2. Redémarrer:
+   $ sudo systemctl restart sfiDashMonitoring-backend
+
+3. Vérifier:
+   $ sudo bash /opt/sfiDashMonitoring/deployed/check.sh
+
+4. Accéder:
+   http://172.27.28.14
+
+═══════════════════════════════════════════════════════════════════
+ COMMANDES ESSENTIELLES
+═══════════════════════════════════════════════════════════════════
+
+Status:        $ sudo systemctl status sfiDashMonitoring-backend
+Logs temps réel: $ sudo journalctl -u sfiDashMonitoring-backend -f
+Logs (50):     $ sudo journalctl -u sfiDashMonitoring-backend -n 50
+Redémarrer:    $ sudo systemctl restart sfiDashMonitoring-backend
+Stop:          $ sudo systemctl stop sfiDashMonitoring-backend
+Start:         $ sudo systemctl start sfiDashMonitoring-backend
+
+Vérification complète:
+   $ sudo bash /opt/sfiDashMonitoring/deployed/check.sh
+
+Mise à jour future:
+   $ sudo bash /opt/sfiDashMonitoring/deployed/update-production.sh
+
+═══════════════════════════════════════════════════════════════════
+ ARCHITECTURE
+═══════════════════════════════════════════════════════════════════
+
+Utilisateur: sfi (superuser, sudo sans password)
+Répertoire: /opt/sfiDashMonitoring
+
+Frontend:     Nginx (port 80)
+Backend:      Node.js (port 3001, interne via Nginx)
+Elasticsearch: 172.27.28.14:9200 (externe)
+
+Accès navigateur: http://172.27.28.14
+
+═══════════════════════════════════════════════════════════════════
+ EN CAS DE PROBLÈME
+═══════════════════════════════════════════════════════════════════
+
+Backend ne démarre pas:
+  $ sudo journalctl -u sfiDashMonitoring-backend -n 50
+  $ sudo systemctl restart sfiDashMonitoring-backend
+
+502 Bad Gateway:
+  $ sudo systemctl status sfiDashMonitoring-backend
+  $ sudo netstat -tlnp | grep 3001
+
+WebSocket ne fonctionne pas:
+  $ sudo systemctl restart nginx
+
+Elasticsearch indisponible:
+  $ curl -k --user stgSFI:Police2405$ https://172.27.28.14:9200
+
+═══════════════════════════════════════════════════════════════════
+ FAIT LE 17 NOVEMBRE 2025 - PRÊT POUR LA PRODUCTION
+═══════════════════════════════════════════════════════════════════

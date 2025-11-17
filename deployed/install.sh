@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 SERVER_IP="172.27.28.14"
-APP_USER="sfiapp"
+APP_USER="sfi"
 APP_DIR="/opt/sfiDashMonitoring"
 BACKEND_PORT="3001"
 FRONTEND_PORT="80"
@@ -417,3 +417,19 @@ fi
 echo ""
 echo "Logs en temps réel:"
 echo "  sudo journalctl -u sfi-monitoring-backend -f"
+
+# Étape 13 : Rendre les fichiers exécutables pour l'utilisateur sfi
+print_header "Étape 13 : Configuration des permissions pour $APP_USER"
+
+# Rendre les fichiers de déploiement exécutables
+chmod +x $APP_DIR/deployed/*.sh
+chown $APP_USER:$APP_USER $APP_DIR/deployed/*.sh
+
+# Permissions pour les répertoires
+find $APP_DIR -type d -exec chmod u+rwx,g+rx {} \;
+
+# Permissions pour les scripts backend
+find $APP_DIR/backend -name "*.sh" -exec chmod +x {} \;
+
+print_step "Fichiers exécutables configurés pour $APP_USER"
+
