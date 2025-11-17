@@ -1,9 +1,7 @@
-import { Grid, Typography, Stack, CircularProgress, IconButton, Tooltip, Box, Paper, Card, CardHeader, CardContent, Chip, Select, MenuItem, FormControl, InputLabel, Avatar, Divider, alpha, Container } from '@mui/material'
+import { Grid, Typography, Stack, CircularProgress, IconButton, Box, Paper, Card, CardHeader, CardContent, Chip, Avatar, alpha } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import { North, South, Refresh, Close, TrendingUp, TrendingDown, SwapVert, Router, Public, LanOutlined } from '@mui/icons-material'
-import { SparklineSource } from './custom-elements/SparklineSource'
-import { GaugeFlow } from './custom-elements/GaugeFlow'
-import { useEffect, useState, useRef } from 'react'
+import { Refresh, TrendingUp, Router, Public, LanOutlined } from '@mui/icons-material'
+import { useEffect, useState } from 'react'
 import { onThrottled } from '../socketClient'
 import { LineChart } from '@mui/x-charts'
 
@@ -154,162 +152,131 @@ export default function IPViewPage() {
             background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
             p: { xs: 2, sm: 3, md: 4 },
             pt: { xs: 10, sm: 9, md: 8 },
-            mt: { xs: 2, sm: 1 }
         }}>
-            <Box sx={{ maxWidth: '1800px', mx: 'auto' }}>
+            <Box sx={{ maxWidth: '1400px', mx: 'auto' }}>
                 {/* Header */}
                 <Paper
                     elevation={0}
                     sx={{
                         p: 3,
-                        mb: 3,
+                        mb: 4,
                         background: 'linear-gradient(135deg, #02647E 0%, #72BDD1 100%)',
                         borderRadius: 2,
                         color: 'white',
                     }}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <LanOutlined sx={{ fontSize: 40 }} />
                         <Box>
                             <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
                                 Analyse des IPs
                             </Typography>
-                            <Typography sx={{ opacity: 0.9 }}>
+                            <Typography sx={{ opacity: 0.9, fontSize: 14 }}>
                                 Monitoring des adresses IP source et destination avec analyse de bande passante
                             </Typography>
                         </Box>
                     </Box>
                 </Paper>
 
-                {/* Main Content */}
-                <Grid container spacing={3} sx={{ width: '100%', height: 'calc(100vh - 300px)' }}>
-                    {/* Left Column: Tables (50%) */}
-                    <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', gap: 3, height: '100%' }}>
-                        {/* Source IPs Table */}
+                {/* Tables Section */}
+                <Grid container spacing={2} sx={{ mb: 4 }}>
+                    {/* Source IPs Table */}
+                    <Grid item xs={12} md={6}>
                         <Card sx={{
-                            flex: 1,
-                            minHeight: 'auto',
+                            height: '100%',
                             display: 'flex',
                             flexDirection: 'column',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                            border: '1px solid rgba(0,0,0,0.05)',
+                            transition: 'box-shadow 0.3s ease',
+                            '&:hover': {
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.12)'
+                            }
                         }}>
                             <CardHeader
-                                avatar={<Router sx={{ color: 'secondary.main' }} />}
-                                title="IPs Sources"
+                                avatar={<Router sx={{ color: 'secondary.main', fontSize: 24 }} />}
+                                title={<Typography variant="h6" sx={{ fontWeight: 600, fontSize: 16 }}>IPs Sources</Typography>}
                                 subheader="Top 12 dernière heure"
                                 action={
-                                    <IconButton size="small" onClick={loadTop} disabled={loading}>
-                                        <Refresh />
+                                    <IconButton size="small" onClick={loadTop} disabled={loading} title="Actualiser">
+                                        <Refresh sx={{ fontSize: 20 }} />
                                     </IconButton>
                                 }
+                                sx={{ pb: 1.5 }}
                             />
-                            <CardContent sx={{ flex: 1, display: 'flex', overflow: 'hidden', p: 1 }}>
+                            <CardContent sx={{ flex: 1, display: 'flex', overflow: 'hidden', p: 0 }}>
                                 {loading ? (
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                        <CircularProgress />
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', p: 3 }}>
+                                        <CircularProgress size={40} />
                                     </Box>
                                 ) : (
-                                    <Box sx={{ width: '100%', flex: 1 }}>
-                                        <DataGrid
-                                            rows={srcRows}
-                                            columns={sourceColumn}
-                                            pageSizeOptions={[5]}
-                                            disableSelectionOnClick
-                                            density="compact"
-                                            sx={{
-                                                width: '100%',
-                                                height: '100%',
-                                                '& .MuiDataGrid-root': { border: 'none' },
-                                                '& .MuiDataGrid-cell': { borderBottom: '1px solid rgba(224, 224, 224, 1)' },
-                                                '& .MuiDataGrid-columnHeaders': { backgroundColor: '#f5f5f5' },
-                                            }}
-                                        />
-                                    </Box>
-                                )}
-                            </CardContent>
-                        </Card>
-
-                        {/* Destination IPs Table */}
-                        <Card sx={{
-                            flex: 1,
-                            minHeight: 'auto',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                        }}>
-                            <CardHeader
-                                avatar={<Public sx={{ color: 'primary.main' }} />}
-                                title="IPs Destinations"
-                                subheader="Top 12 dernière heure"
-                                action={
-                                    <IconButton size="small" onClick={loadTop} disabled={loading}>
-                                        <Refresh />
-                                    </IconButton>
-                                }
-                            />
-                            <CardContent sx={{ flex: 1, display: 'flex', overflow: 'hidden', p: 1 }}>
-                                {loading ? (
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                        <CircularProgress />
-                                    </Box>
-                                ) : (
-                                    <Box sx={{ width: '100%', flex: 1 }}>
-                                        <DataGrid
-                                            rows={destRows}
-                                            columns={destinationColumn}
-                                            pageSizeOptions={[5]}
-                                            disableSelectionOnClick
-                                            density="compact"
-                                            sx={{
-                                                width: '100%',
-                                                height: '100%',
-                                                '& .MuiDataGrid-root': { border: 'none' },
-                                                '& .MuiDataGrid-cell': { borderBottom: '1px solid rgba(224, 224, 224, 1)' },
-                                                '& .MuiDataGrid-columnHeaders': { backgroundColor: '#f5f5f5' },
-                                            }}
-                                        />
-                                    </Box>
+                                    <DataGrid
+                                        rows={srcRows}
+                                        columns={sourceColumn}
+                                        hideFooterSelectedRowCount
+                                        pageSizeOptions={[5, 10, 12]}
+                                        initialState={{ pagination: { paginationModel: { pageSize: 12 } } }}
+                                        disableSelectionOnClick
+                                        density="compact"
+                                        sx={{
+                                            width: '100%',
+                                            border: 'none',
+                                            '& .MuiDataGrid-root': { border: 'none' },
+                                            '& .MuiDataGrid-cell': { borderBottom: '1px solid rgba(224, 224, 224, 0.5)', fontSize: 13 },
+                                            '& .MuiDataGrid-columnHeaders': { backgroundColor: '#fafafa', fontWeight: 600, fontSize: 12, borderBottom: '2px solid rgba(0,0,0,0.08)' },
+                                            '& .MuiDataGrid-virtualScroller': { overflow: 'auto' },
+                                        }}
+                                    />
                                 )}
                             </CardContent>
                         </Card>
                     </Grid>
 
-                    {/* Right Column: Bandwidth Chart (50%) */}
-                    <Grid item xs={12} md={6} sx={{ display: 'flex', height: '100%' }}>
+                    {/* Destination IPs Table */}
+                    <Grid item xs={12} md={6}>
                         <Card sx={{
-                            width: '100%',
-                            height: 'auto',
-                            minHeight: 'auto',
+                            height: '100%',
                             display: 'flex',
                             flexDirection: 'column',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                            border: '1px solid rgba(0,0,0,0.05)',
+                            transition: 'box-shadow 0.3s ease',
+                            '&:hover': {
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.12)'
+                            }
                         }}>
                             <CardHeader
-                                avatar={<TrendingUp sx={{ color: 'success.main' }} />}
-                                title="Bande Passante"
-                                subheader="Dernières 24 heures"
+                                avatar={<Public sx={{ color: 'primary.main', fontSize: 24 }} />}
+                                title={<Typography variant="h6" sx={{ fontWeight: 600, fontSize: 16 }}>IPs Destinations</Typography>}
+                                subheader="Top 12 dernière heure"
                                 action={
-                                    <IconButton size="small" onClick={loadBandwidthData} disabled={loading}>
-                                        <Refresh />
+                                    <IconButton size="small" onClick={loadTop} disabled={loading} title="Actualiser">
+                                        <Refresh sx={{ fontSize: 20 }} />
                                     </IconButton>
                                 }
+                                sx={{ pb: 1.5 }}
                             />
-                            <CardContent sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'auto', p: 1 }}>
-                                {loading || bandwidthData.length === 0 ? (
-                                    <CircularProgress />
+                            <CardContent sx={{ flex: 1, display: 'flex', overflow: 'hidden', p: 0 }}>
+                                {loading ? (
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', p: 3 }}>
+                                        <CircularProgress size={40} />
+                                    </Box>
                                 ) : (
-                                    <LineChart
-                                        width={Math.max(300, window.innerWidth / 2 - 80)}
-                                        height={Math.max(500, window.innerHeight - 350)}
-                                        series={[
-                                            {
-                                                data: bandwidthData.map(d => d.bytes || 0),
-                                                label: 'Bytes (Mbps)',
-                                            },
-                                        ]}
-                                        xAxis={[{ scaleType: 'point', data: bandwidthData.map((d, i) => `${i}h`) }]}
+                                    <DataGrid
+                                        rows={destRows}
+                                        columns={destinationColumn}
+                                        hideFooterSelectedRowCount
+                                        pageSizeOptions={[5, 10, 12]}
+                                        initialState={{ pagination: { paginationModel: { pageSize: 12 } } }}
+                                        disableSelectionOnClick
+                                        density="compact"
                                         sx={{
-                                            '& .MuiLineElement-root': { strokeWidth: 2 },
+                                            width: '100%',
+                                            border: 'none',
+                                            '& .MuiDataGrid-root': { border: 'none' },
+                                            '& .MuiDataGrid-cell': { borderBottom: '1px solid rgba(224, 224, 224, 0.5)', fontSize: 13 },
+                                            '& .MuiDataGrid-columnHeaders': { backgroundColor: '#fafafa', fontWeight: 600, fontSize: 12, borderBottom: '2px solid rgba(0,0,0,0.08)' },
+                                            '& .MuiDataGrid-virtualScroller': { overflow: 'auto' },
                                         }}
                                     />
                                 )}
@@ -317,6 +284,55 @@ export default function IPViewPage() {
                         </Card>
                     </Grid>
                 </Grid>
+
+                {/* Bandwidth Chart Section */}
+                <Card sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                    border: '1px solid rgba(0,0,0,0.05)',
+                    transition: 'box-shadow 0.3s ease',
+                    '&:hover': {
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.12)'
+                    }
+                }}>
+                    <CardHeader
+                        avatar={<TrendingUp sx={{ color: 'success.main', fontSize: 24 }} />}
+                        title={<Typography variant="h6" sx={{ fontWeight: 600, fontSize: 16 }}>Bande Passante</Typography>}
+                        subheader="Dernières 24 heures"
+                        action={
+                            <IconButton size="small" onClick={loadBandwidthData} disabled={loading} title="Actualiser">
+                                <Refresh sx={{ fontSize: 20 }} />
+                            </IconButton>
+                        }
+                        sx={{ pb: 1.5 }}
+                    />
+                    <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 3, minHeight: 400 }}>
+                        {loading || bandwidthData.length === 0 ? (
+                            <CircularProgress size={40} />
+                        ) : (
+                            <LineChart
+                                width={Math.min(1200, window.innerWidth - 100)}
+                                height={400}
+                                series={[
+                                    {
+                                        data: bandwidthData.map(d => d.bytes || 0),
+                                        label: 'Bande Passante (Mbps)',
+                                        color: '#02647E',
+                                    },
+                                ]}
+                                xAxis={[{ 
+                                    scaleType: 'point', 
+                                    data: bandwidthData.map((d, i) => `${i}h`),
+                                }]}
+                                margin={{ top: 10, bottom: 30, left: 60, right: 10 }}
+                                slotProps={{
+                                    legend: { hidden: false, position: 'top-right' }
+                                }}
+                            />
+                        )}
+                    </CardContent>
+                </Card>
             </Box>
         </Box>
     )
