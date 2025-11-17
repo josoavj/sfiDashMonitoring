@@ -182,13 +182,13 @@ export default function IPViewPage() {
                 </Paper>
 
                 {/* Main Content */}
-                <Grid container spacing={3} sx={{ width: '100%' }}>
+                <Grid container spacing={3} sx={{ width: '100%', height: 'calc(100vh - 300px)' }}>
                     {/* Left Column: Tables (50%) */}
-                    <Grid item xs={12} lg={6} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', gap: 3, height: '100%' }}>
                         {/* Source IPs Table */}
                         <Card sx={{
                             flex: 1,
-                            minHeight: 450,
+                            minHeight: 'auto',
                             display: 'flex',
                             flexDirection: 'column',
                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
@@ -203,9 +203,9 @@ export default function IPViewPage() {
                                     </IconButton>
                                 }
                             />
-                            <CardContent sx={{ flex: 1, display: 'flex', overflow: 'hidden', p: 0 }}>
+                            <CardContent sx={{ flex: 1, display: 'flex', overflow: 'hidden', p: 1 }}>
                                 {loading ? (
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: 300 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                                         <CircularProgress />
                                     </Box>
                                 ) : (
@@ -232,7 +232,7 @@ export default function IPViewPage() {
                         {/* Destination IPs Table */}
                         <Card sx={{
                             flex: 1,
-                            minHeight: 450,
+                            minHeight: 'auto',
                             display: 'flex',
                             flexDirection: 'column',
                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
@@ -247,9 +247,9 @@ export default function IPViewPage() {
                                     </IconButton>
                                 }
                             />
-                            <CardContent sx={{ flex: 1, display: 'flex', overflow: 'hidden', p: 0 }}>
+                            <CardContent sx={{ flex: 1, display: 'flex', overflow: 'hidden', p: 1 }}>
                                 {loading ? (
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: 300 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                                         <CircularProgress />
                                     </Box>
                                 ) : (
@@ -275,11 +275,11 @@ export default function IPViewPage() {
                     </Grid>
 
                     {/* Right Column: Bandwidth Chart (50%) */}
-                    <Grid item xs={12} lg={6} sx={{ display: 'flex' }}>
+                    <Grid item xs={12} md={6} sx={{ display: 'flex', height: '100%' }}>
                         <Card sx={{
                             width: '100%',
                             height: 'auto',
-                            minHeight: 950,
+                            minHeight: 'auto',
                             display: 'flex',
                             flexDirection: 'column',
                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
@@ -294,7 +294,7 @@ export default function IPViewPage() {
                                     </IconButton>
                                 }
                             />
-                            <CardContent sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'auto' }}>
+                            <CardContent sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'auto', p: 1 }}>
                                 {loading || bandwidthData.length === 0 ? (
                                     <CircularProgress />
                                 ) : (
