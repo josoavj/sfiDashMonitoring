@@ -13,7 +13,7 @@ export default function TopBar() {
   const navigate = useNavigate()
   const location = useLocation()
   const { subItemActive } = useNav()
-  const navItems = ['Tableau de bord', 'Exploration', 'Rapports', 'Alertes', 'Paramètres']
+  const navItems = ['Tableau de bord', 'IPs', 'Exploration', 'Rapports', 'Alertes', 'Paramètres']
 
   // Ne pas afficher la TopBar sur les pages d'authentification
   const isAuthPage = location.pathname === '/auth/login' || location.pathname === '/auth/signup'
@@ -25,6 +25,8 @@ export default function TopBar() {
   const isItemActive = (item) => {
     if (item === 'Tableau de bord') {
       return location.pathname === '/visualization'
+    } else if (item === 'IPs') {
+      return location.pathname === '/ip-view'
     } else if (item === 'Exploration') {
       return location.pathname === '/exploration'
     } else if (item === 'Rapports') {
@@ -54,6 +56,9 @@ export default function TopBar() {
                       if (item === 'Tableau de bord') {
                         anchorEl ? handleMenuClose() : handleMenuOpen()
                         navigate('/visualization')
+                      } else if (item === 'IPs') {
+                        handleMenuClose()
+                        navigate('/ip-view')
                       } else if (item === 'Exploration') {
                         handleMenuClose()
                         navigate('/exploration')

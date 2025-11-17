@@ -36,10 +36,10 @@ export default function ExplorationPage() {
   // État de la recherche
   const [filters, setFilters] = useState({
     sourceIp: '',
-    sourcePort: '',
-    protocol: '',
     startDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0]
+    startTime: '00:00',
+    endDate: new Date().toISOString().split('T')[0],
+    endTime: '23:59'
   })
 
   const [searchMode, setSearchMode] = useState('advanced') // 'simple', 'advanced', ou 'iprange'
@@ -57,15 +57,64 @@ export default function ExplorationPage() {
   })
   const [pagination, setPagination] = useState({ from: 0, size: 50 })
 
+  // Normaliser les données Elasticsearch (les champs peuvent être des arrays ou des valeurs)
+  const normalizeEsField = (value) => {
+    if (Array.isArray(value)) {
+      return value[0]; // Prendre le premier élément si c'est un array
+    }
+    return value;
+  }
+
+  // Flatten un objet imbriqué
+  const flattenObject = (obj, prefix = '') => {
+    const flattened = {};
+    for (const [key, value] of Object.entries(obj || {})) {
+      const newKey = prefix ? `${prefix}.${key}` : key;
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        Object.assign(flattened, flattenObject(value, newKey));
+      } else {
+        flattened[newKey] = normalizeEsField(value);
+      }
+    }
+    return flattened;
+  }
+
+  // Normaliser un document complet
+  const normalizeEsDocument = (doc) => {
+    if (!doc) return {};
+    const normalized = flattenObject(doc);
+    
+    // Mapper les champs d'application/service (Fortigate utilise fortinet.firewall.dstinetsvc ou rule.name)
+    if (!normalized['network.application']) {
+      normalized['network.application'] = 
+        normalized['fortinet.firewall.dstinetsvc'] ||
+        normalized['rule.name'] ||
+        'Unknown';
+    }
+    
+    return normalized;
+  }
+
   // Effectuer la recherche
   const handleSearch = async () => {
     setLoading(true)
     setError(null)
     setResults([])
+    // Reset pagination quand on fait une nouvelle recherche
+    setPagination({ from: 0, size: 50 })
+    await performSearch(0, 50)
+  }
+
+  // Effectuer la recherche avec les paramètres donnés
+  const performSearch = async (from = 0, size = 50) => {
+    setLoading(true)
+    setError(null)
 
     try {
-      const startDate = new Date(`${filters.startDate}T00:00:00Z`).getTime()
-      const endDate = new Date(`${filters.endDate}T23:59:59Z`).getTime()
+      // Convertir les dates WITHOUT le Z (pas en UTC, mais en heure locale)
+      // Car les données Elasticsearch sont en heure locale du serveur
+      const startDate = new Date(`${filters.startDate}T${filters.startTime}:00`).getTime()
+      const endDate = new Date(`${filters.endDate}T${filters.endTime}:59`).getTime()
 
       let endpoint = `${BACKEND_URL}/api/exploration/search`
       let body = {}
@@ -77,27 +126,29 @@ export default function ExplorationPage() {
           startIp: ipRangeStart,
           endIp: ipRangeEnd,
           field: 'source.ip',
-          from: pagination.from,
-          size: pagination.size,
+          from,
+          size,
           timeRange: {
             from: startDate,
             to: endDate
           }
         }
       } else {
-        // Recherche avancée standard - IP source uniquement
+        // Recherche avancée standard - Filtrer par IP source principalement
         body = {
-          sourceIp: filters.sourceIp || undefined,
-          sourcePort: filters.sourcePort || undefined,
-          protocol: filters.protocol || undefined,
-          from: pagination.from,
-          size: pagination.size,
           timeRange: {
             from: startDate,
             to: endDate
           },
+          from,
+          size,
           sortField: '@timestamp',
           sortOrder: 'desc'
+        }
+        
+        // Ajouter les filtres seulement s'ils sont remplis
+        if (filters.sourceIp && filters.sourceIp.trim()) {
+          body.sourceIp = filters.sourceIp.trim()
         }
       }
 
@@ -108,24 +159,116 @@ export default function ExplorationPage() {
         body: JSON.stringify(body)
       })
 
+      console.log('📤 Request dates:', { 
+        startDate: new Date(body.timeRange.from).toISOString(),
+        endDate: new Date(body.timeRange.to).toISOString(),
+        sourceIp: body.sourceIp,
+        from,
+        size
+      });
+
       if (!response.ok) throw new Error('Erreur lors de la recherche')
 
       const data = await response.json()
+      console.log('🔍 Search response:', { total: data.total, hitsCount: data.hits?.length });
       setTotalResults(data.total)
-      setResults(data.hits.map(hit => hit._source))
+      
+      // Supporter les deux formats de réponse
+      let hitsArray = Array.isArray(data.hits) ? data.hits : [];
+      console.log('📦 Hits array length:', hitsArray.length);
+      let results_data = [];
+      
+      if (hitsArray.length > 0 && hitsArray[0]._source) {
+        // Format Elasticsearch avec _source
+        console.log('✅ Using _source format');
+        try {
+          results_data = hitsArray.map((hit, idx) => {
+            try {
+              return normalizeEsDocument(hit._source);
+            } catch (e) {
+              console.error(`Error normalizing hit ${idx}:`, e);
+              return {};
+            }
+          });
+        } catch (e) {
+          console.error('Error in map:', e);
+        }
+      } else {
+        console.warn('⚠️ No hits or unknown format:', hitsArray.length ? hitsArray[0] : 'empty');
+      }
+      
+      console.log('📋 Normalized results:', results_data.length, results_data.slice(0, 2));
+      setResults(results_data)
+      
+      // Afficher les résultats pour debug
+      if (results_data.length === 0) {
+        console.warn('⚠️ NO RESULTS TO DISPLAY!');
+      }
 
-      // Calculer les stats
-      if (data.hits.length > 0) {
-        const totalBytes = data.hits.reduce((sum, hit) => sum + (hit._source['network.bytes'] || 0), 0)
-        const avgBytes = totalBytes / data.hits.length
-        const services = new Set(data.hits.map(hit => hit._source['network.application'] || 'Unknown'))
+      // Récupérer les stats agrégées pour TOUS les résultats (pas seulement les 50 paginés)
+      if (searchMode === 'advanced') {
+        try {
+          const statsResponse = await fetch(`${BACKEND_URL}/api/exploration/stats`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              timeRange: { from: startDate, to: endDate },
+              sourceIp: filters.sourceIp.trim() || undefined
+            })
+          });
 
+          if (statsResponse.ok) {
+            const statsData = await statsResponse.json();
+            console.log('📈 Aggregated stats for all results:', statsData);
+            setStats(statsData);
+          }
+        } catch (statsErr) {
+          console.warn('Could not fetch aggregated stats:', statsErr.message);
+          // Fallback to page-based stats
+          if (results_data.length > 0) {
+            const totalBytes = results_data.reduce((sum, hit) => sum + (hit['network.bytes'] || 0), 0);
+            const services = new Set(results_data.map(hit => hit['network.application'] || 'Unknown'));
+            setStats({
+              totalBytes,
+              avgBytes: Math.round(totalBytes / results_data.length),
+              uniqueServices: services.size,
+              packetCount: results_data.length
+            });
+          }
+        }
+      } else if (searchMode === 'iprange') {
+        // Recherche par plage d'IP - utiliser aussi l'endpoint stats
+        try {
+          const statsResponse = await fetch(`${BACKEND_URL}/api/exploration/ip-range-stats`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              timeRange: { from: startDate, to: endDate },
+              startIp: ipRangeStart,
+              endIp: ipRangeEnd
+            })
+          });
+
+          if (statsResponse.ok) {
+            const statsData = await statsResponse.json();
+            console.log('📈 IP Range aggregated stats:', statsData);
+            setStats(statsData);
+          }
+        } catch (statsErr) {
+          console.warn('Could not fetch IP range stats:', statsErr.message);
+        }
+      } else if (results_data.length > 0) {
+        // Pour les autres modes, calculer sur les résultats reçus
+        const totalBytes = results_data.reduce((sum, hit) => sum + (hit['network.bytes'] || 0), 0);
+        const services = new Set(results_data.map(hit => hit['network.application'] || 'Unknown'));
         setStats({
           totalBytes,
-          avgBytes: Math.round(avgBytes),
+          avgBytes: Math.round(totalBytes / results_data.length),
           uniqueServices: services.size,
-          packetCount: data.hits.length
-        })
+          packetCount: results_data.length
+        });
       }
     } catch (err) {
       setError(err.message || 'Erreur lors de la recherche')
@@ -144,12 +287,10 @@ export default function ExplorationPage() {
   const handleReset = () => {
     setFilters({
       sourceIp: '',
-      destinationIp: '',
-      sourcePort: '',
-      destinationPort: '14',
-      protocol: '',
       startDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      endDate: new Date().toISOString().split('T')[0]
+      startTime: '00:00',
+      endDate: new Date().toISOString().split('T')[0],
+      endTime: '23:59'
     })
     setIpRangeStart('')
     setIpRangeEnd('')
@@ -175,11 +316,20 @@ export default function ExplorationPage() {
 
   // Générer les données pour les graphiques
   const getChartData = () => {
+    if (!results || !Array.isArray(results) || results.length === 0) {
+      return {
+        protocolData: [],
+        serviceData: []
+      }
+    }
+
     const protocolCounts = {}
     const serviceCounts = {}
     const topServices = {}
 
     results.forEach(row => {
+      if (!row || typeof row !== 'object') return
+      
       const protocol = row['network.protocol']?.toUpperCase() || 'UNKNOWN'
       const service = row['network.application'] || 'Unknown'
       const bytes = row['network.bytes'] || 0
@@ -288,7 +438,7 @@ export default function ExplorationPage() {
         {/* Grille des filtres */}
         <Grid container spacing={2} sx={{ mb: 3 }}>
           {/* IP Source */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid sx={{ xs: 12, sm: 6, md: 4}}>
             <TextField
               fullWidth
               size="small"
@@ -300,52 +450,8 @@ export default function ExplorationPage() {
             />
           </Grid>
 
-          {/* Port Source */}
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Port Source"
-              placeholder="ex: 443"
-              type="number"
-              value={filters.sourcePort}
-              onChange={(e) => handleFilterChange('sourcePort', e.target.value)}
-              variant="outlined"
-            />
-          </Grid>
-
-          {/* Protocole */}
-          <Grid item xs={12} sm={6} md={4}>
-            <FormControl fullWidth size="small" variant="outlined">
-              <InputLabel id="protocol-label">Protocole</InputLabel>
-              <Select
-                labelId="protocol-label"
-                id="protocol-select"
-                value={filters.protocol}
-                onChange={(e) => handleFilterChange('protocol', e.target.value)}
-                label="Protocole"
-                displayEmpty
-                renderValue={(value) => {
-                  if (value === '') {
-                    return <span style={{ opacity: 0.6 }}>Sélectionner protocole...</span>
-                  }
-                  return value.toUpperCase()
-                }}
-              >
-                <MenuItem value="">
-                  <em>-- Tous les protocoles --</em>
-                </MenuItem>
-                <MenuItem value="tcp">TCP</MenuItem>
-                <MenuItem value="udp">UDP</MenuItem>
-                <MenuItem value="icmp">ICMP</MenuItem>
-                <MenuItem value="ipv4">IPv4</MenuItem>
-                <MenuItem value="ipv6">IPv6</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
           {/* Plage de dates */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid sx={{ xs: 12, sm: 6, md: 3}}>
             <TextField
               fullWidth
               size="small"
@@ -358,7 +464,20 @@ export default function ExplorationPage() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid sx={{ xs: 12, sm: 6, md: 2}}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Heure de début"
+              type="time"
+              value={filters.startTime}
+              onChange={(e) => handleFilterChange('startTime', e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              variant="outlined"
+            />
+          </Grid>
+
+          <Grid sx={{ xs: 12, sm: 6, md: 3}}>
             <TextField
               fullWidth
               size="small"
@@ -366,6 +485,19 @@ export default function ExplorationPage() {
               type="date"
               value={filters.endDate}
               onChange={(e) => handleFilterChange('endDate', e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              variant="outlined"
+            />
+          </Grid>
+
+          <Grid sx={{ xs: 12, sm: 6, md: 2}}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Heure de fin"
+              type="time"
+              value={filters.endTime}
+              onChange={(e) => handleFilterChange('endTime', e.target.value)}
               InputLabelProps={{ shrink: true }}
               variant="outlined"
             />
@@ -424,7 +556,7 @@ export default function ExplorationPage() {
         </Typography>
 
         <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={6}>
+          <Grid sx={{ xs: 12, sm: 6}}>
             <TextField
               fullWidth
               size="small"
@@ -437,7 +569,7 @@ export default function ExplorationPage() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid sx={{ xs: 12, sm: 6}}>
             <TextField
               fullWidth
               size="small"
@@ -450,7 +582,7 @@ export default function ExplorationPage() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid sx={{ xs: 12, sm: 6}}>
             <TextField
               fullWidth
               size="small"
@@ -463,7 +595,7 @@ export default function ExplorationPage() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid sx={{ xs: 12, sm: 6}}>
             <TextField
               fullWidth
               size="small"
@@ -519,7 +651,7 @@ export default function ExplorationPage() {
       {/* Statistiques */}
       {results.length > 0 && (
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid sx={{ xs: 12, sm: 6, md: 3}}>
             <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
               <Typography color="textSecondary" gutterBottom>
                 Total de paquets
@@ -530,7 +662,7 @@ export default function ExplorationPage() {
             </Paper>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid sx={{ xs: 12, sm: 6, md: 3}}>
             <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
               <Typography color="textSecondary" gutterBottom>
                 Total de données
@@ -541,7 +673,7 @@ export default function ExplorationPage() {
             </Paper>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid sx={{ xs: 12, sm: 6, md: 3}}>
             <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
               <Typography color="textSecondary" gutterBottom>
                 Moy. par paquet
@@ -552,7 +684,7 @@ export default function ExplorationPage() {
             </Paper>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid sx={{ xs: 12, sm: 6, md: 3}}>
             <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
               <Typography color="textSecondary" gutterBottom>
                 Services uniques
@@ -565,56 +697,7 @@ export default function ExplorationPage() {
         </Grid>
       )}
 
-      {/* Graphiques analytiques */}
-      {!loading && results.length > 0 && chartData.protocolData.length > 0 && (
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          {/* Pie Chart - Protocoles */}
-          <Grid item xs={12} md={6}>
-            <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                📊 Distribution des Protocoles
-              </Typography>
-              <Box sx={{ display: 'flex', justifyContent: 'center', height: 300 }}>
-                <PieChart
-                  series={[{
-                    data: chartData.protocolData.map((d, idx) => ({
-                      id: idx,
-                      value: d.value,
-                      label: d.name
-                    }))
-                  }]}
-                  width={350}
-                  height={300}
-                  colors={['#2196F3', '#FF9800', '#4CAF50', '#F44336', '#9C27B0', '#00BCD4']}
-                  margin={{ top: 20, bottom: 20, left: 0, right: 0 }}
-                />
-              </Box>
-            </Paper>
-          </Grid>
 
-          {/* Bar Chart - Services */}
-          {chartData.serviceData.length > 0 && (
-            <Grid item xs={12} md={6}>
-              <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                  📈 Top Services (Mo)
-                </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'center', height: 300 }}>
-                  <BarChart
-                    dataset={chartData.serviceData}
-                    xAxis={[{ scaleType: 'band', dataKey: 'name' }]}
-                    series={[{ dataKey: 'bytes', label: 'MB', color: '#02647E' }]}
-                    width={350}
-                    height={300}
-                    margin={{ top: 20, bottom: 40, left: 50, right: 20 }}
-                    sx={{ '& text': { fontSize: '0.75rem' } }}
-                  />
-                </Box>
-              </Paper>
-            </Grid>
-          )}
-        </Grid>
-      )}
 
       {/* Tableau des résultats */}
       {loading && (
@@ -627,12 +710,12 @@ export default function ExplorationPage() {
         <>
         <Paper elevation={2} sx={{ borderRadius: 2, p: 3, mb: 3 }}>
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-            📊 Résultats en Vue Moderne ({totalResults} trouvés)
+            📊 Résultats ({totalResults} trouvés)
           </Typography>
           
           <Grid container spacing={2}>
-            {results.slice(pagination.from, pagination.from + pagination.size).map((row, index) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+            {results.map((row, index) => (
+              <Grid key={index} sx={{ xs: 12, sm: 6, md: 4, lg: 3}}>
                 <Paper
                   elevation={1}
                   sx={{
@@ -681,9 +764,20 @@ export default function ExplorationPage() {
                     <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
                       🔌 Ports
                     </Typography>
-                    <Typography sx={{ fontSize: '0.875rem', fontFamily: 'monospace' }}>
-                      {row['source.port']} → {row['destination.port']}
-                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', fontSize: '0.875rem', fontFamily: 'monospace' }}>
+                      <Chip
+                        label={`Source: ${row['source.port'] || 'N/A'}`}
+                        size="small"
+                        variant="outlined"
+                        sx={{ fontSize: '0.75rem' }}
+                      />
+                      <Chip
+                        label={`Dest: ${row['destination.port'] || 'N/A'}`}
+                        size="small"
+                        variant="outlined"
+                        sx={{ fontSize: '0.75rem' }}
+                      />
+                    </Box>
                   </Box>
 
                   {/* Service et Protocole */}
@@ -725,24 +819,110 @@ export default function ExplorationPage() {
           </Grid>
         </Paper>
 
+        {/* Statistiques détaillées et graphiques */}
+        {chartData.protocolData.length > 0 && (
+          <Grid container spacing={3} sx={{ mb: 4 }}>
+            {/* Protocoles */}
+            <Grid sx={{ xs: 12, md: 6}}>
+              <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                  📊 Distribution des Protocoles
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  {chartData.protocolData.map((proto, idx) => (
+                    <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: '50%',
+                          backgroundColor: ['#2196F3', '#FF9800', '#4CAF50', '#F44336', '#9C27B0', '#00BCD4'][idx % 6]
+                        }}
+                      />
+                      <Typography variant="caption">
+                        {proto.name}: {proto.value}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </Paper>
+            </Grid>
+
+            {/* Top Services */}
+            {chartData.serviceData.length > 0 && (
+              <Grid sx={{ xs: 12, md: 6}}>
+                <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                    📈 Top Services par Volume
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                    {chartData.serviceData.map((service, idx) => (
+                      <Box key={idx}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                          <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                            {service.name}
+                          </Typography>
+                          <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                            {service.bytes} MB
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            height: 8,
+                            borderRadius: 4,
+                            backgroundColor: 'rgba(0,0,0,0.1)',
+                            overflow: 'hidden'
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              height: '100%',
+                              width: `${(service.bytes / (chartData.serviceData[0]?.bytes || 1)) * 100}%`,
+                              backgroundColor: '#02647E',
+                              transition: 'width 0.3s ease'
+                            }}
+                          />
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                </Paper>
+              </Grid>
+            )}
+          </Grid>
+        )}
+
         {/* Pagination */}
-        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
+        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2, alignItems: 'center', flexWrap: 'wrap' }}>
           <Button
             size="small"
-            variant="outlined"
+            variant="contained"
             disabled={pagination.from === 0}
-            onClick={() => setPagination(prev => ({ ...prev, from: Math.max(0, prev.from - prev.size) }))}
+            onClick={() => {
+              const newFrom = Math.max(0, pagination.from - pagination.size);
+              setPagination(prev => ({ ...prev, from: newFrom }));
+              performSearch(newFrom, pagination.size);
+            }}
           >
             ← Précédent
           </Button>
-          <Typography sx={{ alignSelf: 'center', fontSize: '0.875rem', fontWeight: 600 }}>
-            Page {Math.floor(pagination.from / pagination.size) + 1}
+          
+          <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, mx: 2 }}>
+            Page {Math.floor(pagination.from / pagination.size) + 1} 
+            <Typography component="span" sx={{ fontSize: '0.75rem', color: 'textSecondary' }}>
+              {' '}({pagination.from + 1}-{Math.min(pagination.from + pagination.size, totalResults)} / {totalResults})
+            </Typography>
           </Typography>
+          
           <Button
             size="small"
-            variant="outlined"
+            variant="contained"
             disabled={pagination.from + pagination.size >= totalResults}
-            onClick={() => setPagination(prev => ({ ...prev, from: prev.from + prev.size }))}
+            onClick={() => {
+              const newFrom = pagination.from + pagination.size;
+              setPagination(prev => ({ ...prev, from: newFrom }));
+              performSearch(newFrom, pagination.size);
+            }}
           >
             Suivant →
           </Button>

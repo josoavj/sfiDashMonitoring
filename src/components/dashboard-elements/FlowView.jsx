@@ -17,8 +17,8 @@ export function FlowView() {
         { 
             field: 'timespan', 
             headerName: 'DATE & HEURE', 
-            flex: 0.7,
-            minWidth: 90,
+            flex: 1.8,
+            minWidth: 200,
             renderCell: (params) => {
                 const date = new Date(params.value)
                 const formattedDate = date.toLocaleDateString('fr-FR', { 
@@ -42,8 +42,8 @@ export function FlowView() {
         { 
             field: 'ipsource', 
             headerName: 'IP SOURCE', 
-            flex: 0.5,
-            minWidth: 70,
+            flex: 1.8,
+            minWidth: 180,
             renderCell: (params) => (
                 <Stack direction="row" spacing={0.5} alignItems="center">
                     <Avatar sx={{ width: 24, height: 24, bgcolor: alpha('#52B57D', 0.2), fontSize: 10 }}>
@@ -56,8 +56,8 @@ export function FlowView() {
         { 
             field: 'source_port', 
             headerName: 'P.SRC', 
-            flex: 0.35,
-            minWidth: 45,
+            flex: 1.2,
+            minWidth: 140,
             renderCell: (params) => (
                 <Chip 
                     label={params.value} 
@@ -75,8 +75,8 @@ export function FlowView() {
         { 
             field: 'ipdestination', 
             headerName: 'IP DEST', 
-            flex: 0.5,
-            minWidth: 70,
+            flex: 1.8,
+            minWidth: 180,
             renderCell: (params) => (
                 <Stack direction="row" spacing={0.5} alignItems="center">
                     <Avatar sx={{ width: 24, height: 24, bgcolor: alpha('#29BAE2', 0.2), fontSize: 10 }}>
@@ -89,8 +89,8 @@ export function FlowView() {
         { 
             field: 'dest_port', 
             headerName: 'P.DST', 
-            flex: 0.35,
-            minWidth: 45,
+            flex: 1.2,
+            minWidth: 140,
             renderCell: (params) => (
                 <Chip 
                     label={params.value} 
@@ -108,8 +108,8 @@ export function FlowView() {
         { 
             field: 'service', 
             headerName: 'SERVICE', 
-            flex: 0.4,
-            minWidth: 50,
+            flex: 1.5,
+            minWidth: 160,
             renderCell: (params) => (
                 <Chip 
                     label={params.value} 
@@ -127,8 +127,8 @@ export function FlowView() {
         { 
             field: 'protocol', 
             headerName: 'PROTO', 
-            flex: 0.3,
-            minWidth: 40,
+            flex: 1.2,
+            minWidth: 140,
             renderCell: (params) => (
                 <Chip 
                     label={params.value.toUpperCase()} 
@@ -146,8 +146,8 @@ export function FlowView() {
         { 
             field: 'direction', 
             headerName: 'DIR', 
-            flex: 0.3,
-            minWidth: 40,
+            flex: 1.0,
+            minWidth: 120,
             renderCell: (params) => (
                 <Chip 
                     label={params.value} 
@@ -247,74 +247,23 @@ export function FlowView() {
     }, [])
 
     return (
-        <Box sx={{ width: '100%' }}>
-            <Grid container spacing={3} sx={{ width: '100%' }}>
-                {/* Logs Chart */}
-                <Grid item xs={12}>
+        <Box sx={{ width: '100%', height: '100%' }}>
+            <Grid container spacing={3} sx={{ width: '100%', height: '100%' }}>
+                {/* Flows Table - Full width */}
+                <Grid item xs={12} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <Card 
                         variant="outlined"
                         sx={{ 
                             height: '100%',
-                            minHeight: '350px',
+                            minHeight: 'calc(100vh - 130px)',
                             borderRadius: 3,
                             border: '1px solid',
                             borderColor: 'divider',
                             boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
                             transition: 'all 0.3s',
-                            '&:hover': { boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }
-                        }}
-                    >
-                        <CardHeader 
-                            avatar={
-                                <Avatar sx={{ bgcolor: alpha('#29BAE2', 0.15), color: '#29BAE2' }}>
-                                    <TrendingUp />
-                                </Avatar>
-                            }
-                            title={<Typography variant="h6" fontWeight={600}>Collecte des logs</Typography>}
-                            subheader="Nombre de logs collectés en temps réel"
-                            action={
-                                <Tooltip title="Actualiser">
-                                    <IconButton size="small" onClick={loadFlows} disabled={loading} sx={{ bgcolor: alpha('#29BAE2', 0.1) }}>
-                                        <Refresh sx={{ color: '#29BAE2', animation: loading ? 'spin 1s linear infinite' : 'none' }} />
-                                    </IconButton>
-                                </Tooltip>
-                            }
-                            sx={{ pb: 1, '@keyframes spin': { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } } }}
-                        />
-                        <Divider />
-                        <CardContent sx={{ p: 2 }}>
-                            {chartLabels.length > 0 ? (
-                                <LineChart 
-                                    xAxis={[{ data: chartLabels, scaleType: 'point' }]}
-                                    series={chartData}
-                                    margin={{ top: 10, bottom: 30, left: 50, right: 10 }}
-                                    height={250}
-                                    slotProps={{
-                                        legend: { hidden: true },
-                                    }}
-                                />
-                            ) : (
-                                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 8 }}>
-                                    En attente de données...
-                                </Typography>
-                            )}
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                {/* Flows Table */}
-                <Grid item xs={12}>
-                    <Card 
-                        variant="outlined"
-                        sx={{ 
-                            height: '100%',
-                            minHeight: '500px',
-                            borderRadius: 3,
-                            border: '1px solid',
-                            borderColor: 'divider',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                            transition: 'all 0.3s',
-                            '&:hover': { boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }
+                            '&:hover': { boxShadow: '0 4px 16px rgba(0,0,0,0.1)' },
+                            display: 'flex',
+                            flexDirection: 'column'
                         }}
                     >
                         <CardHeader 
@@ -332,11 +281,11 @@ export function FlowView() {
                                     </IconButton>
                                 </Tooltip>
                             }
-                            sx={{ pb: 1, '@keyframes spin': { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } } }}
+                            sx={{ pb: 1, '@keyframes spin': { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } }, flexShrink: 0 }}
                         />
                         <Divider />
-                        <CardContent sx={{ p: 0 }}>
-                            <Box sx={{ height: '100%', minHeight: '450px', overflow: 'auto' }}>
+                        <CardContent sx={{ p: 0, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            <Box sx={{ flex: 1, overflow: 'auto' }}>
                                 <DataGrid 
                                     columns={columns} 
                                     rows={rows} 

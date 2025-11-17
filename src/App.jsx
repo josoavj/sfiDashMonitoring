@@ -9,6 +9,7 @@ import ProfilePage from './components/ProfilePage'
 import ReportsPage from './components/ReportsPage'
 import { AlertesPage } from './components/AlertesPage'
 import ExplorationPage from './components/ExplorationPage'
+import IPViewPage from './components/IPViewPage'
 import TopBar from './components/TopBar'
 import { NotificationBanner } from './components/NotificationBanner'
 import { NavProvider } from './context/NavContext'
@@ -30,6 +31,7 @@ function App() {
                         <Route path="/auth/login" element={<LogInComponent />} />
                         <Route path="/visualization" element={<DataVisualization />} />
                         <Route path="/exploration" element={<ExplorationPage />} />
+                        <Route path="/ip-view" element={<IPViewPage />} />
                         <Route path="/reports" element={<ReportsPage />} />
                         <Route path="/alerts" element={<AlertesPage />} />
                         <Route path="/settings" element={<SettingsPage />} />

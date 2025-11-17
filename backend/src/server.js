@@ -14,22 +14,6 @@ const { User } = require('./models/User');
 const { Session } = require('./models/Session');
 const { Setting } = require('./models/Setting');
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-const esClient = createEsClientFromEnv();
-const { sequelize } = require('./databases/Sequelize');
-
-// Mount API routes
-mountApiRoutes(app, esClient, logService);
-// Mount auth routes (signup/signin/signout)
-mountAuthRoutes(app);
-
-const PORT = process.env.PORT || 3001;
-const HOST = process.env.HOST || '0.0.0.0';
-const server = http.createServer(app);
-
 // Parse FRONTEND_URL(s) - Support multiple URLs separated by spaces
 const parseAllowedOrigins = () => {
   if (!process.env.FRONTEND_URL) {
@@ -43,6 +27,44 @@ const parseAllowedOrigins = () => {
 
 const allowedOrigins = parseAllowedOrigins();
 console.log('✅ Allowed Origins for CORS:', allowedOrigins.join(', '));
+
+const app = express();
+
+// Configuration CORS détaillée
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Permettre aussi les requêtes sans origin (comme Postman, tests, etc)
+    if (!origin) {
+      return callback(null, true);
+    }
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn('❌ CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 200,
+  maxAge: 86400
+};
+
+app.use(cors(corsOptions));app.use(cors(corsOptions));
+app.use(express.json());
+
+const esClient = createEsClientFromEnv();
+const { sequelize } = require('./databases/Sequelize');
+
+// Mount API routes
+mountApiRoutes(app, esClient, logService);
+// Mount auth routes (signup/signin/signout)
+mountAuthRoutes(app);
+
+const PORT = process.env.PORT || 3001;
+const HOST = process.env.HOST || '0.0.0.0';
+const server = http.createServer(app);
 
 const io = new Server(server, { 
   cors: { 

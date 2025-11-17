@@ -1,6 +1,5 @@
 import { ChartView } from './ChartView'
 import { FlowView } from './FlowView'
-import { IpView } from './IpView'
 import { ServiceView } from './ServiceView'
 import BandwidthView from './BandwidthView'
 import { Grid, Paper, Box, Typography } from '@mui/material'
@@ -10,13 +9,6 @@ import { TrendingUp, Cloud, Lan, Settings } from '@mui/icons-material'
 export function DataMainView({ page }) {
 	// Configurations des pages individuelles
 	const pageConfig = {
-		ipsource: {
-			title: 'IPs Consommatrices',
-			subtitle: 'Analyse des adresses IP source et consommation réseau',
-			icon: Lan,
-			color: '#02647E',
-			component: IpView
-		},
 		flow: {
 			title: 'Flux Réseau',
 			subtitle: 'Visualisation des flux de données réseau en temps réel',
@@ -91,13 +83,7 @@ export function DataMainView({ page }) {
 							</Paper>
 						</Grid>
 
-						<Grid item xs={12} md={6}>
-							<Paper sx={{ p: 1 }}>
-								<IpView />
-							</Paper>
-						</Grid>
-
-						<Grid item xs={12} md={6}>
+						<Grid item xs={12}>
 							<Paper sx={{ p: 1 }}>
 								<FlowView />
 							</Paper>
@@ -116,8 +102,10 @@ export function DataMainView({ page }) {
 
 		return (
 			<>
-				{renderFullPageHeader(config)}
-				<Box sx={{ width: '100%', p: padding, pt: 0, mt: 0 }}>
+				<Box sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+					{renderFullPageHeader(config)}
+				</Box>
+				<Box sx={{ width: '100%', p: padding, pt: 0, mt: 0, px: { xs: 2, sm: 3, md: 4 } }}>
 					<Component />
 				</Box>
 			</>

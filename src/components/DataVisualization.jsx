@@ -73,7 +73,7 @@ export function DataVisualization() {
         >
             {(subItemActive?.page === 'bandwidth' || subItemActive?.page === 'ipsource' || subItemActive?.page === 'flow' || subItemActive?.page === 'service') ? (
                 // Full width pages - no header, only top padding for TopBar
-                <Box sx={{ width: '100%', height: '100%', px: { xs: 1, sm: 2, md: 3 } }}>
+                <Box sx={{ width: '100%', height: '100%' }}>
                     <DataMainView page={subItemActive?.page} />
                 </Box>
             ) : (
