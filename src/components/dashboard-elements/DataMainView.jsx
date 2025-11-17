@@ -1,6 +1,5 @@
 import { ChartView } from './ChartView'
 import { FlowView } from './FlowView'
-import { IpView } from './IpView'
 import { ServiceView } from './ServiceView'
 import BandwidthView from './BandwidthView'
 import { Grid, Paper, Box, Typography } from '@mui/material'
@@ -10,13 +9,6 @@ import { TrendingUp, Cloud, Lan, Settings } from '@mui/icons-material'
 export function DataMainView({ page }) {
 	// Configurations des pages individuelles
 	const pageConfig = {
-		ipsource: {
-			title: 'IPs Consommatrices',
-			subtitle: 'Analyse des adresses IP source et consommation réseau',
-			icon: Lan,
-			color: '#02647E',
-			component: IpView
-		},
 		flow: {
 			title: 'Flux Réseau',
 			subtitle: 'Visualisation des flux de données réseau en temps réel',

@@ -15,8 +15,8 @@ const listMenuItems = [
     {
         title: 'Monitoring IP Source et Destination',
         descript:
-            'Analysez les communications réseau en identifiant les adresses IP à l’origine et à la cible du trafic.',
-        page: 'ipsource',
+            'Analysez les communications réseau en identifiant les adresses IP à l'origine et à la cible du trafic.',
+        page: 'ip-view',
         icon: makeIcon(Lan),
     },
     {
@@ -92,9 +92,13 @@ export function VisualizationMenu({ anchorEl, handleMenuClose }) {
                         <Grid key={idx} size={6} sx={{ p: 1 }}>
                             <MenuItem
                                 onClick={() => {
-                                    setSubItemActive(item)
                                     handleMenuClose()
-                                    navigate('/visualization')
+                                    if (item.page === 'ip-view') {
+                                        navigate('/ip-view')
+                                    } else {
+                                        setSubItemActive(item)
+                                        navigate('/visualization')
+                                    }
                                 }}
                                 sx={{
                                     display: 'flex',
