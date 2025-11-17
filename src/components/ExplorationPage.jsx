@@ -81,6 +81,7 @@ export default function ExplorationPage() {
 
   // Normaliser un document complet
   const normalizeEsDocument = (doc) => {
+    if (!doc) return {};
     const normalized = flattenObject(doc);
     
     // Mapper les champs d'application/service (Fortigate utilise fortinet.firewall.dstinetsvc ou rule.name)
@@ -150,20 +151,27 @@ export default function ExplorationPage() {
       if (!response.ok) throw new Error('Erreur lors de la recherche')
 
       const data = await response.json()
+      console.log('🔍 Search response:', { total: data.total, hitsCount: data.hits?.length });
       setTotalResults(data.total)
       
       // Supporter les deux formats de réponse
       let hitsArray = Array.isArray(data.hits) ? data.hits : [];
+      console.log('📦 Hits array length:', hitsArray.length);
       let results_data = [];
       
       if (hitsArray.length > 0 && hitsArray[0]._source) {
         // Format Elasticsearch avec _source
+        console.log('✅ Using _source format');
         results_data = hitsArray.map(hit => normalizeEsDocument(hit._source));
       } else if (hitsArray.length > 0 && hitsArray[0].source) {
         // Format direct sans _source (comme ip-range)
+        console.log('✅ Using direct source format');
         results_data = hitsArray.map(hit => normalizeEsDocument(hit));
+      } else {
+        console.warn('⚠️ No hits or unknown format:', hitsArray.length ? hitsArray[0] : 'empty');
       }
       
+      console.log('📋 Normalized results:', results_data.length, results_data.slice(0, 2));
       setResults(results_data)
 
       // Récupérer les stats agrégées pour TOUS les résultats (pas seulement les 50 paginés)
