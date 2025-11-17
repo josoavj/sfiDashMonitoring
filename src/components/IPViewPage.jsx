@@ -9,6 +9,7 @@ export default function IPViewPage() {
     const [destRows, setDestRows] = useState([])
     const [srcRows, setSrcRows] = useState([])
     const [loading, setLoading] = useState(false)
+    const [loadingBandwidth, setLoadingBandwidth] = useState(false)
     const [bandwidthData, setBandwidthData] = useState([])
 
     const destinationColumn = [
@@ -109,23 +110,33 @@ export default function IPViewPage() {
 
     async function loadBandwidthData() {
         try {
+            setLoadingBandwidth(true)
             const to = new Date()
             const from = new Date(to.getTime() - 1000 * 60 * 60 * 24) // last 24h
 
-            const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/bandwidth-over-time', {
+            const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/bandwidth', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     timeRange: { from: from.toISOString(), to: to.toISOString() },
-                    interval: '5m'
+                    interval: '1h'
                 }),
             })
             const data = await res.json()
-            if (res.ok) {
-                setBandwidthData(data)
+            if (res.ok && data.timeline) {
+                // Transform timeline buckets to chart format
+                const formattedData = data.timeline.map(bucket => ({
+                    timestamp: bucket.key_as_string || bucket.key,
+                    bytes: bucket.total_bytes?.value || 0,
+                }))
+                setBandwidthData(formattedData)
+            } else {
+                console.error('No timeline data:', data)
             }
         } catch (err) {
             console.error('Error loading bandwidth data:', err)
+        } finally {
+            setLoadingBandwidth(false)
         }
     }
 
@@ -301,29 +312,38 @@ export default function IPViewPage() {
                         title={<Typography variant="h6" sx={{ fontWeight: 600, fontSize: 16 }}>Bande Passante</Typography>}
                         subheader="Dernières 24 heures"
                         action={
-                            <IconButton size="small" onClick={loadBandwidthData} disabled={loading} title="Actualiser">
+                            <IconButton size="small" onClick={loadBandwidthData} disabled={loadingBandwidth} title="Actualiser">
                                 <Refresh sx={{ fontSize: 20 }} />
                             </IconButton>
                         }
                         sx={{ pb: 1.5 }}
                     />
                     <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 3, minHeight: 400 }}>
-                        {loading || bandwidthData.length === 0 ? (
-                            <CircularProgress size={40} />
+                        {loadingBandwidth || bandwidthData.length === 0 ? (
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                                <CircularProgress size={40} />
+                                <Typography variant="body2" color="textSecondary">
+                                    {bandwidthData.length === 0 && !loadingBandwidth ? 'Aucune donnée disponible' : 'Chargement...'}
+                                </Typography>
+                            </Box>
                         ) : (
                             <LineChart
                                 width={Math.min(1200, window.innerWidth - 100)}
                                 height={400}
                                 series={[
                                     {
-                                        data: bandwidthData.map(d => d.bytes || 0),
-                                        label: 'Bande Passante (Mbps)',
+                                        data: bandwidthData.map(d => Math.round(d.bytes / (1024 * 1024)) || 0), // Convert to MB
+                                        label: 'Bande Passante (MB)',
                                         color: '#02647E',
+                                        curve: 'linear',
                                     },
                                 ]}
                                 xAxis={[{ 
                                     scaleType: 'point', 
-                                    data: bandwidthData.map((d, i) => `${i}h`),
+                                    data: bandwidthData.map((d, i) => {
+                                        const date = new Date(d.timestamp)
+                                        return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+                                    }),
                                 }]}
                                 margin={{ top: 10, bottom: 30, left: 60, right: 10 }}
                                 slotProps={{
