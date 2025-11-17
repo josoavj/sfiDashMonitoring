@@ -399,45 +399,30 @@ function mountApiRoutes(app, esClient, logService) {
       const {
         timeRange,
         sourceIp,
-        destinationIp,
         sourcePort,
-        destinationPort,
-        protocol,
         from = 0,
         size = 50,
         sortField = '@timestamp',
         sortOrder = 'desc'
       } = req.body;
 
-      const mustClauses = [];
       const filterClauses = [];
 
-      // Time range filter
+      // Time range filter (required)
       if (timeRange?.from && timeRange?.to) {
         filterClauses.push({
           range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } }
         });
       }
 
-      // IP filters
+      // Source IP filter (primary filter)
       if (sourceIp) {
-        mustClauses.push({ term: { 'source.ip': sourceIp } });
-      }
-      if (destinationIp) {
-        mustClauses.push({ term: { 'destination.ip': destinationIp } });
+        filterClauses.push({ term: { 'source.ip': sourceIp } });
       }
 
-      // Port filters
+      // Source port filter (optional)
       if (sourcePort) {
-        mustClauses.push({ term: { 'source.port': parseInt(sourcePort) } });
-      }
-      if (destinationPort) {
-        mustClauses.push({ term: { 'destination.port': parseInt(destinationPort) } });
-      }
-
-      // Protocol filter
-      if (protocol) {
-        mustClauses.push({ term: { 'network.protocol': protocol.toLowerCase() } });
+        filterClauses.push({ term: { 'source.port': parseInt(sourcePort) } });
       }
 
       const result = await esClient.search({
@@ -447,8 +432,7 @@ function mountApiRoutes(app, esClient, logService) {
         body: {
           query: {
             bool: {
-              must: mustClauses.length > 0 ? mustClauses : [{ match_all: {} }],
-              filter: filterClauses
+              filter: filterClauses.length > 0 ? filterClauses : [{ match_all: {} }]
             }
           },
           sort: [{ [sortField]: { order: sortOrder } }]

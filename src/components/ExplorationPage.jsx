@@ -37,7 +37,6 @@ export default function ExplorationPage() {
   const [filters, setFilters] = useState({
     sourceIp: '',
     sourcePort: '',
-    protocol: '',
     startDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     startTime: '00:00',
     endDate: new Date().toISOString().split('T')[0],
@@ -87,19 +86,24 @@ export default function ExplorationPage() {
           }
         }
       } else {
-        // Recherche avancée standard - IP source uniquement
+        // Recherche avancée standard - Filtrer par IP source principalement
         body = {
-          sourceIp: filters.sourceIp || undefined,
-          sourcePort: filters.sourcePort || undefined,
-          protocol: filters.protocol || undefined,
-          from: pagination.from,
-          size: pagination.size,
           timeRange: {
             from: startDate,
             to: endDate
           },
+          from: pagination.from,
+          size: pagination.size,
           sortField: '@timestamp',
           sortOrder: 'desc'
+        }
+        
+        // Ajouter les filtres seulement s'ils sont remplis
+        if (filters.sourceIp && filters.sourceIp.trim()) {
+          body.sourceIp = filters.sourceIp.trim()
+        }
+        if (filters.sourcePort && filters.sourcePort.trim()) {
+          body.sourcePort = filters.sourcePort.trim()
         }
       }
 
@@ -161,8 +165,7 @@ export default function ExplorationPage() {
       sourceIp: '',
       destinationIp: '',
       sourcePort: '',
-      destinationPort: '14',
-      protocol: '',
+      destinationPort: '',
       startDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       startTime: '00:00',
       endDate: new Date().toISOString().split('T')[0],
@@ -329,36 +332,6 @@ export default function ExplorationPage() {
               onChange={(e) => handleFilterChange('sourcePort', e.target.value)}
               variant="outlined"
             />
-          </Grid>
-
-          {/* Protocole */}
-          <Grid sx={{ xs: 12, sm: 6, md: 4}}>
-            <FormControl fullWidth size="small" variant="outlined">
-              <InputLabel id="protocol-label">Protocole</InputLabel>
-              <Select
-                labelId="protocol-label"
-                id="protocol-select"
-                value={filters.protocol}
-                onChange={(e) => handleFilterChange('protocol', e.target.value)}
-                label="Protocole"
-                displayEmpty
-                renderValue={(value) => {
-                  if (value === '') {
-                    return <span style={{ opacity: 0.6 }}>Sélectionner protocole...</span>
-                  }
-                  return value.toUpperCase()
-                }}
-              >
-                <MenuItem value="">
-                  <em>-- Tous les protocoles --</em>
-                </MenuItem>
-                <MenuItem value="tcp">TCP</MenuItem>
-                <MenuItem value="udp">UDP</MenuItem>
-                <MenuItem value="icmp">ICMP</MenuItem>
-                <MenuItem value="ipv4">IPv4</MenuItem>
-                <MenuItem value="ipv6">IPv6</MenuItem>
-              </Select>
-            </FormControl>
           </Grid>
 
           {/* Plage de dates */}
