@@ -91,13 +91,7 @@ export function DataMainView({ page }) {
 							</Paper>
 						</Grid>
 
-						<Grid item xs={12} md={6}>
-							<Paper sx={{ p: 1 }}>
-								<IpView />
-							</Paper>
-						</Grid>
-
-						<Grid item xs={12} md={6}>
+						<Grid item xs={12}>
 							<Paper sx={{ p: 1 }}>
 								<FlowView />
 							</Paper>

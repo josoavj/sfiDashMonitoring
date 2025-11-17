@@ -410,13 +410,15 @@ export function IpView() {
                         variant="outlined"
                         sx={{ 
                             height: '100%',
-                            minHeight: '800px',
+                            minHeight: 'calc(100vh - 350px)',
                             borderRadius: 3,
                             border: '1px solid',
                             borderColor: selectedIP ? alpha('#E05B5B', 0.3) : 'divider',
                             boxShadow: selectedIP ? '0 4px 16px rgba(224,91,91,0.15)' : '0 2px 8px rgba(0,0,0,0.05)',
                             transition: 'all 0.3s',
-                            bgcolor: selectedIP ? alpha('#E05B5B', 0.02) : 'white'
+                            bgcolor: selectedIP ? alpha('#E05B5B', 0.02) : 'white',
+                            display: 'flex',
+                            flexDirection: 'column'
                         }}
                     >
                         <CardHeader 
@@ -462,8 +464,8 @@ export function IpView() {
                             sx={{ pb: 1 }}
                         />
                         <Divider />
-                        <CardContent sx={{ p: 2 }}>
-                            <Stack direction="row" spacing={1.5} sx={{ mb: 2, flexWrap: 'wrap' }}>
+                        <CardContent sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            <Stack direction="row" spacing={1.5} sx={{ mb: 2, flexWrap: 'wrap', flexShrink: 0 }}>
                                 <FormControl size="small" sx={{ minWidth: 100 }}>
                                     <InputLabel>Fenêtre</InputLabel>
                                     <Select value={chartWindow} label="Fenêtre" onChange={(e) => setChartWindow(Number(e.target.value))}>
@@ -489,7 +491,10 @@ export function IpView() {
                                     bgcolor: alpha('#f5f7fa', 0.5),
                                     borderRadius: 2,
                                     border: '1px solid',
-                                    borderColor: 'divider'
+                                    borderColor: 'divider',
+                                    flex: 1,
+                                    display: 'flex',
+                                    flexDirection: 'column'
                                 }} 
                                 elevation={0}
                             >
@@ -499,7 +504,7 @@ export function IpView() {
                                         series={bwSeries}
                                         grid={{ vertical: true, horizontal: true }}
                                         margin={{ left: 40, right: 10, top: 40, bottom: 30 }}
-                                        height={540}
+                                        height={Math.max(400, window.innerHeight - 500)}
                                         sx={{ 
                                             '& .MuiAreaElement-root': { fillOpacity: 0.3 }, 
                                             '& .MuiLineElement-root': { strokeWidth: 2.5 } 
@@ -515,7 +520,7 @@ export function IpView() {
                                         }}
                                     />
                                 ) : (
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 540 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
                                         <CircularProgress size={36} />
                                     </Box>
                                 )}
