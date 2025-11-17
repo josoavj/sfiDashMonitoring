@@ -410,7 +410,7 @@ export function IpView() {
                         variant="outlined"
                         sx={{ 
                             height: '100%',
-                            minHeight: '400px',
+                            minHeight: '650px',
                             borderRadius: 3,
                             border: '1px solid',
                             borderColor: selectedIP ? alpha('#E05B5B', 0.3) : 'divider',
@@ -490,7 +490,7 @@ export function IpView() {
                                         series={bwSeries}
                                         grid={{ vertical: true, horizontal: true }}
                                         margin={{ left: 40, right: 10, top: 40, bottom: 30 }}
-                                        height={340}
+                                        height={540}
                                         sx={{ 
                                             '& .MuiAreaElement-root': { fillOpacity: 0.3 }, 
                                             '& .MuiLineElement-root': { strokeWidth: 2.5 } 
@@ -506,7 +506,7 @@ export function IpView() {
                                         }}
                                     />
                                 ) : (
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 340 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 540 }}>
                                         <CircularProgress size={36} />
                                     </Box>
                                 )}
