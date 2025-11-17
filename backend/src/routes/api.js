@@ -439,6 +439,19 @@ function mountApiRoutes(app, esClient, logService) {
         }
       });
 
+      // Log first document to see structure
+      if (result.hits.hits.length > 0) {
+        console.log('📊 Sample document:', JSON.stringify({
+          source_ip: result.hits.hits[0]._source.source?.ip,
+          source_port: result.hits.hits[0]._source.source?.port,
+          dest_ip: result.hits.hits[0]._source.destination?.ip,
+          dest_port: result.hits.hits[0]._source.destination?.port,
+          network_bytes: result.hits.hits[0]._source.network?.bytes,
+          network_protocol: result.hits.hits[0]._source.network?.protocol,
+          application_service: result.hits.hits[0]._source.fortinet?.firewall?.dstinetsvc || result.hits.hits[0]._source.rule?.name || 'Unknown'
+        }, null, 2));
+      }
+
       res.json({
         total: result.hits.total.value,
         hits: result.hits.hits,

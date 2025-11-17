@@ -70,27 +70,42 @@ export function AlertesPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     timeRange: { from: from.toISOString(), to: now.toISOString() },
-                    size: 10,
+                    size: 5,
                     field: 'source.ip'
                 })
             })
 
-            const data = await res.json()
-            console.log('Top consumers data:', data)
-            
-            if (res.ok) {
-                // Les données retournées sont directement un array de buckets
-                const bucketsArray = Array.isArray(data) ? data : (data?.buckets ? data.buckets : [])
-                
-                const consumers = bucketsArray.map((item, idx) => ({
-                    id: idx + 1,
-                    ip: item.key,
-                    count: item.doc_count || 0
-                }))
-                setTopConsumers(consumers)
+            if (!res.ok) {
+                console.error('Failed to load top consumers')
+                setTopConsumers([])
+                return
             }
+
+            const data = await res.json()
+            const bucketsArray = Array.isArray(data) ? data : (data?.buckets ? data.buckets : [])
+            
+            const consumersData = bucketsArray.map((item, idx) => {
+                const bytes = item.doc_count || 0
+                const mb = bytes / (1024 * 1024) // Convert bytes to MB
+                return {
+                    id: idx + 1,
+                    ip: item.key || 'Unknown',
+                    bytes: bytes,
+                    mb: mb,
+                    percentage: 0
+                }
+            })
+            
+            // Calculer les pourcentages
+            const total = consumersData.reduce((sum, c) => sum + (c.bytes || 0), 0)
+            consumersData.forEach(c => {
+                c.percentage = total > 0 ? Math.round((c.bytes / total) * 100) : 0
+            })
+            
+            setTopConsumers(consumersData)
         } catch (err) {
-            console.error('loadTopConsumers', err)
+            console.error('loadTopConsumers error:', err)
+            setTopConsumers([])
         }
     }
 

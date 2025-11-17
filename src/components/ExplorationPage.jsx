@@ -36,7 +36,6 @@ export default function ExplorationPage() {
   // État de la recherche
   const [filters, setFilters] = useState({
     sourceIp: '',
-    sourcePort: '',
     startDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     startTime: '00:00',
     endDate: new Date().toISOString().split('T')[0],
@@ -72,6 +71,15 @@ export default function ExplorationPage() {
     for (const [key, value] of Object.entries(doc)) {
       normalized[key] = normalizeEsField(value);
     }
+    
+    // Mapper les champs d'application/service (Fortigate utilise fortinet.firewall.dstinetsvc ou rule.name)
+    if (!normalized['network.application']) {
+      normalized['network.application'] = 
+        normalizeEsField(doc?.fortinet?.firewall?.dstinetsvc) ||
+        normalizeEsField(doc?.rule?.name) ||
+        'Unknown';
+    }
+    
     return normalized;
   }
 
@@ -118,9 +126,6 @@ export default function ExplorationPage() {
         // Ajouter les filtres seulement s'ils sont remplis
         if (filters.sourceIp && filters.sourceIp.trim()) {
           body.sourceIp = filters.sourceIp.trim()
-        }
-        if (filters.sourcePort && filters.sourcePort.trim()) {
-          body.sourcePort = filters.sourcePort.trim()
         }
       }
 
@@ -180,9 +185,6 @@ export default function ExplorationPage() {
   const handleReset = () => {
     setFilters({
       sourceIp: '',
-      destinationIp: '',
-      sourcePort: '',
-      destinationPort: '',
       startDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       startTime: '00:00',
       endDate: new Date().toISOString().split('T')[0],
@@ -342,20 +344,6 @@ export default function ExplorationPage() {
               placeholder="ex: 192.168.1.1"
               value={filters.sourceIp}
               onChange={(e) => handleFilterChange('sourceIp', e.target.value)}
-              variant="outlined"
-            />
-          </Grid>
-
-          {/* Port Source */}
-          <Grid sx={{ xs: 12, sm: 6, md: 4}}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Port Source"
-              placeholder="ex: 443"
-              type="number"
-              value={filters.sourcePort}
-              onChange={(e) => handleFilterChange('sourcePort', e.target.value)}
               variant="outlined"
             />
           </Grid>
@@ -607,56 +595,7 @@ export default function ExplorationPage() {
         </Grid>
       )}
 
-      {/* Graphiques analytiques */}
-      {!loading && results.length > 0 && chartData.protocolData.length > 0 && (
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          {/* Pie Chart - Protocoles */}
-          <Grid sx={{ xs: 12, md: 6}}>
-            <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                📊 Distribution des Protocoles
-              </Typography>
-              <Box sx={{ display: 'flex', justifyContent: 'center', height: 300 }}>
-                <PieChart
-                  series={[{
-                    data: chartData.protocolData.map((d, idx) => ({
-                      id: idx,
-                      value: d.value,
-                      label: d.name
-                    }))
-                  }]}
-                  width={350}
-                  height={300}
-                  colors={['#2196F3', '#FF9800', '#4CAF50', '#F44336', '#9C27B0', '#00BCD4']}
-                  margin={{ top: 20, bottom: 20, left: 0, right: 0 }}
-                />
-              </Box>
-            </Paper>
-          </Grid>
 
-          {/* Bar Chart - Services */}
-          {chartData.serviceData.length > 0 && (
-            <Grid sx={{ xs: 12, md: 6}}>
-              <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                  📈 Top Services (Mo)
-                </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'center', height: 300 }}>
-                  <BarChart
-                    dataset={chartData.serviceData}
-                    xAxis={[{ scaleType: 'band', dataKey: 'name' }]}
-                    series={[{ dataKey: 'bytes', label: 'MB', color: '#02647E' }]}
-                    width={350}
-                    height={300}
-                    margin={{ top: 20, bottom: 40, left: 50, right: 20 }}
-                    sx={{ '& text': { fontSize: '0.75rem'}}}
-                  />
-                </Box>
-              </Paper>
-            </Grid>
-          )}
-        </Grid>
-      )}
 
       {/* Tableau des résultats */}
       {loading && (
@@ -723,9 +662,20 @@ export default function ExplorationPage() {
                     <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
                       🔌 Ports
                     </Typography>
-                    <Typography sx={{ fontSize: '0.875rem', fontFamily: 'monospace' }}>
-                      {row['source.port']} → {row['destination.port']}
-                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', fontSize: '0.875rem', fontFamily: 'monospace' }}>
+                      <Chip
+                        label={`Source: ${row['source.port'] || 'N/A'}`}
+                        size="small"
+                        variant="outlined"
+                        sx={{ fontSize: '0.75rem' }}
+                      />
+                      <Chip
+                        label={`Dest: ${row['destination.port'] || 'N/A'}`}
+                        size="small"
+                        variant="outlined"
+                        sx={{ fontSize: '0.75rem' }}
+                      />
+                    </Box>
                   </Box>
 
                   {/* Service et Protocole */}
@@ -766,6 +716,79 @@ export default function ExplorationPage() {
             ))}
           </Grid>
         </Paper>
+
+        {/* Statistiques détaillées et graphiques */}
+        {chartData.protocolData.length > 0 && (
+          <Grid container spacing={3} sx={{ mb: 4 }}>
+            {/* Protocoles */}
+            <Grid sx={{ xs: 12, md: 6}}>
+              <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                  📊 Distribution des Protocoles
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  {chartData.protocolData.map((proto, idx) => (
+                    <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: '50%',
+                          backgroundColor: ['#2196F3', '#FF9800', '#4CAF50', '#F44336', '#9C27B0', '#00BCD4'][idx % 6]
+                        }}
+                      />
+                      <Typography variant="caption">
+                        {proto.name}: {proto.value}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </Paper>
+            </Grid>
+
+            {/* Top Services */}
+            {chartData.serviceData.length > 0 && (
+              <Grid sx={{ xs: 12, md: 6}}>
+                <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                    📈 Top Services par Volume
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                    {chartData.serviceData.map((service, idx) => (
+                      <Box key={idx}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                          <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                            {service.name}
+                          </Typography>
+                          <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                            {service.bytes} MB
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            height: 8,
+                            borderRadius: 4,
+                            backgroundColor: 'rgba(0,0,0,0.1)',
+                            overflow: 'hidden'
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              height: '100%',
+                              width: `${(service.bytes / (chartData.serviceData[0]?.bytes || 1)) * 100}%`,
+                              backgroundColor: '#02647E',
+                              transition: 'width 0.3s ease'
+                            }}
+                          />
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                </Paper>
+              </Grid>
+            )}
+          </Grid>
+        )}
 
         {/* Pagination */}
         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
