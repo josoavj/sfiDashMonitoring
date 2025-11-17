@@ -4,7 +4,6 @@ import {
   TextField,
   Button,
   Box,
-  Grid2,
   Table,
   TableBody,
   TableCell,
@@ -23,6 +22,7 @@ import {
   MenuItem,
   Divider
 } from '@mui/material'
+import Grid2 from '@mui/material/Grid2'
 import { Search as SearchIcon, Download as DownloadIcon, FilterList as FilterIconMUI, Explore as ExploreIcon } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { PieChart, BarChart } from '@mui/x-charts'
