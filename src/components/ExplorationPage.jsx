@@ -193,21 +193,6 @@ export default function ExplorationPage() {
         } catch (e) {
           console.error('Error in map:', e);
         }
-      } else if (hitsArray.length > 0 && hitsArray[0].source) {
-        // Format direct sans _source (comme ip-range)
-        console.log('✅ Using direct source format');
-        try {
-          results_data = hitsArray.map((hit, idx) => {
-            try {
-              return normalizeEsDocument(hit);
-            } catch (e) {
-              console.error(`Error normalizing hit ${idx}:`, e);
-              return {};
-            }
-          });
-        } catch (e) {
-          console.error('Error in map:', e);
-        }
       } else {
         console.warn('⚠️ No hits or unknown format:', hitsArray.length ? hitsArray[0] : 'empty');
       }
@@ -251,6 +236,28 @@ export default function ExplorationPage() {
               packetCount: results_data.length
             });
           }
+        }
+      } else if (searchMode === 'iprange') {
+        // Recherche par plage d'IP - utiliser aussi l'endpoint stats
+        try {
+          const statsResponse = await fetch(`${BACKEND_URL}/api/exploration/ip-range-stats`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              timeRange: { from: startDate, to: endDate },
+              startIp: ipRangeStart,
+              endIp: ipRangeEnd
+            })
+          });
+
+          if (statsResponse.ok) {
+            const statsData = await statsResponse.json();
+            console.log('📈 IP Range aggregated stats:', statsData);
+            setStats(statsData);
+          }
+        } catch (statsErr) {
+          console.warn('Could not fetch IP range stats:', statsErr.message);
         }
       } else if (results_data.length > 0) {
         // Pour les autres modes, calculer sur les résultats reçus
