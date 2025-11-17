@@ -58,6 +58,23 @@ export default function ExplorationPage() {
   })
   const [pagination, setPagination] = useState({ from: 0, size: 50 })
 
+  // Normaliser les données Elasticsearch (les champs peuvent être des arrays ou des valeurs)
+  const normalizeEsField = (value) => {
+    if (Array.isArray(value)) {
+      return value[0]; // Prendre le premier élément si c'est un array
+    }
+    return value;
+  }
+
+  // Normaliser un document complet
+  const normalizeEsDocument = (doc) => {
+    const normalized = {};
+    for (const [key, value] of Object.entries(doc)) {
+      normalized[key] = normalizeEsField(value);
+    }
+    return normalized;
+  }
+
   // Effectuer la recherche
   const handleSearch = async () => {
     setLoading(true)
@@ -125,10 +142,10 @@ export default function ExplorationPage() {
       
       if (hitsArray.length > 0 && hitsArray[0]._source) {
         // Format Elasticsearch avec _source
-        results_data = hitsArray.map(hit => hit._source);
+        results_data = hitsArray.map(hit => normalizeEsDocument(hit._source));
       } else if (hitsArray.length > 0 && hitsArray[0].source) {
         // Format direct sans _source (comme ip-range)
-        results_data = hitsArray;
+        results_data = hitsArray.map(hit => normalizeEsDocument(hit));
       }
       
       setResults(results_data)
@@ -195,11 +212,20 @@ export default function ExplorationPage() {
 
   // Générer les données pour les graphiques
   const getChartData = () => {
+    if (!results || !Array.isArray(results) || results.length === 0) {
+      return {
+        protocolData: [],
+        serviceData: []
+      }
+    }
+
     const protocolCounts = {}
     const serviceCounts = {}
     const topServices = {}
 
     results.forEach(row => {
+      if (!row || typeof row !== 'object') return
+      
       const protocol = row['network.protocol']?.toUpperCase() || 'UNKNOWN'
       const service = row['network.application'] || 'Unknown'
       const bytes = row['network.bytes'] || 0
