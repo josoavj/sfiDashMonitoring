@@ -111,8 +111,10 @@ export default function ExplorationPage() {
     setError(null)
 
     try {
-      const startDate = new Date(`${filters.startDate}T${filters.startTime}:00Z`).getTime()
-      const endDate = new Date(`${filters.endDate}T${filters.endTime}:59Z`).getTime()
+      // Convertir les dates WITHOUT le Z (pas en UTC, mais en heure locale)
+      // Car les données Elasticsearch sont en heure locale du serveur
+      const startDate = new Date(`${filters.startDate}T${filters.startTime}:00`).getTime()
+      const endDate = new Date(`${filters.endDate}T${filters.endTime}:59`).getTime()
 
       let endpoint = `${BACKEND_URL}/api/exploration/search`
       let body = {}
