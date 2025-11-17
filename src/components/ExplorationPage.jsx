@@ -100,6 +100,15 @@ export default function ExplorationPage() {
     setLoading(true)
     setError(null)
     setResults([])
+    // Reset pagination quand on fait une nouvelle recherche
+    setPagination({ from: 0, size: 50 })
+    await performSearch(0, 50)
+  }
+
+  // Effectuer la recherche avec les paramètres donnés
+  const performSearch = async (from = 0, size = 50) => {
+    setLoading(true)
+    setError(null)
 
     try {
       const startDate = new Date(`${filters.startDate}T${filters.startTime}:00Z`).getTime()
@@ -115,8 +124,8 @@ export default function ExplorationPage() {
           startIp: ipRangeStart,
           endIp: ipRangeEnd,
           field: 'source.ip',
-          from: pagination.from,
-          size: pagination.size,
+          from,
+          size,
           timeRange: {
             from: startDate,
             to: endDate
@@ -129,8 +138,8 @@ export default function ExplorationPage() {
             from: startDate,
             to: endDate
           },
-          from: pagination.from,
-          size: pagination.size,
+          from,
+          size,
           sortField: '@timestamp',
           sortOrder: 'desc'
         }
@@ -147,6 +156,14 @@ export default function ExplorationPage() {
         credentials: 'include',
         body: JSON.stringify(body)
       })
+
+      console.log('📤 Request dates:', { 
+        startDate: new Date(body.timeRange.from).toISOString(),
+        endDate: new Date(body.timeRange.to).toISOString(),
+        sourceIp: body.sourceIp,
+        from,
+        size
+      });
 
       if (!response.ok) throw new Error('Erreur lors de la recherche')
 
@@ -688,7 +705,7 @@ export default function ExplorationPage() {
           </Typography>
           
           <Grid container spacing={2}>
-            {results.slice(pagination.from, pagination.from + pagination.size).map((row, index) => (
+            {results.map((row, index) => (
               <Grid key={index} sx={{ xs: 12, sm: 6, md: 4, lg: 3}}>
                 <Paper
                   elevation={1}
@@ -867,23 +884,36 @@ export default function ExplorationPage() {
         )}
 
         {/* Pagination */}
-        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
+        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2, alignItems: 'center', flexWrap: 'wrap' }}>
           <Button
             size="small"
-            variant="outlined"
+            variant="contained"
             disabled={pagination.from === 0}
-            onClick={() => setPagination(prev => ({ ...prev, from: Math.max(0, prev.from - prev.size) }))}
+            onClick={() => {
+              const newFrom = Math.max(0, pagination.from - pagination.size);
+              setPagination(prev => ({ ...prev, from: newFrom }));
+              performSearch(newFrom, pagination.size);
+            }}
           >
             ← Précédent
           </Button>
-          <Typography sx={{ alignSelf: 'center', fontSize: '0.875rem', fontWeight: 600 }}>
-            Page {Math.floor(pagination.from / pagination.size) + 1}
+          
+          <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, mx: 2 }}>
+            Page {Math.floor(pagination.from / pagination.size) + 1} 
+            <Typography component="span" sx={{ fontSize: '0.75rem', color: 'textSecondary' }}>
+              {' '}({pagination.from + 1}-{Math.min(pagination.from + pagination.size, totalResults)} / {totalResults})
+            </Typography>
           </Typography>
+          
           <Button
             size="small"
-            variant="outlined"
+            variant="contained"
             disabled={pagination.from + pagination.size >= totalResults}
-            onClick={() => setPagination(prev => ({ ...prev, from: prev.from + prev.size }))}
+            onClick={() => {
+              const newFrom = pagination.from + pagination.size;
+              setPagination(prev => ({ ...prev, from: newFrom }));
+              performSearch(newFrom, pagination.size);
+            }}
           >
             Suivant →
           </Button>
