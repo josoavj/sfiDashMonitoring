@@ -262,8 +262,8 @@ export function IpView() {
     return (
         <Box sx={{ width: '100%' }}>
             <Grid container spacing={3} sx={{ width: '100%' }}>
-                {/* Source IPs - Full width */}
-                <Grid item xs={12}>
+                {/* Source IPs - 50% width */}
+                <Grid item xs={12} md={6}>
                     <Card 
                         variant="outlined" 
                         sx={{ 
@@ -328,8 +328,8 @@ export function IpView() {
                     </Card>
                 </Grid>
 
-                {/* Destination IPs - Full width */}
-                <Grid item xs={12}>
+                {/* Destination IPs - 50% width */}
+                <Grid item xs={12} md={6}>
                     <Card 
                         variant="outlined"
                         sx={{ 
@@ -410,7 +410,7 @@ export function IpView() {
                         variant="outlined"
                         sx={{ 
                             height: '100%',
-                            minHeight: '650px',
+                            minHeight: '800px',
                             borderRadius: 3,
                             border: '1px solid',
                             borderColor: selectedIP ? alpha('#E05B5B', 0.3) : 'divider',
@@ -443,13 +443,22 @@ export function IpView() {
                                     )}
                                 </Stack>
                             }
-                            action={selectedIP ? (
-                                <Tooltip title="Effacer la sélection">
-                                    <IconButton size="small" onClick={() => setSelectedIP(null)} sx={{ bgcolor: alpha('#E05B5B', 0.1) }}>
-                                        <Close sx={{ fontSize: 18, color: '#E05B5B' }} />
-                                    </IconButton>
-                                </Tooltip>
-                            ) : null} 
+                            action={
+                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                    <Tooltip title="Actualiser">
+                                        <IconButton size="small" onClick={() => selectedIP && loadBandwidthByIp(selectedIP, selectedField)} sx={{ bgcolor: alpha('#E05B5B', 0.1) }}>
+                                            <Refresh sx={{ fontSize: 18, color: '#E05B5B' }} />
+                                        </IconButton>
+                                    </Tooltip>
+                                    {selectedIP && (
+                                        <Tooltip title="Effacer la sélection">
+                                            <IconButton size="small" onClick={() => setSelectedIP(null)} sx={{ bgcolor: alpha('#E05B5B', 0.1) }}>
+                                                <Close sx={{ fontSize: 18, color: '#E05B5B' }} />
+                                            </IconButton>
+                                        </Tooltip>
+                                    )}
+                                </Box>
+                            } 
                             sx={{ pb: 1 }}
                         />
                         <Divider />
