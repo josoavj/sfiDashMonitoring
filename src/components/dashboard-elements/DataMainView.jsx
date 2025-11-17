@@ -116,8 +116,10 @@ export function DataMainView({ page }) {
 
 		return (
 			<>
-				{renderFullPageHeader(config)}
-				<Box sx={{ width: '100%', p: padding, pt: 0, mt: 0 }}>
+				<Box sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+					{renderFullPageHeader(config)}
+				</Box>
+				<Box sx={{ width: '100%', p: padding, pt: 0, mt: 0, px: { xs: 2, sm: 3, md: 4 } }}>
 					<Component />
 				</Box>
 			</>
