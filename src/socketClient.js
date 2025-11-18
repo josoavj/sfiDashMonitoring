@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client'
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_WS_URL || 'http://localhost:3001'
+const SOCKET_URL = import.meta.env.VITE_BACKEND_WS_URL || import.meta.env.VITE_API_URL || 'http://localhost:3001'
 console.log('[socketClient] Attempting to connect to:', SOCKET_URL)
 
 const socket = io(SOCKET_URL, {
