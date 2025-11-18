@@ -213,7 +213,7 @@ cat > /etc/nginx/sites-available/sfi-monitoring << 'EOF'
 # Frontend + Reverse Proxy pour Backend API
 
 server {
-    listen 80;
+    listen 3002;
     server_name 172.27.28.14;
 
     root /opt/sfiDashMonitoring/dist;
