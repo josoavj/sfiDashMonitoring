@@ -115,13 +115,13 @@ echo -e "${YELLOW}[8/10] Installation des dépendances...${NC}"
 # Backend dependencies
 echo "Installation des dépendances backend..."
 cd /opt/sfiDashMonitoring/backend
-sudo -u sfi npm install --production
+npm install --production
 
 # Frontend dependencies et build
 echo "Installation et build du frontend..."
 cd /opt/sfiDashMonitoring
-sudo -u sfi npm install
-sudo -u sfi npm run build
+npm install
+npm run build
 
 # Vérifier que le build a réussi
 if [ ! -d "/opt/sfiDashMonitoring/dist" ]; then
@@ -133,13 +133,13 @@ fi
 mkdir -p /usr/share/nginx/html
 rm -rf /usr/share/nginx/html/*
 cp -r /opt/sfiDashMonitoring/dist/* /usr/share/nginx/html/
-chown -R nginx:nginx /usr/share/nginx/html
+chown -R sfi:sfi /usr/share/nginx/html
 
 # ================================================
 # 9. Configure Nginx
 # ================================================
 echo -e "${YELLOW}[9/10] Configuration de Nginx...${NC}"
-cp /opt/sfiDashMonitoring/deployed/nginx.conf /etc/nginx/nginx.conf
+cp /opt/sfiDashMonitoring/deployed/conf/nginx.conf /etc/nginx/nginx.conf
 
 # Test Nginx configuration
 nginx -t
@@ -157,7 +157,7 @@ fi
 echo -e "${YELLOW}[10/10] Configuration des services Systemd...${NC}"
 
 # Backend service
-cp /opt/sfiDashMonitoring/deployed/sfiDashMonitoring-backend.service /etc/systemd/system/
+cp /opt/sfiDashMonitoring/deployed/service/sfiDashMonitoring-backend.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable sfiDashMonitoring-backend.service
 
