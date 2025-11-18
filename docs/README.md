@@ -20,6 +20,10 @@
 - **[COMPLETION-REPORT.md](./COMPLETION-REPORT.md)** - Rapport d'avancement
 - **[FINAL-SUMMARY.md](./FINAL-SUMMARY.md)** - Synthèse finale du projet
 
+## 🎤 Présentation et Soutenance
+
+- **[GUIDE-PRESENTATION-PROBLEMES.md](./GUIDE-PRESENTATION-PROBLEMES.md)** - Guide pour présenter les problèmes de l'entreprise
+
 ---
 
 ## 🚀 Démarrage rapide
@@ -51,7 +55,8 @@ docs/
 ├── SUMMARY-ARCHITECTURE.md
 ├── MIGRATION.md
 ├── COMPLETION-REPORT.md
-└── FINAL-SUMMARY.md
+├── FINAL-SUMMARY.md
+└── GUIDE-PRESENTATION-PROBLEMES.md
 ```
 
 ---
