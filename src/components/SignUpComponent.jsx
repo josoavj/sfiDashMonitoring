@@ -5,8 +5,8 @@ import { useState, useContext } from 'react'
 import AuthContext from '../context/AuthContext'
 
 const inputItems = [
-    { type: 'text', label: 'Nom', name: 'last_name' },
-    { type: 'text', label: 'Prénom', name: 'first_name' },
+    { type: 'text', label: 'Nom', name: 'lastName' },
+    { type: 'text', label: 'Prénom', name: 'firstName' },
     { type: 'text', label: 'Email', name: 'email' },
     { type: 'password', label: 'Mot de passe', name: 'password' },
 ]
@@ -14,7 +14,7 @@ const inputItems = [
 export function SignUpComponent() {
     const navigate = useNavigate()
     const { signup } = useContext(AuthContext)
-    const [form, setForm] = useState({ first_name: '', last_name: '', email: '', password: '' })
+    const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '' })
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
     const [notify, setNotify] = useState({ open: false, severity: 'success', message: '' })
@@ -32,7 +32,7 @@ export function SignUpComponent() {
         setLoading(true)
         setError(null)
         try {
-            await signup(form.first_name, form.last_name, form.email, form.password)
+            await signup(form.firstName, form.lastName, form.email, form.password)
             setNotify({ open: true, severity: 'success', message: 'Compte créé avec succès. Veuillez vous connecter.' })
             // redirect to login after short delay to show notification
             setTimeout(() => navigate('/auth/login'), 1200)
