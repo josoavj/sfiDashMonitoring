@@ -295,7 +295,7 @@ export default function IPViewPage() {
             p: { xs: 2, sm: 3, md: 4 },
             pt: { xs: 12, sm: 11, md: 10 }, 
         }}>
-            <Box sx={{ maxWidth: '1400px', mx: 'auto' }}>
+            <Box sx={{ width: '100%' }}>
                 {/* Header */}
                 <Paper
                     elevation={0}
@@ -307,13 +307,13 @@ export default function IPViewPage() {
                         color: 'white',
                     }}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <LanOutlined sx={{ fontSize: 40 }} />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+                        <LanOutlined sx={{ fontSize: { xs: 28, sm: 32, md: 40 } }} />
                         <Box>
-                            <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                            <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' } }}>
                                 Analyse des IPs
                             </Typography>
-                            <Typography sx={{ opacity: 0.9, fontSize: 14 }}>
+                            <Typography sx={{ opacity: 0.9, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' } }}>
                                 Monitoring des adresses IP source et destination avec analyse de bande passante
                             </Typography>
                         </Box>
@@ -323,7 +323,7 @@ export default function IPViewPage() {
                 {/* Time Range Selector */}
                 <Box sx={{ mb: 4, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
                     <Box>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#02647E' }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#02647E', fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
                             Plage horaire - Tableaux IPs:
                         </Typography>
                         <ToggleButtonGroup
