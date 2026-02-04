@@ -98,70 +98,131 @@ export default function ProfilePage() {
       width: '100%', 
       minHeight: '100vh', 
       background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
-      p: { xs: 2, sm: 3, md: 4 },
-      pt: { xs: 10, sm: 9, md: 8 },
-      mt: { xs: 2, sm: 1 }
+      p: { xs: 1, sm: 2.5, md: 4 },
+      pt: { xs: 12, sm: 11, md: 10 }
     }}>
-      <Box sx={{ maxWidth: '1800px', mx: 'auto' }}>
+      <Box sx={{ maxWidth: '1200px', mx: 'auto', width: '100%' }}>
       {/* Header with Gradient Background */}
       <Paper
         elevation={0}
         sx={{
-          p: 4,
-          mb: 4,
+          p: { xs: 2, sm: 3, md: 4 },
+          mb: 3,
           background: `linear-gradient(135deg, #02647E 0%, #72BDD1 100%)`,
           borderRadius: 2,
           color: 'white',
           display: 'flex',
-          alignItems: 'center',
-          gap: 3,
-          flexWrap: { xs: 'wrap', sm: 'nowrap' }
+          flexDirection: { xs: 'column', sm: 'row' },
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          gap: { xs: 2, sm: 3 }
         }}
       >
+        {/* Avatar */}
         <Avatar sx={{
-          width: { xs: 70, sm: 90, md: 110 },
-          height: { xs: 70, sm: 90, md: 110 },
-          bgcolor: alpha('#fff', 0.25),
+          width: { xs: 60, sm: 80, md: 100 },
+          height: { xs: 60, sm: 80, md: 100 },
+          bgcolor: 'rgba(255,255,255,0.25)',
           color: '#fff',
-          fontSize: { xs: '2rem', md: '2.5rem' },
+          fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
           fontWeight: 700,
-          border: '4px solid rgba(255,255,255,0.4)',
+          border: '3px solid rgba(255,255,255,0.4)',
           flexShrink: 0
         }}>
           {initials}
         </Avatar>
-        <Box sx={{ flex: 1, minWidth: '250px' }}>
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>{fullName}</Typography>
-          <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1 }}>
-            <Typography variant="body2" sx={{ opacity: 0.95, display: 'flex', alignItems: 'center', gap: 0.7 }}>
-              <EmailIcon sx={{ fontSize: 18 }} />
+
+        {/* Profile Info */}
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              fontWeight: 700, 
+              mb: 1, 
+              fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' },
+              wordBreak: 'break-word'
+            }}
+          >
+            {fullName}
+          </Typography>
+          
+          <Stack direction="column" spacing={0.75} sx={{ mb: 1.5 }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                opacity: 0.95, 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 0.7,
+                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                wordBreak: 'break-all'
+              }}
+            >
+              <EmailIcon sx={{ fontSize: { xs: 16, sm: 18 }, flexShrink: 0 }} />
               {profile?.email}
             </Typography>
+            
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                opacity: 0.9, 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 0.7,
+                fontSize: { xs: '0.8rem', sm: '0.875rem' }
+              }}
+            >
+              <CalendarTodayIcon sx={{ fontSize: { xs: 16, sm: 18 }, flexShrink: 0 }} />
+              Depuis {createdDate}
+            </Typography>
           </Stack>
-          <Chip
-            icon={isAdmin ? <VerifiedIcon /> : undefined}
-            label={isAdmin ? 'Administrateur' : 'Utilisateur'}
-            size="small"
-            sx={{
-              bgcolor: alpha('#fff', 0.25),
-              color: '#fff',
-              fontWeight: 700,
-              fontSize: '0.85rem'
-            }}
-          />
+
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+            <Chip
+              icon={isAdmin ? <VerifiedIcon /> : undefined}
+              label={isAdmin ? 'Administrateur' : 'Utilisateur'}
+              size="small"
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.25)',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: '0.8rem'
+              }}
+            />
+            <Chip
+              label={isAdmin ? 'PRIVILÉGIÉ' : 'STANDARD'}
+              size="small"
+              sx={{
+                bgcolor: isAdmin ? 'rgba(224, 91, 91, 0.3)' : 'rgba(114, 189, 209, 0.3)',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: '0.75rem'
+              }}
+            />
+          </Box>
         </Box>
-        <Stack direction="row" spacing={1} sx={{ width: { xs: '100%', sm: 'auto' }, justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
+
+        {/* Action Buttons */}
+        <Stack 
+          direction={{ xs: 'column', sm: 'row' }} 
+          spacing={1} 
+          sx={{ 
+            width: { xs: '100%', sm: 'auto' },
+            alignItems: { xs: 'stretch', sm: 'center' }
+          }}
+        >
           {!editMode ? (
             <>
               <Button
                 variant="contained"
                 startIcon={<EditIcon />}
                 onClick={() => setEditMode(true)}
+                size="small"
                 sx={{ 
-                  bgcolor: alpha('#fff', 0.2), 
+                  bgcolor: 'rgba(255,255,255,0.2)', 
                   color: '#fff', 
                   fontWeight: 600,
-                  '&:hover': { bgcolor: alpha('#fff', 0.3) } 
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' },
+                  width: { xs: '100%', sm: 'auto' }
                 }}
               >
                 Modifier
@@ -170,11 +231,13 @@ export default function ProfilePage() {
                 variant="contained"
                 startIcon={<LogoutIcon />}
                 onClick={signOut}
+                size="small"
                 sx={{ 
-                  bgcolor: alpha('#E05B5B', 0.3), 
+                  bgcolor: 'rgba(224, 91, 91, 0.3)', 
                   color: '#fff', 
                   fontWeight: 600,
-                  '&:hover': { bgcolor: alpha('#E05B5B', 0.5) } 
+                  '&:hover': { bgcolor: 'rgba(224, 91, 91, 0.5)' },
+                  width: { xs: '100%', sm: 'auto' }
                 }}
               >
                 Déconnexion
@@ -184,26 +247,18 @@ export default function ProfilePage() {
         </Stack>
       </Paper>
 
-      {/* Main Content Grid */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
+      {/* Main Content */}
+      <Grid container spacing={{ xs: 1.5, sm: 2.5, md: 3 }} sx={{ mb: 3 }}>
         {/* Personal Information */}
         <Grid item xs={12} md={6}>
-          <Card sx={{ 
-            height: '100%',
-            borderRadius: 3,
-            border: '1px solid',
-            borderColor: 'divider',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-            transition: 'all 0.3s',
-            '&:hover': { boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }
-          }}>
+          <Card elevation={1} sx={{ borderRadius: 2, height: '100%', width: '100%' }}>
             <CardHeader
-              avatar={<Avatar sx={{ bgcolor: alpha('#02647E', 0.15), color: '#02647E' }}><PersonIcon /></Avatar>}
-              title={<Typography variant="h6" fontWeight={600}>Informations Personnelles</Typography>}
-              sx={{ pb: 1 }}
+              avatar={<Avatar sx={{ bgcolor: 'rgba(2, 100, 126, 0.15)', color: '#02647E' }}><PersonIcon /></Avatar>}
+              title={<Typography variant="h6" sx={{ fontSize: { xs: '0.95rem', sm: '1.05rem' }, fontWeight: 600 }}>Informations Personnelles</Typography>}
+              sx={{ pb: 1.5, p: { xs: 1.5, sm: 2 } }}
             />
             <Divider />
-            <CardContent sx={{ p: 3 }}>
+            <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
               {editMode ? (
                 <Stack spacing={2}>
                   <TextField
@@ -233,18 +288,18 @@ export default function ProfilePage() {
                   />
                 </Stack>
               ) : (
-                <Stack spacing={2.5}>
+                <Stack spacing={2}>
                   <Box>
-                    <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>Prénom</Typography>
-                    <Typography variant="body1" sx={{ fontWeight: 500, color: '#02647E' }}>{profile?.firstName || '—'}</Typography>
+                    <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5, fontSize: '0.7rem' }}>Prénom</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#02647E', fontSize: '0.95rem' }}>{profile?.firstName || '—'}</Typography>
                   </Box>
                   <Box>
-                    <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>Nom</Typography>
-                    <Typography variant="body1" sx={{ fontWeight: 500, color: '#02647E' }}>{profile?.lastName || '—'}</Typography>
+                    <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5, fontSize: '0.7rem' }}>Nom</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#02647E', fontSize: '0.95rem' }}>{profile?.lastName || '—'}</Typography>
                   </Box>
                   <Box>
-                    <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>Email</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 500, color: '#02647E', fontFamily: 'monospace' }}>{profile?.email || '—'}</Typography>
+                    <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5, fontSize: '0.7rem' }}>Email</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#02647E', fontSize: '0.9rem', fontFamily: 'monospace', wordBreak: 'break-all' }}>{profile?.email || '—'}</Typography>
                   </Box>
                 </Stack>
               )}
@@ -254,34 +309,26 @@ export default function ProfilePage() {
 
         {/* Account & Security */}
         <Grid item xs={12} md={6}>
-          <Card sx={{ 
-            height: '100%',
-            borderRadius: 3,
-            border: '1px solid',
-            borderColor: 'divider',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-            transition: 'all 0.3s',
-            '&:hover': { boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }
-          }}>
+          <Card elevation={1} sx={{ borderRadius: 2, height: '100%', width: '100%' }}>
             <CardHeader
-              avatar={<Avatar sx={{ bgcolor: alpha('#52B57D', 0.15), color: '#52B57D' }}><SecurityIcon /></Avatar>}
-              title={<Typography variant="h6" fontWeight={600}>Sécurité & Compte</Typography>}
-              sx={{ pb: 1 }}
+              avatar={<Avatar sx={{ bgcolor: 'rgba(82, 181, 125, 0.15)', color: '#52B57D' }}><SecurityIcon /></Avatar>}
+              title={<Typography variant="h6" sx={{ fontSize: { xs: '0.95rem', sm: '1.05rem' }, fontWeight: 600 }}>Sécurité & Compte</Typography>}
+              sx={{ pb: 1.5, p: { xs: 1.5, sm: 2 } }}
             />
             <Divider />
-            <CardContent sx={{ p: 3 }}>
+            <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
               <Stack spacing={2}>
                 <Box>
-                  <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>Rôle</Typography>
-                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                    <Typography variant="body1" sx={{ fontWeight: 500, color: '#02647E' }}>
+                  <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5, fontSize: '0.7rem' }}>Rôle</Typography>
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#02647E', fontSize: '0.95rem' }}>
                       {isAdmin ? 'Administrateur' : 'Utilisateur Standard'}
                     </Typography>
                     <Chip
                       label={isAdmin ? 'PRIVILÉGIÉ' : 'STANDARD'}
                       size="small"
                       sx={{
-                        bgcolor: isAdmin ? alpha('#E05B5B', 0.15) : alpha('#72BDD1', 0.15),
+                        bgcolor: isAdmin ? 'rgba(224, 91, 91, 0.15)' : 'rgba(114, 189, 209, 0.15)',
                         color: isAdmin ? '#E05B5B' : '#02647E',
                         fontWeight: 700,
                         fontSize: '0.65rem'
@@ -291,16 +338,8 @@ export default function ProfilePage() {
                 </Box>
                 <Divider />
                 <Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-                    <CalendarTodayIcon sx={{ fontSize: 16, color: '#72BDD1' }} />
-                    <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5 }}>Membre depuis</Typography>
-                  </Box>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: '#02647E' }}>{createdDate}</Typography>
-                </Box>
-                <Divider />
-                <Box>
-                  <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5 }}>ID Utilisateur</Typography>
-                  <Typography variant="caption" sx={{ fontFamily: 'monospace', color: '#666', fontSize: '0.8rem' }}>{profile?.id || 'N/A'}</Typography>
+                  <Typography variant="caption" sx={{ color: '#999', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, display: 'block', mb: 0.5, fontSize: '0.7rem' }}>ID Utilisateur</Typography>
+                  <Typography variant="caption" sx={{ fontFamily: 'monospace', color: '#666', fontSize: '0.75rem', wordBreak: 'break-all' }}>{profile?.id || 'N/A'}</Typography>
                 </Box>
               </Stack>
             </CardContent>
@@ -310,21 +349,15 @@ export default function ProfilePage() {
 
       {/* Password Change Section */}
       {editMode && (
-        <Card sx={{ 
-          borderRadius: 3,
-          border: '1px solid',
-          borderColor: 'divider',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-          mb: 3
-        }}>
+        <Card elevation={1} sx={{ borderRadius: 2, mb: 3 }}>
           <CardHeader
-            avatar={<Avatar sx={{ bgcolor: alpha('#E05B5B', 0.15), color: '#E05B5B' }}><LockIcon /></Avatar>}
-            title={<Typography variant="h6" fontWeight={600}>Changer le mot de passe</Typography>}
-            subheader="Optionnel - laissez vide pour conserver votre mot de passe actuel"
-            sx={{ pb: 1.5 }}
+            avatar={<Avatar sx={{ bgcolor: 'rgba(224, 91, 91, 0.15)', color: '#E05B5B' }}><LockIcon /></Avatar>}
+            title={<Typography variant="h6" sx={{ fontSize: { xs: '0.95rem', sm: '1.05rem' }, fontWeight: 600 }}>Changer le mot de passe</Typography>}
+            subheader={<Typography variant="caption" sx={{ fontSize: '0.75rem' }}>Optionnel - laissez vide pour conserver votre mot de passe actuel</Typography>}
+            sx={{ pb: 1.5, p: { xs: 1.5, sm: 2 } }}
           />
           <Divider />
-          <CardContent sx={{ p: 3 }}>
+          <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -355,47 +388,41 @@ export default function ProfilePage() {
       )}
 
       {/* Preferences & Notifications Section */}
-      <Card sx={{ 
-        borderRadius: 3,
-        border: '1px solid',
-        borderColor: 'divider',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-        mb: 3
-      }}>
+      <Card elevation={1} sx={{ borderRadius: 2, mb: 3 }}>
         <CardHeader
-          avatar={<Avatar sx={{ bgcolor: alpha('#29BAE2', 0.15), color: '#29BAE2' }}><NotificationsIcon /></Avatar>}
-          title={<Typography variant="h6" fontWeight={600}>Préférences & Notifications</Typography>}
-          sx={{ pb: 1 }}
+          avatar={<Avatar sx={{ bgcolor: 'rgba(41, 186, 226, 0.15)', color: '#29BAE2' }}><NotificationsIcon /></Avatar>}
+          title={<Typography variant="h6" sx={{ fontSize: { xs: '0.95rem', sm: '1.05rem' }, fontWeight: 600 }}>Préférences & Notifications</Typography>}
+          sx={{ pb: 1.5, p: { xs: 1.5, sm: 2 } }}
         />
         <Divider />
-        <CardContent sx={{ p: 3 }}>
-          <Grid container spacing={2}>
+        <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+          <Grid container spacing={{ xs: 1.5, sm: 2 }}>
             <Grid item xs={12} sm={6}>
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#02647E' }}>Alertes par Email</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Recevoir les notifications importantes par email</Typography>
-                <Chip label="Activé" sx={{ bgcolor: alpha('#52B57D', 0.15), color: '#52B57D', fontWeight: 600 }} />
+              <Box sx={{ p: { xs: 1, sm: 1.5 }, background: 'rgba(2, 100, 126, 0.03)', borderRadius: 1 }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: '#02647E', fontSize: '0.9rem' }}>📧 Alertes par Email</Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem', display: 'block', mb: 1 }}>Notifications importantes par email</Typography>
+                <Chip label="Activé" size="small" sx={{ bgcolor: 'rgba(82, 181, 125, 0.15)', color: '#52B57D', fontWeight: 600, fontSize: '0.7rem' }} />
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#02647E' }}>Rapports Hebdomadaires</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Résumé hebdomadaire de l'activité réseau</Typography>
-                <Chip label="Activé" sx={{ bgcolor: alpha('#52B57D', 0.15), color: '#52B57D', fontWeight: 600 }} />
+              <Box sx={{ p: { xs: 1, sm: 1.5 }, background: 'rgba(2, 100, 126, 0.03)', borderRadius: 1 }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: '#02647E', fontSize: '0.9rem' }}>📊 Rapports Hebdomadaires</Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem', display: 'block', mb: 1 }}>Résumé de l'activité réseau</Typography>
+                <Chip label="Activé" size="small" sx={{ bgcolor: 'rgba(82, 181, 125, 0.15)', color: '#52B57D', fontWeight: 600, fontSize: '0.7rem' }} />
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#02647E' }}>Thème Sombre</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Utiliser l'interface sombre (bientôt disponible)</Typography>
-                <Chip label="Désactivé" sx={{ bgcolor: alpha('#999', 0.15), color: '#666', fontWeight: 600 }} />
+              <Box sx={{ p: { xs: 1, sm: 1.5 }, background: 'rgba(2, 100, 126, 0.03)', borderRadius: 1 }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: '#02647E', fontSize: '0.9rem' }}>🌙 Thème Sombre</Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem', display: 'block', mb: 1 }}>Interface sombre (bientôt)</Typography>
+                <Chip label="Désactivé" size="small" sx={{ bgcolor: 'rgba(153, 153, 153, 0.15)', color: '#666', fontWeight: 600, fontSize: '0.7rem' }} />
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#02647E' }}>Données Personnelles</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Partage des données d'utilisation pour amélioration</Typography>
-                <Chip label="Autorisé" sx={{ bgcolor: alpha('#52B57D', 0.15), color: '#52B57D', fontWeight: 600 }} />
+              <Box sx={{ p: { xs: 1, sm: 1.5 }, background: 'rgba(2, 100, 126, 0.03)', borderRadius: 1 }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: '#02647E', fontSize: '0.9rem' }}>📈 Partage de Données</Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem', display: 'block', mb: 1 }}>Amélioration du service</Typography>
+                <Chip label="Autorisé" size="small" sx={{ bgcolor: 'rgba(82, 181, 125, 0.15)', color: '#52B57D', fontWeight: 600, fontSize: '0.7rem' }} />
               </Box>
             </Grid>
           </Grid>
@@ -404,7 +431,11 @@ export default function ProfilePage() {
 
       {/* Action Buttons */}
       {editMode && (
-        <Stack direction="row" spacing={2} sx={{ justifyContent: 'flex-end' }}>
+        <Stack 
+          direction={{ xs: 'column', sm: 'row' }} 
+          spacing={1.5} 
+          sx={{ justifyContent: 'flex-end' }}
+        >
           <Button
             variant="outlined"
             startIcon={<CancelIcon />}
@@ -414,7 +445,8 @@ export default function ProfilePage() {
               setPasswordConfirm('')
             }}
             disabled={saving}
-            sx={{ color: '#666', borderColor: '#ddd' }}
+            fullWidth={{ xs: true, sm: false }}
+            size="small"
           >
             Annuler
           </Button>
@@ -423,13 +455,15 @@ export default function ProfilePage() {
             startIcon={<SaveIcon />}
             onClick={save}
             disabled={saving}
+            fullWidth={{ xs: true, sm: false }}
+            size="small"
             sx={{
               background: `linear-gradient(135deg, #02647E 0%, #72BDD1 100%)`,
               color: '#fff',
               fontWeight: 600
             }}
           >
-            {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+            {saving ? 'Enregistrement...' : 'Enregistrer'}
           </Button>
         </Stack>
       )}

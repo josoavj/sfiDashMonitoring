@@ -182,13 +182,13 @@ export default function ReportsPage() {
             color: 'white',
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-            <Assessment sx={{ fontSize: 40 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, mb: 1 }}>
+            <Assessment sx={{ fontSize: { xs: 28, sm: 32, md: 40 } }} />
             <Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+              <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' } }}>
                 Rapports
               </Typography>
-              <Typography sx={{ opacity: 0.9 }}>
+              <Typography sx={{ opacity: 0.9, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' } }}>
                 Générez et téléchargez des rapports détaillés de consommation réseau
               </Typography>
             </Box>

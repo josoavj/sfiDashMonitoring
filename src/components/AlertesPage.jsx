@@ -1,15 +1,14 @@
 import { Box, Typography, Paper, Grid, Card, CardHeader, CardContent, Avatar, Chip, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, IconButton, Tooltip, Stack, Alert, AlertTitle } from '@mui/material'
 import { TrendingUp, Warning, Refresh, SignalCellularAlt } from '@mui/icons-material'
-import { useEffect, useState, useRef } from 'react'
-import { io } from 'socket.io-client'
+import { useEffect, useState } from 'react'
 import { alpha } from '@mui/material/styles'
+import { useWebSocket } from '../context/WebsocketContext'
 
 export function AlertesPage() {
     const [alerts, setAlerts] = useState([])
     const [topConsumers, setTopConsumers] = useState([])
     const [loading, setLoading] = useState(false)
     const [realtimeData, setRealtimeData] = useState({})
-    const socketRef = useRef(null)
 
     // Charger les alertes depuis 06h30
     async function loadAlerts() {
@@ -109,26 +108,16 @@ export function AlertesPage() {
         }
     }
 
-    // Socket pour temps réel
+    // Utiliser le socket global du contexte
+    const socket = useWebSocket()
+
     useEffect(() => {
         loadAlerts()
         loadTopConsumers()
+    }, [])
 
-        const wsUrl = import.meta.env.VITE_BACKEND_WS_URL || import.meta.env.VITE_API_URL || 'http://localhost:3001'
-        console.log('[AlertesPage] Tentative de connexion WebSocket:', wsUrl)
-        const socket = io(wsUrl, {
-            reconnection: true,
-            reconnectionDelay: 1000,
-            reconnectionDelayMax: 5000,
-            reconnectionAttempts: 5,
-            transports: ['websocket', 'polling']
-        })
-
-        socketRef.current = socket
-
-        socket.on('connect', () => {
-            console.log('Socket connected for alerts')
-        })
+    useEffect(() => {
+        if (!socket) return
 
         socket.on('bandwidth-update', (payload) => {
             try {
@@ -146,9 +135,9 @@ export function AlertesPage() {
         })
 
         return () => {
-            if (socket) socket.disconnect()
+            socket.off('bandwidth-update')
         }
-    }, [])
+    }, [socket])
 
     const getSeverityColor = (severity) => {
         switch (severity) {
@@ -197,13 +186,13 @@ export function AlertesPage() {
                 color: 'white',
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                <Warning sx={{ fontSize: 40 }} />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, mb: 1 }}>
+                <Warning sx={{ fontSize: { xs: 28, sm: 32, md: 40 } }} />
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' } }}>
                     Alertes
                   </Typography>
-                  <Typography sx={{ opacity: 0.9 }}>
+                  <Typography sx={{ opacity: 0.9, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' } }}>
                     Surveillance des IPs consommatrices et alertes temps réel
                   </Typography>
                 </Box>
@@ -234,7 +223,7 @@ export function AlertesPage() {
                                     <TrendingUp />
                                 </Avatar>
                             }
-                            title={<Typography variant="h6" fontWeight={600}>IPs Consommatrices (Depuis 06h30)</Typography>}
+                            title={<Typography variant="h6" fontWeight={600} sx={{ fontSize: { xs: '0.95rem', sm: '1.1rem' } }}>IPs Consommatrices (Depuis 06h30)</Typography>}
                             subheader="Top 20 adresses sources"
                             action={
                                 <Tooltip title="Actualiser">
@@ -305,7 +294,7 @@ export function AlertesPage() {
                                     <SignalCellularAlt />
                                 </Avatar>
                             }
-                            title={<Typography variant="h6" fontWeight={600}>Top Consommateurs Temps Réel</Typography>}
+                            title={<Typography variant="h6" fontWeight={600} sx={{ fontSize: { xs: '0.95rem', sm: '1.1rem' } }}>Top Consommateurs Temps Réel</Typography>}
                             subheader="Dernières 5 minutes"
                             action={
                                 <Tooltip title="Actualiser">
