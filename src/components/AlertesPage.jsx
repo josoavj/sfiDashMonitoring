@@ -186,13 +186,13 @@ export function AlertesPage() {
                 color: 'white',
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                <Warning sx={{ fontSize: 40 }} />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, mb: 1 }}>
+                <Warning sx={{ fontSize: { xs: 28, sm: 32, md: 40 } }} />
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' } }}>
                     Alertes
                   </Typography>
-                  <Typography sx={{ opacity: 0.9 }}>
+                  <Typography sx={{ opacity: 0.9, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' } }}>
                     Surveillance des IPs consommatrices et alertes temps réel
                   </Typography>
                 </Box>
@@ -223,7 +223,7 @@ export function AlertesPage() {
                                     <TrendingUp />
                                 </Avatar>
                             }
-                            title={<Typography variant="h6" fontWeight={600}>IPs Consommatrices (Depuis 06h30)</Typography>}
+                            title={<Typography variant="h6" fontWeight={600} sx={{ fontSize: { xs: '0.95rem', sm: '1.1rem' } }}>IPs Consommatrices (Depuis 06h30)</Typography>}
                             subheader="Top 20 adresses sources"
                             action={
                                 <Tooltip title="Actualiser">
@@ -294,7 +294,7 @@ export function AlertesPage() {
                                     <SignalCellularAlt />
                                 </Avatar>
                             }
-                            title={<Typography variant="h6" fontWeight={600}>Top Consommateurs Temps Réel</Typography>}
+                            title={<Typography variant="h6" fontWeight={600} sx={{ fontSize: { xs: '0.95rem', sm: '1.1rem' } }}>Top Consommateurs Temps Réel</Typography>}
                             subheader="Dernières 5 minutes"
                             action={
                                 <Tooltip title="Actualiser">
