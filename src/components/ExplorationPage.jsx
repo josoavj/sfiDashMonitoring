@@ -26,6 +26,8 @@ import {
 import { Search as SearchIcon, Download as DownloadIcon, FilterList as FilterIconMUI, Explore as ExploreIcon } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { PieChart, BarChart } from '@mui/x-charts'
+import { useDebounce } from '../hooks/useDebounce'
+import { useApiCache } from '../hooks/useApiCache'
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
@@ -56,6 +58,19 @@ export default function ExplorationPage() {
     packetCount: 0
   })
   const [pagination, setPagination] = useState({ from: 0, size: 50 })
+
+  // Hooks pour optimisation
+  const debouncedSourceIp = useDebounce(filters.sourceIp, 800) // 800ms debounce
+  const { getCached, setCached } = useApiCache(120000) // 2 min cache
+
+  // Auto-recherche au changement du sourceIp debounce
+  useEffect(() => {
+    if (debouncedSourceIp !== filters.sourceIp || !filters.sourceIp) return
+    // Déclencher la recherche seulement si on a tapé quelque chose et que le debounce est prêt
+    if (debouncedSourceIp && debouncedSourceIp.trim().length >= 3) {
+      handleSearch()
+    }
+  }, [debouncedSourceIp])
 
   // Normaliser les données Elasticsearch (les champs peuvent être des arrays ou des valeurs)
   const normalizeEsField = (value) => {
@@ -152,6 +167,18 @@ export default function ExplorationPage() {
         }
       }
 
+      // Vérifier si résultat en cache
+      const cacheKey = `search_${searchMode}_${JSON.stringify(body)}`
+      const cached = getCached(cacheKey)
+      if (cached) {
+        console.log('Cache hit for:', searchMode)
+        setResults(cached.results)
+        setTotalResults(cached.total)
+        setStats(cached.stats)
+        setLoading(false)
+        return
+      }
+
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -159,7 +186,7 @@ export default function ExplorationPage() {
         body: JSON.stringify(body)
       })
 
-      console.log('📤 Request dates:', { 
+      console.log('Request dates:', { 
         startDate: new Date(body.timeRange.from).toISOString(),
         endDate: new Date(body.timeRange.to).toISOString(),
         sourceIp: body.sourceIp,
@@ -253,7 +280,7 @@ export default function ExplorationPage() {
 
           if (statsResponse.ok) {
             const statsData = await statsResponse.json();
-            console.log('📈 IP Range aggregated stats:', statsData);
+            console.log('IP Range aggregated stats:', statsData);
             setStats(statsData);
           }
         } catch (statsErr) {
@@ -270,6 +297,13 @@ export default function ExplorationPage() {
           packetCount: results_data.length
         });
       }
+
+      // Mettre en cache les résultats
+      setCached(cacheKey, {
+        results: results_data,
+        total: data.total,
+        stats: stats
+      })
     } catch (err) {
       setError(err.message || 'Erreur lors de la recherche')
       console.error('Erreur recherche:', err)
