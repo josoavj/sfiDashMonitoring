@@ -1,7 +1,7 @@
 import { Grid, Typography, Stack, CircularProgress, IconButton, Box, Paper, Card, CardHeader, CardContent, Chip, Avatar, alpha, Button, Dialog, DialogTitle, DialogContent, Tooltip, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { Refresh, TrendingUp, Router, Public, LanOutlined, Close, Info } from '@mui/icons-material'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { onThrottled } from '../socketClient'
 import { LineChart, BarChart } from '@mui/x-charts'
 
@@ -119,7 +119,7 @@ export default function IPViewPage() {
         }
     ]
 
-    async function loadTop() {
+    const memoLoadTop = useCallback(async () => {
         setLoading(true)
         try {
             const to = new Date()
@@ -147,9 +147,9 @@ export default function IPViewPage() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [timeRange])
 
-    async function loadBandwidthData() {
+    const memoLoadBandwidthData = useCallback(async () => {
         try {
             setLoadingBandwidth(true)
             const to = new Date()
@@ -180,9 +180,9 @@ export default function IPViewPage() {
         } finally {
             setLoadingBandwidth(false)
         }
-    }
+    }, [bandwidthTimeRange])
 
-    async function loadIPBandwidthData(ip, ipType) {
+    const memoLoadIPBandwidthData = useCallback(async (ip, ipType) => {
         try {
             const to = new Date()
             const from = new Date(to.getTime() - getTimeRangeMs(timeRange)) // Use same timeRange as tables
@@ -214,9 +214,9 @@ export default function IPViewPage() {
         } catch (err) {
             console.error('Error loading IP bandwidth data:', err)
         }
-    }
+    }, [timeRange])
 
-    async function loadIPDetails(ip, ipType) {
+    const memoLoadIPDetails = useCallback(async (ip, ipType) => {
         try {
             const to = new Date()
             const from = new Date(to.getTime() - getTimeRangeMs(timeRange)) // Synchro with timeRange!
@@ -246,46 +246,46 @@ export default function IPViewPage() {
         } catch (err) {
             console.error('Error loading IP details:', err)
         }
-    }
+    }, [timeRange, srcRows, destRows])
 
-    const handleRowClick = (params) => {
+    const handleRowClick = useCallback((params) => {
         const ip = params.row.source_netflow || params.row.dest_netflow
         const type = params.row.source_netflow ? 'source' : 'dest'
         setSelectedIP(ip)
         setSelectedIPType(type)
-        loadIPBandwidthData(ip, type)
-        loadIPDetails(ip, type)
+        memoLoadIPBandwidthData(ip, type)
+        memoLoadIPDetails(ip, type)
         setShowIPDetails(true)
-    }
+    }, [memoLoadIPBandwidthData, memoLoadIPDetails])
 
     useEffect(() => {
-        loadTop()
-        loadBandwidthData()
-    }, [timeRange, bandwidthTimeRange])
+        memoLoadTop()
+        memoLoadBandwidthData()
+    }, [memoLoadTop, memoLoadBandwidthData])
 
     useEffect(() => {
         // Reload IP details when timeRange changes and an IP is selected
         if (selectedIP && selectedIPType) {
-            loadIPDetails(selectedIP, selectedIPType)
+            memoLoadIPDetails(selectedIP, selectedIPType)
         }
-    }, [timeRange])
+    }, [selectedIP, selectedIPType, memoLoadIPDetails])
 
     useEffect(() => {
         const unsubscribe = onThrottled((data) => {
             if (data && typeof data === 'object') {
                 if (data.event === 'elastic_update') {
-                    loadTop()
-                    loadBandwidthData()
+                    memoLoadTop()
+                    memoLoadBandwidthData()
                     // Also refresh selected IP data
                     if (selectedIP && selectedIPType) {
-                        loadIPBandwidthData(selectedIP, selectedIPType)
+                        memoLoadIPBandwidthData(selectedIP, selectedIPType)
                     }
                 }
             }
         }, 5000)
 
         return () => unsubscribe?.()
-    }, [selectedIP, selectedIPType])
+    }, [selectedIP, selectedIPType, memoLoadTop, memoLoadBandwidthData, memoLoadIPBandwidthData])
 
     return (
         <Box sx={{
@@ -413,7 +413,7 @@ export default function IPViewPage() {
                                 }
                                 subheader={`Top 50 (${srcRows.length})`}
                                 action={
-                                    <IconButton size="small" onClick={loadTop} disabled={loading} title="Actualiser">
+                                    <IconButton size="small" onClick={memoLoadTop} disabled={loading} title="Actualiser">
                                         <Refresh sx={{ fontSize: 20 }} />
                                     </IconButton>
                                 }
@@ -474,7 +474,7 @@ export default function IPViewPage() {
                                 }
                                 subheader={`Top 50 (${destRows.length})`}
                                 action={
-                                    <IconButton size="small" onClick={loadTop} disabled={loading} title="Actualiser">
+                                    <IconButton size="small" onClick={memoLoadTop} disabled={loading} title="Actualiser">
                                         <Refresh sx={{ fontSize: 20 }} />
                                     </IconButton>
                                 }
@@ -533,7 +533,7 @@ export default function IPViewPage() {
                         }
                         subheader=""
                         action={
-                            <IconButton size="small" onClick={loadBandwidthData} disabled={loadingBandwidth} title="Actualiser">
+                            <IconButton size="small" onClick={memoLoadBandwidthData} disabled={loadingBandwidth} title="Actualiser">
                                 <Refresh sx={{ fontSize: 20 }} />
                             </IconButton>
                         }
