@@ -406,13 +406,13 @@ export default function ExplorationPage() {
           color: 'white',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-          <ExploreIcon sx={{ fontSize: 40 }} />
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, mb: 1 }}>
+          <ExploreIcon sx={{ fontSize: { xs: 28, sm: 32, md: 40 } }} />
           <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+            <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' } }}>
               Exploration
             </Typography>
-            <Typography sx={{ opacity: 0.9 }}>
+            <Typography sx={{ opacity: 0.9, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' } }}>
               Recherche personnalisée et avancée dans les données réseau Elasticsearch
             </Typography>
           </Box>
@@ -450,7 +450,7 @@ export default function ExplorationPage() {
           borderRadius: 2
         }}
       >
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', fontSize: { xs: '1rem', sm: '1.1rem' } }}>
           Filtres de recherche - Recherche Avancée
         </Typography>
 
