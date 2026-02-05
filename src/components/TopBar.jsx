@@ -74,7 +74,6 @@ export default function TopBar() {
                     onClick={() => {
                       if (item === 'Tableau de bord') {
                         anchorEl ? handleMenuClose() : handleMenuOpen()
-                        navigate('/visualization')
                       } else if (item === 'IPs') {
                         handleMenuClose()
                         navigate('/ip-view')

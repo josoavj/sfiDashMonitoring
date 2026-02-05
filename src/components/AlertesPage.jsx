@@ -186,27 +186,36 @@ export function AlertesPage() {
                 color: 'white',
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, mb: 1 }}>
-                <Warning sx={{ fontSize: { xs: 28, sm: 32, md: 40 } }} />
-                <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' } }}>
-                    Alertes
-                  </Typography>
-                  <Typography sx={{ opacity: 0.9, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' } }}>
-                    Surveillance des IPs consommatrices et alertes temps réel
-                  </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: { xs: 1.5, sm: 2 }, mb: 1, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, flex: 1 }}>
+                  <Warning sx={{ fontSize: { xs: 28, sm: 32, md: 40 } }} />
+                  <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' } }}>
+                      Alertes
+                    </Typography>
+                    <Typography sx={{ opacity: 0.9, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' } }}>
+                      Surveillance des IPs consommatrices et alertes temps réel
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            </Paper>
-
-            <Box sx={{ mb: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                <Tooltip title="Actualiser">
-                  <IconButton onClick={() => { loadAlerts(); loadTopConsumers(); }} sx={{ bgcolor: 'action.hover' }}>
+                <Tooltip title="Actualiser toutes les données">
+                  <IconButton
+                    onClick={() => { loadAlerts(); loadTopConsumers(); }}
+                    disabled={loading}
+                    sx={{
+                      bgcolor: 'rgba(255,255,255,0.2)',
+                      color: 'white',
+                      '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' },
+                      flexShrink: 0
+                    }}
+                  >
                     <Refresh />
                   </IconButton>
                 </Tooltip>
               </Box>
+            </Paper>
+
+            <Box sx={{ mb: 3 }}>
               <Alert severity="info">
                 <AlertTitle>Surveillance des alertes</AlertTitle>
                 Affichage des IPs consommatrices depuis 06h30 du matin et consommation temps réel
@@ -225,13 +234,6 @@ export function AlertesPage() {
                             }
                             title={<Typography variant="h6" fontWeight={600} sx={{ fontSize: { xs: '0.95rem', sm: '1.1rem' } }}>IPs Consommatrices (Depuis 06h30)</Typography>}
                             subheader="Top 20 adresses sources"
-                            action={
-                                <Tooltip title="Actualiser">
-                                    <IconButton size="small" onClick={loadAlerts} disabled={loading} sx={{ bgcolor: alpha('#E05B5B', 0.1) }}>
-                                        <Refresh sx={{ color: '#E05B5B', animation: loading ? 'spin 1s linear infinite' : 'none' }} />
-                                    </IconButton>
-                                </Tooltip>
-                            }
                             sx={{ pb: 1 }}
                         />
                         <CardContent sx={{ p: 2 }}>
@@ -296,13 +298,6 @@ export function AlertesPage() {
                             }
                             title={<Typography variant="h6" fontWeight={600} sx={{ fontSize: { xs: '0.95rem', sm: '1.1rem' } }}>Top Consommateurs Temps Réel</Typography>}
                             subheader="Dernières 5 minutes"
-                            action={
-                                <Tooltip title="Actualiser">
-                                    <IconButton size="small" onClick={loadTopConsumers} sx={{ bgcolor: alpha('#29BAE2', 0.1) }}>
-                                        <Refresh sx={{ color: '#29BAE2' }} />
-                                    </IconButton>
-                                </Tooltip>
-                            }
                             sx={{ pb: 1 }}
                         />
                         <CardContent sx={{ p: 2 }}>
