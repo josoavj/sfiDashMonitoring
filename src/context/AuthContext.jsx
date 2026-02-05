@@ -20,12 +20,13 @@ export function AuthProvider({ children }) {
         })
         if (!res.ok) {
             const err = await res.json().catch(() => ({}))
-            throw new Error(err.message || 'Erreur connexion')
+            throw new Error(err.error || 'Erreur connexion')
         }
         const data = await res.json()
         localStorage.setItem('accessToken', data.accessToken)
         localStorage.setItem('refreshToken', data.refreshToken)
-        setUser({ accessToken: data.accessToken })
+        localStorage.setItem('user', JSON.stringify(data.user))
+        setUser({ accessToken: data.accessToken, ...data.user })
         return data
     }
 
@@ -37,7 +38,7 @@ export function AuthProvider({ children }) {
         })
         if (!res.ok) {
             const err = await res.json().catch(() => ({}))
-            throw new Error(err.message || 'Erreur inscription')
+            throw new Error(err.error || 'Erreur inscription')
         }
         const data = await res.json()
         // NOTE: signup does NOT auto-login the user. The flow is: signup -> go to login page -> login
