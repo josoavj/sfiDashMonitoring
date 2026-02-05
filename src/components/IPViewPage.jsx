@@ -307,16 +307,32 @@ export default function IPViewPage() {
                         color: 'white',
                     }}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
-                        <LanOutlined sx={{ fontSize: { xs: 28, sm: 32, md: 40 } }} />
-                        <Box>
-                            <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' } }}>
-                                Analyse des IPs
-                            </Typography>
-                            <Typography sx={{ opacity: 0.9, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' } }}>
-                                Monitoring des adresses IP source et destination avec analyse de bande passante
-                            </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: { xs: 1.5, sm: 2 }, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, flex: 1 }}>
+                            <LanOutlined sx={{ fontSize: { xs: 28, sm: 32, md: 40 } }} />
+                            <Box>
+                                <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' } }}>
+                                    Analyse des IPs
+                                </Typography>
+                                <Typography sx={{ opacity: 0.9, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' } }}>
+                                    Monitoring des adresses IP source et destination avec analyse de bande passante
+                                </Typography>
+                            </Box>
                         </Box>
+                        <Tooltip title="Actualiser les données">
+                            <IconButton
+                                onClick={() => { memoLoadTop(); memoLoadBandwidthData(); }}
+                                disabled={loading || loadingBandwidth}
+                                sx={{
+                                    bgcolor: 'rgba(255,255,255,0.2)',
+                                    color: 'white',
+                                    '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' },
+                                    flexShrink: 0
+                                }}
+                            >
+                                <Refresh />
+                            </IconButton>
+                        </Tooltip>
                     </Box>
                 </Paper>
 
@@ -388,9 +404,9 @@ export default function IPViewPage() {
                 </Box>
 
                 {/* Tables & Details Section */}
-                <Grid container spacing={1} sx={{ mb: 2 }}>
+                <Grid container spacing={1.5} sx={{ mb: 2 }}>
                     {/* Source IPs Table */}
-                    <Grid item xs={12} lg={6}>
+                    <Grid item xs={6} sm={6} md={6}>
                         <Card sx={{
                             height: '100%',
                             minHeight: '600px',
@@ -412,11 +428,6 @@ export default function IPViewPage() {
                                     </Box>
                                 }
                                 subheader={`Top 50 (${srcRows.length})`}
-                                action={
-                                    <IconButton size="small" onClick={memoLoadTop} disabled={loading} title="Actualiser">
-                                        <Refresh sx={{ fontSize: 20 }} />
-                                    </IconButton>
-                                }
                                 sx={{ pb: 1 }}
                             />
                             <CardContent sx={{ flex: 1, display: 'flex', overflow: 'hidden', p: 0 }}>
@@ -451,7 +462,7 @@ export default function IPViewPage() {
                     </Grid>
 
                     {/* Destination IPs Table */}
-                    <Grid item xs={12} lg={6}>
+                    <Grid item xs={6} sm={6} md={6}>
                         <Card sx={{
                             height: '100%',
                             minHeight: '600px',
@@ -473,11 +484,6 @@ export default function IPViewPage() {
                                     </Box>
                                 }
                                 subheader={`Top 50 (${destRows.length})`}
-                                action={
-                                    <IconButton size="small" onClick={memoLoadTop} disabled={loading} title="Actualiser">
-                                        <Refresh sx={{ fontSize: 20 }} />
-                                    </IconButton>
-                                }
                                 sx={{ pb: 1 }}
                             />
                             <CardContent sx={{ flex: 1, display: 'flex', overflow: 'hidden', p: 0 }}>
@@ -532,11 +538,6 @@ export default function IPViewPage() {
                             </Box>
                         }
                         subheader=""
-                        action={
-                            <IconButton size="small" onClick={memoLoadBandwidthData} disabled={loadingBandwidth} title="Actualiser">
-                                <Refresh sx={{ fontSize: 20 }} />
-                            </IconButton>
-                        }
                         sx={{ pb: 1.5 }}
                     />
                     <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 3, minHeight: 400 }}>
