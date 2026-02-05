@@ -9,20 +9,30 @@
     "test:connection": "node test-connection.js",
     "test:data": "node test-data.js"
   },
-  "keywords": ["elasticsearch", "fortigate", "monitoring", "websocket"],
+  "keywords": [
+    "elasticsearch",
+    "fortigate",
+    "monitoring",
+    "websocket"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@elastic/elasticsearch": "^8.11.0",
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
     "bcrypt": "^5.1.0",
-    "jsonwebtoken": "^9.0.0",
-    "sequelize": "^6.37.7",
-    "mariadb": "^3.4.5",
-    "sqlite3": "^5.1.6",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "socket.io": "^4.7.2"
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.2.1",
+    "helmet": "^8.1.0",
+    "joi": "^18.0.2",
+    "jsonwebtoken": "^9.0.0",
+    "mariadb": "^3.4.5",
+    "morgan": "^1.10.1",
+    "sequelize": "^6.37.7",
+    "socket.io": "^4.7.2",
+    "sqlite3": "^5.1.6"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
