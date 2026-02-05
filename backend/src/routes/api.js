@@ -1,7 +1,59 @@
 const bcrypt = require('bcrypt');
+const rateLimit = require('express-rate-limit');
 const { authenticate } = require('../middlewares/authMiddleware');
 const { User } = require('../models/User');
 const { Setting } = require('../models/Setting');
+const { validate, validators } = require('../utils/validators');
+
+// Fonction helper pour sanitizer les erreurs
+function handleError(err, res, defaultMessage = 'Erreur lors du traitement de la requête') {
+  console.error('❌ Erreur API:', {
+    message: err.message,
+    code: err.code,
+    statusCode: err.statusCode
+  });
+
+  const NODE_ENV = process.env.NODE_ENV || 'development';
+  const isDevelopment = NODE_ENV === 'development';
+  
+  let statusCode = 500;
+  let message = defaultMessage;
+
+  // Messages d'erreur sécurisés par type
+  if (err.statusCode === 400) {
+    statusCode = 400;
+    message = 'Requête invalide';
+  } else if (err.statusCode === 404) {
+    statusCode = 404;
+    message = 'Ressource non trouvée';
+  } else if (err.statusCode === 401) {
+    statusCode = 401;
+    message = 'Non autorisé';
+  } else if (err.code === 'ECONNREFUSED' || err.message?.includes('ECONNREFUSED')) {
+    statusCode = 503;
+    message = 'Service temporairement indisponible';
+  }
+
+  const response = { error: message };
+  if (isDevelopment) {
+    response.details = err.message;
+  }
+  
+  res.status(statusCode).json(response);
+}
+
+// Rate limiters
+const searchLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requêtes par 15 minutes
+  message: 'Trop de requêtes, veuillez réessayer plus tard'
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // 50 requêtes par 15 minutes
+  message: 'Trop de requêtes, veuillez réessayer plus tard'
+});
 
 function mountApiRoutes(app, esClient, logService) {
   // health
@@ -19,7 +71,7 @@ function mountApiRoutes(app, esClient, logService) {
     }
   });
 
-  app.post('/api/search', async (req, res) => {
+  app.post('/api/search', authenticate, searchLimiter, validate(validators.searchParams), async (req, res) => {
     try {
       const { query = '*', from = 0, size = 100, timeRange, sortField = '@timestamp', sortOrder = 'desc' } = req.body;
       const mustClauses = [];
@@ -45,12 +97,11 @@ function mountApiRoutes(app, esClient, logService) {
 
       res.json({ total: result.hits.total.value, hits: result.hits.hits, took: result.took });
     } catch (err) {
-      console.error('Erreur search:', err.message);
-      res.status(500).json({ error: err.message });
+      handleError(err, res, 'Erreur lors de la recherche');
     }
   });
 
-  app.post('/api/stats', async (req, res) => {
+  app.post('/api/stats', authenticate, apiLimiter, validate(validators.statsParams), async (req, res) => {
     try {
       const { timeRange, fields = ['event.action', 'source.ip'] } = req.body;
       const aggs = { timeline: { date_histogram: { field: '@timestamp', fixed_interval: '1h' } } };
@@ -65,7 +116,7 @@ function mountApiRoutes(app, esClient, logService) {
     }
   });
 
-  app.post('/api/top-sources', async (req, res) => {
+  app.post('/api/top-sources', authenticate, apiLimiter, validate(validators.topSourcesParams), async (req, res) => {
     try {
       const { timeRange, size = 10, field = 'source.ip' } = req.body;
       const result = await esClient.search({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: 0, query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }, aggs: { top_sources: { terms: { field, size } } } } });
@@ -76,7 +127,7 @@ function mountApiRoutes(app, esClient, logService) {
     }
   });
 
-  app.post('/api/bandwidth', async (req, res) => {
+  app.post('/api/bandwidth', authenticate, apiLimiter, validate(validators.bandwidthParams), async (req, res) => {
     try {
       const { timeRange, interval = '1m' } = req.body;
       const result = await esClient.search({
@@ -99,7 +150,7 @@ function mountApiRoutes(app, esClient, logService) {
     }
   });
 
-  app.post('/api/bandwidth-by-ip', async (req, res) => {
+  app.post('/api/bandwidth-by-ip', authenticate, apiLimiter, validate(validators.bandwidthByIpParams), async (req, res) => {
     try {
       const { timeRange, interval = '1m', ip, field = 'source.ip' } = req.body;
       if (!ip) return res.status(400).json({ error: 'ip required' });
@@ -127,7 +178,7 @@ function mountApiRoutes(app, esClient, logService) {
     }
   });
 
-  app.post('/api/ip-stats', async (req, res) => {
+  app.post('/api/ip-stats', authenticate, apiLimiter, validate(validators.ipStatsParams), async (req, res) => {
     try {
       const { timeRange, ip, field = 'source.ip' } = req.body;
       if (!ip) return res.status(400).json({ error: 'ip required' });
@@ -161,7 +212,7 @@ function mountApiRoutes(app, esClient, logService) {
     }
   });
 
-  app.post('/api/top-bandwidth', async (req, res) => {
+  app.post('/api/top-bandwidth', authenticate, apiLimiter, validate(validators.topBandwidthParams), async (req, res) => {
     try {
       const { timeRange, size = 10, type = 'source' } = req.body;
       const field = type === 'source' ? 'source.ip' : 'destination.ip';
@@ -173,7 +224,7 @@ function mountApiRoutes(app, esClient, logService) {
     }
   });
 
-  app.post('/api/protocols', async (req, res) => {
+  app.post('/api/protocols', authenticate, apiLimiter, validate(validators.protocolsParams), async (req, res) => {
     try {
       const { timeRange, size = 10 } = req.body;
       const result = await esClient.search({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: 0, query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }, aggs: { by_protocol: { terms: { field: 'network.protocol', size } }, by_destination_port: { terms: { field: 'destination.port', size }, aggs: { bytes: { sum: { field: 'network.bytes' } } } }, by_application: { terms: { field: 'network.application', size } } } } });
@@ -184,7 +235,7 @@ function mountApiRoutes(app, esClient, logService) {
     }
   });
 
-  app.post('/api/security-events', async (req, res) => {
+  app.post('/api/security-events', authenticate, apiLimiter, validate(validators.securityEventsParams), async (req, res) => {
     try {
       const { timeRange } = req.body;
       const result = await esClient.search({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: 0, query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }, aggs: { by_action: { terms: { field: 'event.action', size: 20 } }, denied_connections: { filter: { terms: { 'event.action': ['deny', 'block', 'drop'] } }, aggs: { top_denied_ips: { terms: { field: 'source.ip', size: 10 } } } }, allowed_connections: { filter: { terms: { 'event.action': ['allow', 'accept', 'permit'] } } } } } });
@@ -195,7 +246,7 @@ function mountApiRoutes(app, esClient, logService) {
     }
   });
 
-  app.get('/api/indices', async (req, res) => {
+  app.get('/api/indices', authenticate, apiLimiter, async (req, res) => {
     try {
       const indices = await esClient.cat.indices({ format: 'json' });
       res.json(indices.filter(idx => idx.index && idx.index.startsWith('filebeat')));
