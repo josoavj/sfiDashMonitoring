@@ -269,14 +269,22 @@ function mountApiRoutes(app, esClient, logService) {
 
   // --- Persistent endpoints (Sequelize-backed) ---
   // Users: require admin role for listing/creating/deleting
-  app.get('/api/users', authenticate, async (req, res) => {
+  app.get('/api/users', authenticate, validate(validators.usersListParams), async (req, res) => {
     try {
       const requester = req.user?.sub ? await User.findByPk(req.user.sub) : null;
       if (!requester || requester.role !== 'admin') return res.status(403).json({ error: 'Admin required' });
-      const users = await User.findAll({ attributes: ['id', 'firstName', 'lastName', 'email', 'role', 'createdAt'] });
-      res.json({ users });
+      
+      const { skip = 0, limit = 50 } = req.body;
+      const { count, rows: users } = await User.findAndCountAll({
+        attributes: ['id', 'firstName', 'lastName', 'email', 'role', 'createdAt'],
+        offset: skip,
+        limit: limit,
+        order: [['createdAt', 'DESC']]
+      });
+      
+      res.json({ users, total: count, skip, limit });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      handleError(err, res, 'Erreur lors de la récupération des users');
     }
   });
 
@@ -479,17 +487,21 @@ function mountApiRoutes(app, esClient, logService) {
   });
 
   // Advanced exploration search with multiple filters
-  app.post('/api/exploration/search', authenticate, apiLimiter, async (req, res) => {
+  app.post('/api/exploration/search', authenticate, apiLimiter, validate(validators.explorationSearchParams), async (req, res) => {
     try {
       const {
+        query,
+        skip = 0,
+        limit = 50,
         timeRange,
         sourceIp,
         sourcePort,
-        from = 0,
-        size = 50,
         sortField = '@timestamp',
         sortOrder = 'desc'
       } = req.body;
+      
+      // Limiter la taille de la réponse
+      const size = Math.min(limit, 1000);
 
       const filterClauses = [];
 
@@ -512,8 +524,8 @@ function mountApiRoutes(app, esClient, logService) {
 
       const result = await esClient.search({
         index: process.env.ES_INDEX || 'filebeat-*',
-        from,
-        size,
+        from: skip,
+        size: size,
         body: {
           query: {
             bool: {
@@ -540,11 +552,12 @@ function mountApiRoutes(app, esClient, logService) {
       res.json({
         total: result.hits.total.value,
         hits: result.hits.hits,
+        skip: skip,
+        limit: size,
         took: result.took
       });
     } catch (err) {
-      console.error('Erreur exploration search:', err.message);
-      res.status(500).json({ error: err.message });
+      handleError(err, res, 'Erreur lors de la recherche exploration');
     }
   });
 
