@@ -38,14 +38,21 @@ const app = express();
 // Configuration CORS détaillée
 const corsOptions = {
   origin: function (origin, callback) {
-    // Permettre aussi les requêtes sans origin (comme Postman, tests, etc)
+    // En production, REJETER les requêtes sans origin
+    const NODE_ENV = process.env.NODE_ENV || 'development';
+    
     if (!origin) {
-      return callback(null, true);
+      // Accepter en développement, rejeter en production
+      if (NODE_ENV === 'production') {
+        return callback(new Error('Origin required in production'));
+      }
+      return callback(null, true); // Développement: accepter
     }
+    
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.warn('❌ CORS blocked origin:', origin);
+      console.warn(`❌ CORS blocked origin: ${origin} (NODE_ENV: ${NODE_ENV})`);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -94,47 +101,75 @@ io.on('connection', (socket) => {
 
   socket.on('request-initial-logs', async (data) => {
     try {
-      const { timeRange = '15m', size = 100 } = data;
-      const now = new Date();
-      const ranges = { '15m': 15 * 60 * 1000, '1h': 60 * 60 * 1000, '24h': 24 * 60 * 60 * 1000, '7d': 7 * 24 * 60 * 60 * 1000 };
+      const { timeRange = '15m', size = 100 } = data || {};
+      
+      // Validation stricte
+      const validRanges = { '15m': 15 * 60 * 1000, '1h': 60 * 60 * 1000, '24h': 24 * 60 * 60 * 1000, '7d': 7 * 24 * 60 * 60 * 1000 };
+      if (!validRanges[timeRange]) {
+        socket.emit('error', { message: 'timeRange invalide' });
+        return;
+      }
+      
+      const sizeNum = Number(size);
+      if (!Number.isInteger(sizeNum) || sizeNum < 1 || sizeNum > 1000) {
+        socket.emit('error', { message: 'size doit être entre 1 et 1000' });
+        return;
+      }
 
-      const result = await esClient.search({ index: process.env.ES_INDEX || 'filebeat-*', body: { size, query: { range: { '@timestamp': { gte: new Date(now - ranges[timeRange]).toISOString(), lte: now.toISOString() } } }, sort: [{ '@timestamp': { order: 'desc' } }] } });
+      const now = new Date();
+      const result = await esClient.search({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: sizeNum, query: { range: { '@timestamp': { gte: new Date(now - validRanges[timeRange]).toISOString(), lte: now.toISOString() } } }, sort: [{ '@timestamp': { order: 'desc' } }] } });
       socket.emit('initial-logs', { logs: result.hits.hits, total: result.hits.total?.value || 0 });
     } catch (err) {
-      socket.emit('error', { message: err.message });
+      socket.emit('error', { message: 'Erreur lors du chargement des logs' });
     }
   });
 
   socket.on('change-interval', (intervalSecs) => {
-    // Restart streaming with new interval
-    if (intervalSecs && Number(intervalSecs) > 0) {
-      logService.stopLogStreaming();
-      logService.startLogStreaming(io, esClient, Number(intervalSecs) * 1000);
+    // Validation stricte de l'intervalle
+    const interval = Number(intervalSecs);
+    if (!Number.isInteger(interval) || interval < 1 || interval > 3600) {
+      socket.emit('error', { message: 'intervalSecs doit être entre 1 et 3600 secondes' });
+      return;
     }
+    
+    logService.stopLogStreaming();
+    logService.startLogStreaming(io, esClient, interval * 1000);
   });
 
   // Subscribe/unsubscribe to per-IP rooms
   socket.on('subscribe-ip', (data) => {
     try {
       const ip = typeof data === 'string' ? data : data?.ip;
-      if (!ip) return;
+      
+      // Validation IP (format basique)
+      if (!ip || typeof ip !== 'string' || !/^[\d.]+$/.test(ip) && !/^[\da-f:]+$/i.test(ip)) {
+        socket.emit('error', { message: 'IP invalide' });
+        return;
+      }
+      
       const room = `ip:${ip}`;
       socket.join(room);
       console.log(`Socket ${socket.id} joined ${room}`);
     } catch (e) {
-      console.error('subscribe-ip error', e?.message || e);
+      socket.emit('error', { message: 'Erreur subscribe-ip' });
     }
   });
 
   socket.on('unsubscribe-ip', (data) => {
     try {
       const ip = typeof data === 'string' ? data : data?.ip;
-      if (!ip) return;
+      
+      // Validation IP (format basique)
+      if (!ip || typeof ip !== 'string' || !/^[\d.]+$/.test(ip) && !/^[\da-f:]+$/i.test(ip)) {
+        socket.emit('error', { message: 'IP invalide' });
+        return;
+      }
+      
       const room = `ip:${ip}`;
       socket.leave(room);
       console.log(`Socket ${socket.id} left ${room}`);
     } catch (e) {
-      console.error('unsubscribe-ip error', e?.message || e);
+      socket.emit('error', { message: 'Erreur unsubscribe-ip' });
     }
   });
 
