@@ -2,9 +2,25 @@ const { Client } = require('@elastic/elasticsearch');
 const fs = require('fs');
 const path = require('path');
 
+// Timeout par défaut (30 secondes)
+const DEFAULT_TIMEOUT = 30000;
+
+/**
+ * Wrapper pour ajouter un timeout aux requêtes Elasticsearch
+ */
+function withTimeout(promise, timeoutMs = DEFAULT_TIMEOUT) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`Elasticsearch request timeout after ${timeoutMs}ms`)), timeoutMs)
+    )
+  ]);
+}
+
 function createEsClientFromEnv() {
   const esConfig = {
-    node: process.env.ES_NODE || 'https://localhost:9200'
+    node: process.env.ES_NODE || 'https://localhost:9200',
+    requestTimeout: process.env.ES_TIMEOUT || DEFAULT_TIMEOUT // Timeout au niveau du client
   };
 
   if (process.env.ES_USERNAME) {
@@ -36,7 +52,11 @@ function createEsClientFromEnv() {
   client.ping().then(() => console.log('✅ Connecté à Elasticsearch')).catch(err => {
     console.warn('⚠️ Ping Elasticsearch failed:', err.message);
   });
+  
+  // Exposer la fonction withTimeout
+  client.withTimeout = (promise) => withTimeout(promise, esConfig.requestTimeout);
+  
   return client;
 }
 
-module.exports = { createEsClientFromEnv };
+module.exports = { createEsClientFromEnv, withTimeout };
