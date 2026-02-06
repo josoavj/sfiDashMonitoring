@@ -5,7 +5,6 @@ const http = require('http');
 const { Server } = require('socket.io');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const morgan = require('morgan');
 const compression = require('compression');
 
 const { createEsClientFromEnv } = require('./services/esClient');
@@ -13,6 +12,7 @@ const logService = require('./services/logService');
 const { mountApiRoutes } = require('./routes/api');
 const { mountAuthRoutes } = require('./routes/auth');
 const errorHandler = require('./middlewares/errorHandler');
+const { createMorganLogger } = require('./utils/logger');
 
 // Import models to register them with Sequelize before sync
 const { User } = require('./models/User');
@@ -66,7 +66,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(helmet()); // Security headers
 app.use(compression()); // Compression de réponses
-app.use(morgan('combined')); // HTTP request logging
+app.use(createMorganLogger()); // HTTP request logging (sans tokens sensibles)
 app.use(express.json());
 
 const esClient = createEsClientFromEnv();
@@ -181,6 +181,10 @@ io.on('connection', (socket) => {
 
 // Auto-start streaming when first client connects
 logService.startLogStreaming(io, esClient);
+
+// Démarrer le nettoyage des sessions
+const { startSessionCleanup } = require('./services/sessionService');
+startSessionCleanup();
 
 async function init() {
     try {
