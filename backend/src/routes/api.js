@@ -255,7 +255,7 @@ function mountApiRoutes(app, esClient, logService) {
     }
   });
 
-  app.post('/api/consumer-samples', async (req, res) => {
+  app.post('/api/consumer-samples', authenticate, apiLimiter, async (req, res) => {
     try {
       const { timeRange, ip, field = 'source.ip', size = 3 } = req.body;
       if (!ip) return res.status(400).json({ error: 'ip required' });
@@ -378,7 +378,7 @@ function mountApiRoutes(app, esClient, logService) {
   });
 
   // Reports: Generate comprehensive network consumption report
-  app.post('/api/reports/generate', async (req, res) => {
+  app.post('/api/reports/generate', authenticate, apiLimiter, async (req, res) => {
     try {
       const { timeRange, limit = 20, includeServices = true } = req.body;
       if (!timeRange?.from || !timeRange?.to) {
@@ -479,7 +479,7 @@ function mountApiRoutes(app, esClient, logService) {
   });
 
   // Advanced exploration search with multiple filters
-  app.post('/api/exploration/search', async (req, res) => {
+  app.post('/api/exploration/search', authenticate, apiLimiter, async (req, res) => {
     try {
       const {
         timeRange,
