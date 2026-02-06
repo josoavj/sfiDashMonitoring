@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { Session } = require('../models/Session');
 const { User } = require('../models/User');
+const { limitUserSessions } = require('../services/sessionService');
 require('../config/secrets'); // Valider les secrets au démarrage
 
 const ACCESS_TOKEN_EXPIRATION = '15m';
@@ -59,6 +60,9 @@ exports.signIn = async (req, res) => {
     const refreshToken = jwt.sign({ sub: user.id }, JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRATION });
 
     await Session.create({ userId: user.id, userAgent: req.headers['user-agent'], ipAddress: req.ip, refreshToken });
+    
+    // Limiter à 5 sessions actives par utilisateur
+    await limitUserSessions(user.id, 5);
 
     // Normaliser la réponse (même format que signup)
     return res.status(200).json({
