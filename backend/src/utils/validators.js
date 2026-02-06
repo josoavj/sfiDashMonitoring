@@ -1,5 +1,11 @@
 const joi = require('joi');
 
+// Schéma de pagination réutilisable
+const paginationSchema = {
+  skip: joi.number().min(0).max(100000).default(0),
+  limit: joi.number().min(1).max(1000).default(50)
+};
+
 // Validateurs pour les endpoints de recherche et statistiques
 const validators = {
   searchParams: joi.object({
@@ -14,10 +20,16 @@ const validators = {
     sortOrder: joi.string().valid('asc', 'desc').default('desc')
   }),
 
-  statsParams: joi.object({
-    timeRange: joi.object({
-      from: joi.string().iso().required(),
-      to: joi.string().iso().required()
+  // Pagination pour les users
+  usersListParams: joi.object({
+    ...paginationSchema
+  }),
+
+  // Pagination pour exploration
+  explorationSearchParams: joi.object({
+    query: joi.string().max(500).required(),
+    ...paginationSchema
+  }),
     }).required(),
     fields: joi.array().items(joi.string().max(50)).default(['event.action', 'source.ip'])
   }),
