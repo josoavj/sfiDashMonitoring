@@ -1,0 +1,31 @@
+# Configuration pour sécurité PHASES 1 & 2
+# À ajouter dans backend/.env
+
+# === NOUVELLES VARIABLES (Phases 1 & 2) ===
+
+# Session secret pour CSRF + cookies
+# Générer avec: openssl rand -base64 32
+SESSION_SECRET=YOUR_RANDOM_SESSION_SECRET_HERE
+
+# JWT Secrets (si pas déjà configuré)
+# Générer avec: openssl rand -base64 32
+JWT_SECRET=YOUR_JWT_SECRET_HERE
+JWT_REFRESH_SECRET=YOUR_JWT_REFRESH_SECRET_HERE
+
+# Node environment (development|production)
+NODE_ENV=production
+
+# CORS Frontend URL (nouvelles adresses possibles)
+FRONTEND_URL=https://dashboard.example.com https://app.example.com
+
+# === VARIABLES EXISTANTES (à conserver) ===
+
+ES_NODE=https://192.168.1.50:9200
+ES_USERNAME=elastic
+ES_PASSWORD=your_elasticsearch_password
+ES_CERT_PATH=./certs/ca.crt
+PORT=3001
+HOST=0.0.0.0
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_db_password
