@@ -9,7 +9,9 @@ const Session = sequelize.define('Session', {
   revoked: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
   createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
   expiresAt: { type: DataTypes.DATE, allowNull: true },
-  refreshToken: { type: DataTypes.STRING, allowNull: false }
+  // Nouveau: hash du refresh token (sécurité - ne pas stocker le token en clair)
+  refreshTokenHash: { type: DataTypes.STRING(64), allowNull: true }, // SHA256 = 64 chars 
+  refreshToken: { type: DataTypes.STRING, allowNull: true }
 }, {
   modelName: 'Session',
   tableName: 'sessions',

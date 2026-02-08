@@ -819,6 +819,18 @@ function mountApiRoutes(app, esClient, logService) {
       res.status(500).json({ error: err.message });
     }
   });
+
+  /**
+   * Endpoint CSRF - Fournir le token CSRF au frontend
+   * GET /api/csrf-token - Récupérer le token
+   */
+  app.get('/api/csrf-token', (req, res) => {
+    const csrfToken = res.locals.csrfToken;
+    if (!csrfToken) {
+      return res.status(500).json({ error: 'CSRF token generation failed' });
+    }
+    res.json({ csrfToken });
+  });
 }
 
 module.exports = { mountApiRoutes };
