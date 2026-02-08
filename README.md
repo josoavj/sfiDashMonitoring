@@ -2,18 +2,154 @@
 
 **Plateforme de monitoring des données Fortigate depuis Elasticsearch**
 
-## 📋 Structure
+> ✨ **Mis à jour** : Phases 1 & 2 complétées - Sécurité renforcée, Tests & Monitoring
 
-| Composant | Technologie |
-|-----------|-------------|
-| **Base de données** | Elasticsearch |
-| **Frontend** | React 19 + Material-UI |
-| **Backend** | Node.js + Express |
-| **Real-time** | Socket.io |
+## 📋 Stack Technique
+
+| Composant | Technologie | Version |
+|-----------|-------------|---------|
+| **Frontend** | React 19 + Vite | 19.1.1 |
+| **UI Framework** | Material-UI (MUI) | 7.3.1 |
+| **Backend** | Node.js + Express | 5.1.0 |
+| **Base de données** | Elasticsearch | 8.x |
+| **Real-time** | Socket.io | 4.8.1 |
+| **Auth** | JWT + HttpOnly Cookies | Sécurisé |
+| **Tests** | Vitest + React Testing Library | V8 |
+| **Monitoring** | Prometheus | Optional |
 
 ---
 
-## 🎯 Deux modes de déploiement
+## 🔒 Sécurité (Phase 1 ✅)
+
+### ✨ Améliorations sécurité
+
+- ✅ **JWT HttpOnly Cookies** - Tokens non accessibles via JavaScript
+- ✅ **Refresh Token Rotation** - Nouveau token à chaque refresh
+- ✅ **Token Hashing** - Refresh tokens hachés en BD (pas en clair)
+- ✅ **CORS Strict** - Origins whitelist, SameSite=Strict
+- ✅ **Helmet Security Headers** - Protection contre XSS, Clickjacking
+- ✅ **Rate Limiting** - Auth (5/15min), Refresh (10/min)
+- ✅ **CSRF Protection** - Double submit tokens
+- ✅ **Vulnérabilités npm fixées** - 0 vulnérabilités
+
+### 🔐 Authentification
+```javascript
+// ✅ Login → Access Token (JWT 15m) + Refresh Token (HttpOnly cookie)
+POST /auth/signin
+→ { accessToken, user }
++ Cookie: refreshToken (HttpOnly, Secure, SameSite=Strict)
+
+// ✅ Refresh automatique avant expiration
+POST /auth/refresh (credentials: 'include')
+→ Nouveau Access Token + nouveau Refresh Token
+
+// ✅ Logout révoque toutes les sessions
+POST /auth/signout
+→ Sessions marquées revoked=true, cookie supprimé
+```
+
+---
+
+## 🧪 Tests & Qualité (Phase 2 ✅)
+
+### Tests
+```bash
+npm test              # Lancer les tests Vitest
+npm run test:ui       # Interface Vitest UI
+npm run test:coverage # Report couverture
+```
+
+**Couverture:**
+- ✅ Auth Security Tests (JWT, hashing, expiration)
+- ✅ AuthContext Tests (login, refresh, logout)
+- ✅ Password hashing & verification
+- ✅ Token expiration & rotation
+
+### Linting
+```bash
+npm run lint          # ESLint (frontend)
+```
+
+---
+
+## 📊 Monitoring & Observabilité (Phase 2 ✅)
+
+### Prometheus Metrics
+```bash
+GET /metrics          # Format Prometheus (port 3001)
+```
+
+**Métriques collectées:**
+- `http_requests_total` - Total requêtes HTTP
+- `http_request_duration_ms` - Latence par endpoint
+- `http_requests_in_progress` - Requêtes actives
+- `nodejs_memory_heap_used_bytes` - Mémoire heap
+- `nodejs_uptime_seconds` - Uptime serveur
+
+**Intégration Prometheus:**
+```yaml
+# prometheus.yml
+scrape_configs:
+  - job_name: 'sfi-dashboard-backend'
+    static_configs:
+      - targets: ['localhost:3001']
+```
+
+---
+
+## 📚 API Documentation (Phase 2 ✅)
+
+### Swagger/OpenAPI
+```bash
+# Documentation disponible à:
+GET http://localhost:3001/api-docs
+```
+
+**Endpoints documentés:**
+- `POST /auth/signin` - Connexion
+- `POST /auth/signup` - Inscription
+- `POST /auth/refresh` - Rafraîchir token
+- `POST /auth/signout` - Déconnexion
+- `GET /api/me` - Profil utilisateur
+- `POST /api/*` - Endpoints monitoring (nécessitent JWT)
+
+---
+
+## 🛡️ Configuration Sécurité (Production)
+
+### Variables d'environnement essentielles
+
+```bash
+# Backend .env (à générer avec openssl rand -base64 32)
+NODE_ENV=production
+JWT_SECRET=<secret1>           # ✅ Généré automatiquement
+JWT_REFRESH_SECRET=<secret2>   # ✅ Généré automatiquement
+
+# Elasticsearch
+ES_NODE=https://es.example.com:9200
+ES_USERNAME=elastic
+ES_PASSWORD=xxxxx
+ES_CERT_PATH=/path/to/ca.crt
+
+# CORS
+FRONTEND_URL=https://app.example.com
+
+# Server
+PORT=3001
+HOST=0.0.0.0
+```
+
+### Checklist déploiement
+- [ ] `NODE_ENV=production`
+- [ ] JWT_SECRET & JWT_REFRESH_SECRET générés
+- [ ] HTTPS forcé (Nginx SSL)
+- [ ] CORS origins = domaine production uniquement
+- [ ] Rate limits ajustés selon charge
+- [ ] Logs centralisés (optionnel)
+- [ ] Monitoring Prometheus (optionnel)
+- [ ] Backups BD programmés
+
+---
 
 ### 1. 🖥️ Mode LOCAL (Développement sur votre machine)
 
@@ -52,14 +188,44 @@ export SERVER_IP=192.168.1.100
 
 ## 🚀 Démarrage rapide
 
+### Installation
+```bash
+# Clone et install dépendances
+git clone https://github.com/koulienathalie/sfiDashboard.git
+cd sfiDashboard
+npm run setup            # Installe frontend + backend
+
+# Configure variables d'environnement
+cp backend/envDefault backend/.env
+# Éditer backend/.env avec vos paramètres ES
+```
+
+### Démarrage développement
+```bash
+# Terminal 1 - Backend
+cd backend
+npm install
+npm start               # http://localhost:3001
+
+# Terminal 2 - Frontend  
+npm run dev            # http://localhost:5173
+```
+
+### Tests
+```bash
+npm test               # Lancer les tests
+npm run test:ui        # Voir les tests en graphique
+```
+
 ---
 
 ## 📦 Prérequis
 
-- **Node.js** ≥ 16
-- **npm** ≥ 8
-- **Elasticsearch** (accessible)
-- **Pour mode deployed:** Docker ou Ubuntu 20.04+
+- **Node.js** ≥ 18 (pour HttpOnly cookies natifs)
+- **npm** ≥ 9
+- **Elasticsearch** ≥ 8.0 (accessible)
+- **MariaDB** ou **PostgreSQL** (pour auth)
+- **Pour mode deployed:** Docker Compose ou Ubuntu 20.04+
 
 ---
 
@@ -140,12 +306,16 @@ export SERVER_IP=192.168.1.100
 ## 🎨 Fonctionnalités
 
 - ✅ Dashboard temps réel avec WebSocket
-- ✅ Monitoring Elasticsearch
+- ✅ Monitoring Elasticsearch Fortigate
 - ✅ Alertes haute bande passante
 - ✅ Rapports Top 20 consommateurs
-- ✅ Authentification JWT
+- ✅ **Authentification JWT sécurisée** (HttpOnly cookies)
+- ✅ **Refresh tokens automatiques**
 - ✅ Responsive Material-UI
 - ✅ Support offline avec fallbacks
+- ✅ **Tests unitaires & sécurité**
+- ✅ **Monitoring Prometheus**
+- ✅ **API Swagger/OpenAPI**
 
 ---
 
@@ -157,6 +327,8 @@ export SERVER_IP=192.168.1.100
 | `Deployment.md` | Guide déploiement avancé |
 | `local/README.md` | Mode développement |
 | `deployed/README.md` | Mode production |
+| `SECURITY.md` | Détails sécurité & JWT |
+| `API.md` | Référence API complète |
 
 ---
 
@@ -189,9 +361,21 @@ MIT
 Problème? 
 1. Consultez la documentation du mode que vous utilisez
 2. Vérifiez les logs: `tail -f logs/*.log`
-3. Ouvrez une issue avec les logs
+3. Lancez les tests: `npm test`
+4. Vérifiez la santé: `curl http://localhost:3001/api/health`
+5. Ouvrez une issue avec les logs et logs des tests
 
+---
 
-### 📃 Licence
+## 🔄 Roadmap Phases
 
-This project can be used as a personal project. If you'd like to contribute, please contact one of the current contributors.
+| Phase | Statut | Description |
+|-------|--------|-------------|
+| **1** | ✅ FAIT | Sécurité (JWT HttpOnly, refresh tokens) |
+| **2** | ✅ FAIT | Tests, Swagger, Prometheus, CSRF |
+| **3** | ⏳ TODO | TypeScript migration |
+| **4** | ⏳ TODO | Logging centralisé (ELK/Winston) |
+| **5** | ⏳ TODO | Circuit breaker Elasticsearch |
+| **6** | ⏳ TODO | E2E tests (Playwright) |
+
+---
