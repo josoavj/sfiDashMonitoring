@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
 const http = require('http');
 const { Server } = require('socket.io');
 const helmet = require('helmet');
@@ -13,6 +15,10 @@ const { mountApiRoutes } = require('./routes/api');
 const { mountAuthRoutes } = require('./routes/auth');
 const errorHandler = require('./middlewares/errorHandler');
 const { createMorganLogger } = require('./utils/logger');
+const { csrfProtection } = require('./middlewares/csrfMiddleware');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./config/swagger');
+const { metricsMiddleware, setupMetricsEndpoint } = require('./services/metricsService');
 
 // Import models to register them with Sequelize before sync
 const { User } = require('./models/User');
@@ -57,7 +63,7 @@ const corsOptions = {
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
   credentials: true,
   optionsSuccessStatus: 200,
   maxAge: 86400
@@ -68,13 +74,46 @@ app.use(helmet()); // Security headers
 app.use(compression()); // Compression de réponses
 app.use(createMorganLogger()); // HTTP request logging (sans tokens sensibles)
 app.use(express.json());
+app.use(cookieParser()); // Parser pour les cookies (HttpOnly)
+
+// Session middleware pour CSRF
+const sessionMiddleware = session({
+  secret: process.env.SESSION_SECRET || 'dev-session-secret-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'Strict',
+    maxAge: 24 * 60 * 60 * 1000 // 24h
+  }
+});
+
+app.use(sessionMiddleware);
+
+// CSRF protection sur certaines routes
+app.use(csrfProtection());
+
+// Prometheus metrics middleware
+app.use(metricsMiddleware);
 
 const esClient = createEsClientFromEnv();
 const { sequelize } = require('./databases/Sequelize');
 
+// Setup Swagger documentation (AVANT les routes)
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  swaggerOptions: {
+    persistAuthorization: true
+  }
+}));
+
+// Setup Prometheus metrics endpoint
+setupMetricsEndpoint(app);
+
 // Mount API routes
 mountApiRoutes(app, esClient, logService);
-// Mount auth routes (signup/signin/signout)
+// Mount auth routes (signup/signin/signout/refresh)
 mountAuthRoutes(app);
 
 // Error handling middleware (DOIT être le dernier)
