@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { Box, Typography, Dialog, DialogTitle, DialogContent, Button, CircularProgress, IconButton, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Paper, Chip, Stack, Divider, Grid, alpha } from '@mui/material'
+import { Box, Typography, Dialog, DialogTitle, DialogContent, Button, CircularProgress, IconButton, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Paper, Chip, Stack, Grid, alpha } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
@@ -8,6 +8,7 @@ import RouterIcon from '@mui/icons-material/Router'
 import StorageIcon from '@mui/icons-material/Storage'
 import { LineChart } from '@mui/x-charts'
 import { io } from 'socket.io-client'
+import { authFetch } from '../../utils/authFetch'
 
 // Fonctions utilitaires
 function formatTime(ts) {
@@ -47,7 +48,7 @@ function BandwidthView() {
         try {
             const to = new Date()
             const from = new Date(to.getTime() - 1000 * 60 * 5)
-            const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/bandwidth', {
+            const res = await authFetch('/api/bandwidth', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ timeRange: { from: from.toISOString(), to: to.toISOString() }, interval: '15s' })
@@ -75,7 +76,7 @@ function BandwidthView() {
         try {
             const to = new Date()
             const from = new Date(to.getTime() - 1000 * 60 * 5)
-            const topRes = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/top-bandwidth', {
+            const topRes = await authFetch('/api/top-bandwidth', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ timeRange: { from: from.toISOString(), to: to.toISOString() }, size: 10, type: 'source' })
@@ -102,7 +103,7 @@ function BandwidthView() {
         try {
             const to = new Date()
             const from = new Date(to.getTime() - 1000 * 60 * 5)
-            const protoRes = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/protocols', {
+            const protoRes = await authFetch('/api/protocols', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ timeRange: { from: from.toISOString(), to: to.toISOString() }, size: 10 })
@@ -139,6 +140,7 @@ function BandwidthView() {
         const socketUrl = import.meta.env.VITE_BACKEND_WS_URL || import.meta.env.VITE_API_URL || 'http://localhost:3001'
         console.log('[BandwidthView] Tentative de connexion WebSocket:', socketUrl)
         const socket = io(socketUrl, {
+            auth: (cb) => cb({ token: localStorage.getItem('accessToken') }),
             transports: ['websocket', 'polling'],
             reconnection: true,
             reconnectionDelay: 1000,
@@ -243,7 +245,7 @@ function BandwidthView() {
             setSamplesLoading(true)
             const to = new Date()
             const from = new Date(to.getTime() - 1000 * 60 * 60)
-            const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/consumer-samples', {
+            const res = await authFetch('/api/consumer-samples', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ timeRange: { from: from.toISOString(), to: to.toISOString() }, ip, field: 'source.ip', size })
@@ -317,32 +319,66 @@ function BandwidthView() {
 
     return (
         <Box sx={{ width: '100%' }}>
-            {/* Stats Total en haut à droite */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mb: 3, alignItems: 'center' }}>
-                <Tooltip title="Actualiser tout">
-                    <IconButton
-                        size="large"
-                        onClick={refreshAll}
-                        disabled={refreshLoading}
-                        sx={{
-                            bgcolor: 'rgba(2, 100, 126, 0.1)',
-                            color: '#02647E',
-                            '&:hover': { bgcolor: 'rgba(2, 100, 126, 0.2)' }
-                        }}
-                    >
-                        <RefreshIcon className={refreshLoading ? 'rotate-animation' : ''} />
-                    </IconButton>
-                </Tooltip>
-                <Paper elevation={2} sx={{ px: 3, py: 1.5, bgcolor: 'white' }}>
-                    <Typography fontSize={12} color="text.secondary">Total (5 min)</Typography>
-                    <Typography fontSize={20} fontWeight={700} sx={{ color: '#02647E' }}>
-                        {totalMB.toLocaleString()} MB
-                    </Typography>
-                </Paper>
-            </Box>
+            {/* Cartes d'aperçu */}
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6} lg={3}>
+                    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: alpha('#02647E', 0.05), height: '100%' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Box>
+                                <Typography fontSize={12} sx={{ color: 'text.secondary', mb: 0.5 }}>Débit Total (5 min)</Typography>
+                                <Typography fontSize={28} fontWeight={700} sx={{ color: '#02647E', lineHeight: 1.1 }}>
+                                    {totalMB.toLocaleString()}
+                                </Typography>
+                                <Typography fontSize={12} sx={{ color: 'text.secondary' }}>MB</Typography>
+                            </Box>
+                            <Tooltip title="Actualiser tout">
+                                <IconButton
+                                    size="large"
+                                    onClick={refreshAll}
+                                    disabled={refreshLoading}
+                                    sx={{
+                                        bgcolor: 'rgba(2, 100, 126, 0.1)',
+                                        color: '#02647E',
+                                        '&:hover': { bgcolor: 'rgba(2, 100, 126, 0.2)' }
+                                    }}
+                                >
+                                    <RefreshIcon className={refreshLoading ? 'rotate-animation' : ''} />
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
+                    </Paper>
+                </Grid>
+                <Grid item xs={12} sm={6} lg={3}>
+                    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: alpha('#29BBE2', 0.05), height: '100%' }}>
+                        <Typography fontSize={12} sx={{ color: 'text.secondary', mb: 0.5 }}>Top Sources</Typography>
+                        <Typography fontSize={28} fontWeight={700} sx={{ color: '#29BBE2', lineHeight: 1.1 }}>
+                            {topSources.length}
+                        </Typography>
+                        <Typography fontSize={12} sx={{ color: 'text.secondary' }}>adresses</Typography>
+                    </Paper>
+                </Grid>
+                <Grid item xs={12} sm={6} lg={3}>
+                    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: alpha('#F2C94C', 0.05), height: '100%' }}>
+                        <Typography fontSize={12} sx={{ color: 'text.secondary', mb: 0.5 }}>Services</Typography>
+                        <Typography fontSize={28} fontWeight={700} sx={{ color: '#F2C94C', lineHeight: 1.1 }}>
+                            {topProtocols.length}
+                        </Typography>
+                        <Typography fontSize={12} sx={{ color: 'text.secondary' }}>protocoles</Typography>
+                    </Paper>
+                </Grid>
+                <Grid item xs={12} sm={6} lg={3}>
+                    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: alpha('#52B57D', 0.05), height: '100%' }}>
+                        <Typography fontSize={12} sx={{ color: 'text.secondary', mb: 0.5 }}>Applications</Typography>
+                        <Typography fontSize={28} fontWeight={700} sx={{ color: '#52B57D', lineHeight: 1.1 }}>
+                            {topApplications.length}
+                        </Typography>
+                        <Typography fontSize={12} sx={{ color: 'text.secondary' }}>catégories</Typography>
+                    </Paper>
+                </Grid>
+            </Grid>
 
             {/* Graphique */}
-            <Paper elevation={0} sx={{ p: 3, mb: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+            <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, mb: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
                 <Typography fontSize={18} fontWeight={600} mb={2} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <TrendingUpIcon sx={{ color: '#02647E' }} />
                     Graphique de débit
@@ -355,16 +391,15 @@ function BandwidthView() {
                         { data: recvSeries, label: 'Reçu (MB)', color: '#52B57D' }
                     ]}
                     grid={{ vertical: true, horizontal: true }}
-                    height={400}
+                    height={420}
                     margin={{ left: 60, bottom: 40 }}
                     slotProps={{ legend: { position: { vertical: 'top', horizontal: 'right' } } }}
                 />
             </Paper>
 
-            {/* Grid layout pour Top sources et détails */}
-            <Grid container spacing={3} sx={{ mb: 3, width: '100%' }}>
-                {/* Top sources - Pleine largeur en petit écran, 2/3 en grand écran */}
-                <Grid item xs={12} lg={8}>
+            {/* Bloc principal: sources + protocoles/applications */}
+            <Grid container spacing={3} sx={{ width: '100%' }}>
+                <Grid item xs={12} lg={7}>
                     <Paper elevation={0} sx={{ p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider', height: '100%' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                             <Typography fontSize={18} fontWeight={600} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -433,142 +468,108 @@ function BandwidthView() {
                     </Paper>
                 </Grid>
 
-                {/* Résumé rapide - 1/3 en grand écran */}
-                <Grid item xs={12} lg={4}>
-                    <Stack spacing={2} sx={{ height: '100%' }}>
-                        <Paper elevation={0} sx={{ p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: alpha('#02647E', 0.05) }}>
-                            <Typography fontSize={12} sx={{ color: 'text.secondary', mb: 0.5 }}>Débit Total (5 min)</Typography>
-                            <Typography fontSize={28} fontWeight={700} sx={{ color: '#02647E' }}>
-                                {totalMB.toLocaleString()}
-                            </Typography>
-                            <Typography fontSize={12} sx={{ color: 'text.secondary' }}>MB</Typography>
+                <Grid item xs={12} lg={5}>
+                    <Stack spacing={3} sx={{ height: '100%' }}>
+                        <Paper elevation={0} sx={{ p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                <Typography fontSize={18} fontWeight={600} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <RouterIcon sx={{ color: '#6D6D6D' }} />
+                                    Protocoles
+                                </Typography>
+                                {protocolsLoading ? (
+                                    <CircularProgress size={24} />
+                                ) : (
+                                    <Tooltip title="Actualiser">
+                                        <IconButton size="small" onClick={fetchProtocols}>
+                                            <RefreshIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
+                            </Box>
+                            <Stack spacing={1.5}>
+                                {topProtocols.length === 0 && (
+                                    <Typography color="text.secondary" textAlign="center" py={2}>
+                                        Aucune donnée
+                                    </Typography>
+                                )}
+                                {topProtocols.map((p) => (
+                                    <Paper
+                                        key={p.protocol}
+                                        elevation={0}
+                                        sx={{
+                                            p: 2,
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            border: '1px solid',
+                                            borderColor: 'divider',
+                                            bgcolor: alpha('#6D6D6D', 0.02),
+                                            '&:hover': { bgcolor: alpha('#6D6D6D', 0.08) }
+                                        }}
+                                    >
+                                        <Box>
+                                            <Typography fontWeight={700}>{p.protocol}</Typography>
+                                            <Typography fontSize={12} color="text.secondary">
+                                                {p.count} paquets
+                                            </Typography>
+                                        </Box>
+                                        <Typography fontWeight={700} sx={{ color: '#6D6D6D' }}>
+                                            {((p.mb || 0)).toFixed(2)} MB
+                                        </Typography>
+                                    </Paper>
+                                ))}
+                            </Stack>
                         </Paper>
 
-                        <Paper elevation={0} sx={{ p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: alpha('#29BBE2', 0.05) }}>
-                            <Typography fontSize={12} sx={{ color: 'text.secondary', mb: 0.5 }}>Top Sources</Typography>
-                            <Typography fontSize={28} fontWeight={700} sx={{ color: '#29BBE2' }}>
-                                {topSources.length}
-                            </Typography>
-                            <Typography fontSize={12} sx={{ color: 'text.secondary' }}>adresses</Typography>
-                        </Paper>
-
-                        <Paper elevation={0} sx={{ p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: alpha('#F2C94C', 0.05) }}>
-                            <Typography fontSize={12} sx={{ color: 'text.secondary', mb: 0.5 }}>Services</Typography>
-                            <Typography fontSize={28} fontWeight={700} sx={{ color: '#F2C94C' }}>
-                                {topProtocols.length}
-                            </Typography>
-                            <Typography fontSize={12} sx={{ color: 'text.secondary' }}>Protocoles</Typography>
+                        <Paper elevation={0} sx={{ p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                <Typography fontSize={18} fontWeight={600} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <StorageIcon sx={{ color: '#F2C94C' }} />
+                                    Applications
+                                </Typography>
+                                {protocolsLoading ? (
+                                    <CircularProgress size={24} />
+                                ) : (
+                                    <Tooltip title="Actualiser">
+                                        <IconButton size="small" onClick={fetchProtocols}>
+                                            <RefreshIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
+                            </Box>
+                            <Stack spacing={1.5}>
+                                {topApplications.length === 0 && (
+                                    <Typography color="text.secondary" textAlign="center" py={2}>
+                                        Aucune donnée
+                                    </Typography>
+                                )}
+                                {topApplications.map((a) => (
+                                    <Paper
+                                        key={a.name}
+                                        elevation={0}
+                                        sx={{
+                                            p: 2,
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            border: '1px solid',
+                                            borderColor: 'divider',
+                                            bgcolor: alpha('#F2C94C', 0.02),
+                                            '&:hover': { bgcolor: alpha('#F2C94C', 0.08) }
+                                        }}
+                                    >
+                                        <Box>
+                                            <Typography fontWeight={700}>{a.name}</Typography>
+                                            <Typography fontSize={12} color="text.secondary">
+                                                {a.count} connexions
+                                            </Typography>
+                                        </Box>
+                                        <Typography fontWeight={700} sx={{ color: '#F2C94C' }}>
+                                            {((a.mb || 0)).toFixed(2)} MB
+                                        </Typography>
+                                    </Paper>
+                                ))}
+                            </Stack>
                         </Paper>
                     </Stack>
-                </Grid>
-            </Grid>
-
-            {/* Protocoles et Applications en Grid */}
-            <Grid container spacing={3} sx={{ width: '100%' }}>
-                {/* Protocoles */}
-                <Grid item xs={12} md={6}>
-                    <Paper elevation={0} sx={{ p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                            <Typography fontSize={18} fontWeight={600} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <RouterIcon sx={{ color: '#6D6D6D' }} />
-                                Protocoles
-                            </Typography>
-                            {protocolsLoading ? (
-                                <CircularProgress size={24} />
-                            ) : (
-                                <Tooltip title="Actualiser">
-                                    <IconButton size="small" onClick={fetchProtocols}>
-                                        <RefreshIcon />
-                                    </IconButton>
-                                </Tooltip>
-                            )}
-                        </Box>
-                        <Stack spacing={1.5}>
-                            {topProtocols.length === 0 && (
-                                <Typography color="text.secondary" textAlign="center" py={2}>
-                                    Aucune donnée
-                                </Typography>
-                            )}
-                            {topProtocols.map((p) => (
-                                <Paper
-                                    key={p.protocol}
-                                    elevation={0}
-                                    sx={{
-                                        p: 2,
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        border: '1px solid',
-                                        borderColor: 'divider',
-                                        bgcolor: alpha('#6D6D6D', 0.02),
-                                        '&:hover': { bgcolor: alpha('#6D6D6D', 0.08) }
-                                    }}
-                                >
-                                    <Box>
-                                        <Typography fontWeight={700}>{p.protocol}</Typography>
-                                        <Typography fontSize={12} color="text.secondary">
-                                            {p.count} paquets
-                                        </Typography>
-                                    </Box>
-                                    <Typography fontWeight={700} sx={{ color: '#6D6D6D' }}>
-                                        {((p.mb || 0)).toFixed(2)} MB
-                                    </Typography>
-                                </Paper>
-                            ))}
-                        </Stack>
-                    </Paper>
-                </Grid>
-
-                {/* Applications */}
-                <Grid item xs={12} md={6}>
-                    <Paper elevation={0} sx={{ p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                            <Typography fontSize={18} fontWeight={600} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <StorageIcon sx={{ color: '#F2C94C' }} />
-                                Applications
-                            </Typography>
-                            {protocolsLoading ? (
-                                <CircularProgress size={24} />
-                            ) : (
-                                <Tooltip title="Actualiser">
-                                    <IconButton size="small" onClick={fetchProtocols}>
-                                        <RefreshIcon />
-                                    </IconButton>
-                                </Tooltip>
-                            )}
-                        </Box>
-                        <Stack spacing={1.5}>
-                            {topApplications.length === 0 && (
-                                <Typography color="text.secondary" textAlign="center" py={2}>
-                                    Aucune donnée
-                                </Typography>
-                            )}
-                            {topApplications.map((a) => (
-                                <Paper
-                                    key={a.name}
-                                    elevation={0}
-                                    sx={{
-                                        p: 2,
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        border: '1px solid',
-                                        borderColor: 'divider',
-                                        bgcolor: alpha('#F2C94C', 0.02),
-                                        '&:hover': { bgcolor: alpha('#F2C94C', 0.08) }
-                                    }}
-                                >
-                                    <Box>
-                                        <Typography fontWeight={700}>{a.name}</Typography>
-                                        <Typography fontSize={12} color="text.secondary">
-                                            {a.count} connexions
-                                        </Typography>
-                                    </Box>
-                                    <Typography fontWeight={700} sx={{ color: '#F2C94C' }}>
-                                        {((a.mb || 0)).toFixed(2)} MB
-                                    </Typography>
-                                </Paper>
-                            ))}
-                        </Stack>
-                    </Paper>
                 </Grid>
             </Grid>
 
