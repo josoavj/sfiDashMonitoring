@@ -38,6 +38,7 @@ import {
   Close,
 } from '@mui/icons-material'
 import { alpha } from '@mui/material/styles'
+import { authFetch } from '../utils/authFetch'
 
 export default function ReportsPage() {
   const [loading, setLoading] = useState(false)
@@ -58,7 +59,7 @@ export default function ReportsPage() {
       const from = new Date()
       from.setHours(6, 30, 0, 0)
 
-      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/reports/generate', {
+      const res = await authFetch('/api/reports/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
