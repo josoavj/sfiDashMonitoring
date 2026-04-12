@@ -4,7 +4,7 @@ import { ServiceView } from './ServiceView'
 import BandwidthView from './BandwidthView'
 import { Grid, Paper, Box, Typography } from '@mui/material'
 import SocketStatus from '../SocketStatus'
-import { TrendingUp, Cloud, Lan, Settings } from '@mui/icons-material'
+import { TrendingUp, Cloud, Settings } from '@mui/icons-material'
 
 export function DataMainView({ page }) {
 	// Configurations des pages individuelles
@@ -67,24 +67,71 @@ export function DataMainView({ page }) {
 			<>
 				<Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}><SocketStatus /></Box>
 				<Box sx={{ p: { xs: 2, sm: 3, md: 4 }, pt: 0 }}>
-					<Grid container spacing={2}>
-						<Grid item xs={12} md={8}>
-							<Paper sx={{ p: 1 }}>
+					<Grid container spacing={3}>
+						<Grid item xs={12}>
+							<Paper
+								elevation={0}
+								sx={{
+									p: { xs: 1.5, md: 2 },
+									border: '1px solid',
+									borderColor: 'divider',
+									borderRadius: 2,
+								}}
+							>
+								<Typography variant="h6" fontWeight={700} sx={{ mb: 1.5 }}>
+									Vue d'ensemble du trafic
+								</Typography>
 								<ChartView />
 							</Paper>
 						</Grid>
 
-						<Grid item xs={12} md={4}>
-							<Paper sx={{ p: 1, mb: 2 }}>
+						<Grid item xs={12}>
+							<Paper
+								elevation={0}
+								sx={{
+									p: { xs: 1.5, md: 2 },
+									border: '1px solid',
+									borderColor: 'divider',
+									borderRadius: 2,
+								}}
+							>
+								<Typography variant="h6" fontWeight={700} sx={{ mb: 1.5 }}>
+									Bande passante
+								</Typography>
 								<BandwidthView />
 							</Paper>
-							<Paper sx={{ p: 1 }}>
+						</Grid>
+
+						<Grid item xs={12}>
+							<Paper
+								elevation={0}
+								sx={{
+									p: { xs: 1.5, md: 2 },
+									border: '1px solid',
+									borderColor: 'divider',
+									borderRadius: 2,
+								}}
+							>
+								<Typography variant="h6" fontWeight={700} sx={{ mb: 1.5 }}>
+									Services et applications
+								</Typography>
 								<ServiceView />
 							</Paper>
 						</Grid>
 
 						<Grid item xs={12}>
-							<Paper sx={{ p: 1 }}>
+							<Paper
+								elevation={0}
+								sx={{
+									p: { xs: 1.5, md: 2 },
+									border: '1px solid',
+									borderColor: 'divider',
+									borderRadius: 2,
+								}}
+							>
+								<Typography variant="h6" fontWeight={700} sx={{ mb: 1.5 }}>
+									Flux réseau détaillés
+								</Typography>
 								<FlowView />
 							</Paper>
 						</Grid>
