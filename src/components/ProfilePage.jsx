@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Box, Paper, Avatar, Typography, TextField, Button, CircularProgress, Snackbar, Alert, Grid, Card, CardHeader, CardContent, Divider, Chip, Stack } from '@mui/material'
-import { alpha } from '@mui/material/styles'
+import { useNavigate } from 'react-router-dom'
 import LogoutIcon from '@mui/icons-material/Logout'
 import SaveIcon from '@mui/icons-material/Save'
 import EditIcon from '@mui/icons-material/Edit'
@@ -12,8 +12,14 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import VerifiedIcon from '@mui/icons-material/Verified'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import SecurityIcon from '@mui/icons-material/Security'
+import { useAuth } from '../context/auth-context'
+import { authFetch } from '../utils/authFetch'
+
+const isDev = import.meta.env.DEV
 
 export default function ProfilePage() {
+  const navigate = useNavigate()
+  const { logout } = useAuth()
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -22,15 +28,28 @@ export default function ProfilePage() {
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [editMode, setEditMode] = useState(false)
 
+  function getAuthHeaders() {
+    const token = localStorage.getItem('accessToken')
+    return token ? { Authorization: `Bearer ${token}` } : {}
+  }
+
   useEffect(() => {
     async function load() {
       try {
         const apiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/me'
-        console.log('[ProfilePage] Chargement depuis:', apiUrl)
-        const res = await fetch(apiUrl)
+        if (isDev) {
+          console.log('[ProfilePage] Chargement depuis:', apiUrl)
+        }
+        const res = await fetch(apiUrl, {
+          method: 'GET',
+          headers: getAuthHeaders(),
+          credentials: 'include'
+        })
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const data = await res.json()
-        console.log('[ProfilePage] Profil chargé:', data)
+        if (isDev) {
+          console.log('[ProfilePage] Profil chargé:', data)
+        }
         setProfile(data.user || data)
       } catch (err) {
         console.error('[ProfilePage] Erreur:', err)
@@ -53,7 +72,14 @@ export default function ProfilePage() {
         if (password.length < 6) throw new Error('Le mot de passe doit contenir au moins 6 caractères')
         body.password = password
       }
-      const res = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const res = await authFetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        },
+        body: JSON.stringify(body)
+      })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
         throw new Error(err.message || 'save failed')
@@ -73,14 +99,8 @@ export default function ProfilePage() {
 
   async function signOut() {
     try {
-      const apiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/auth/signout'
-      await fetch(apiUrl, { method: 'POST' })
-      // Effacer les données stockées (matcher AuthContext)
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
-      localStorage.removeItem('auth:user')
-      // Redirection vers la page de connexion
-      window.location.href = '/auth/login'
+      await logout()
+      navigate('/auth/login', { replace: true })
     } catch (err) {
       setNotice({ severity: 'error', message: 'Impossible de se déconnecter' })
     }
