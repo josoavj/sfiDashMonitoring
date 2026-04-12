@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { LineChart } from '@mui/x-charts'
 import { onThrottled } from '../../socketClient'
+import { authFetch } from '../../utils/authFetch'
 
 function formatTime(ts) {
     try {
@@ -19,7 +20,7 @@ export function ChartView() {
         try {
             const to = new Date()
             const from = new Date(to.getTime() - 1000 * 60 * 60) // last 1 hour
-            const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/stats', {
+            const res = await authFetch('/api/stats', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ timeRange: { from: from.toISOString(), to: to.toISOString() }, fields: [] }),
