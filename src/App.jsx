@@ -18,6 +18,7 @@ import TopBar from './components/TopBar'
 import { NotificationBanner } from './components/NotificationBanner'
 import { NavProvider } from './context/NavContext'
 import { NotificationProvider } from './context/NotificationContext'
+import { ProtectedRoute, PublicRoute } from './context/ProtectedRoutes'
 import theme from './theme'
 
 // Loading fallback component
@@ -45,15 +46,15 @@ function App() {
                         <Suspense fallback={<LoadingFallback />}>
                             <Routes>
                                 <Route path="/" element={<Navigate to="/visualization" replace />} />
-                                <Route path="/auth/signup" element={<SignUpComponent />} />
-                                <Route path="/auth/login" element={<LogInComponent />} />
-                                <Route path="/visualization" element={<DataVisualization />} />
-                                <Route path="/exploration" element={<ExplorationPage />} />
-                                <Route path="/ip-view" element={<IPViewPage />} />
-                                <Route path="/reports" element={<ReportsPage />} />
-                                <Route path="/alerts" element={<AlertesPage />} />
-                                <Route path="/settings" element={<SettingsPage />} />
-                                <Route path="/profile" element={<ProfilePage />} />
+                                <Route path="/auth/signup" element={<PublicRoute><SignUpComponent /></PublicRoute>} />
+                                <Route path="/auth/login" element={<PublicRoute><LogInComponent /></PublicRoute>} />
+                                <Route path="/visualization" element={<ProtectedRoute><DataVisualization /></ProtectedRoute>} />
+                                <Route path="/exploration" element={<ProtectedRoute><ExplorationPage /></ProtectedRoute>} />
+                                <Route path="/ip-view" element={<ProtectedRoute><IPViewPage /></ProtectedRoute>} />
+                                <Route path="/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+                                <Route path="/alerts" element={<ProtectedRoute><AlertesPage /></ProtectedRoute>} />
+                                <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+                                <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
                             </Routes>
                         </Suspense>
                     </NavProvider>
