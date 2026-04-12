@@ -26,6 +26,7 @@ import FileUploadIcon from '@mui/icons-material/FileUpload'
 import DownloadIcon from '@mui/icons-material/Download'
 import RestoreIcon from '@mui/icons-material/Restore'
 import UserManagement from './UserManagement'
+import { authFetch } from '../utils/authFetch'
 
 const defaultSettings = {
   apiBase: '',
@@ -53,7 +54,7 @@ export default function SettingsPage() {
     async function load() {
       setLoading(true)
       try {
-        const res = await fetch('/api/settings')
+        const res = await authFetch('/api/settings')
         if (!res.ok) throw new Error('no endpoint')
         const data = await res.json()
         setSettings(prev => ({ ...prev, ...data }))
@@ -85,7 +86,7 @@ export default function SettingsPage() {
   async function saveSection() {
     setSaving(true)
     try {
-      const res = await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) })
+      const res = await authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) })
       if (!res.ok) throw new Error('save failed')
       setNotice({ severity: 'success', message: 'Paramètres enregistrés' })
     } catch (err) {
