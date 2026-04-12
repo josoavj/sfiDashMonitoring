@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const http = require('http');
 const { Server } = require('socket.io');
+const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
@@ -24,15 +25,16 @@ const { metricsMiddleware, setupMetricsEndpoint } = require('./services/metricsS
 const { User } = require('./models/User');
 const { Session } = require('./models/Session');
 const { Setting } = require('./models/Setting');
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Parse FRONTEND_URL(s) - Support multiple URLs separated by spaces
 const parseAllowedOrigins = () => {
   if (!process.env.FRONTEND_URL) {
-    return ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173'];
+    return ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174'];
   }
   const urls = process.env.FRONTEND_URL.split(/\s+/).filter(url => url.trim());
   // Always include localhost fallbacks
-  const defaultUrls = ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173'];
+  const defaultUrls = ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174'];
   return [...new Set([...urls, ...defaultUrls])]; // Remove duplicates
 };
 
@@ -94,6 +96,11 @@ app.use(sessionMiddleware);
 // CSRF protection sur certaines routes
 app.use(csrfProtection());
 
+// Endpoint utilitaire pour récupérer le token CSRF courant
+app.get('/api/csrf-token', (req, res) => {
+  res.json({ csrfToken: res.locals.csrfToken });
+});
+
 // Prometheus metrics middleware
 app.use(metricsMiddleware);
 
@@ -129,6 +136,33 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
     credentials: true
   } 
+});
+
+io.use(async (socket, next) => {
+  try {
+    const rawToken = socket.handshake?.auth?.token || '';
+    const bearerHeader = socket.handshake?.headers?.authorization || '';
+    const headerToken = bearerHeader.startsWith('Bearer ') ? bearerHeader.slice(7) : '';
+    const token = rawToken || headerToken;
+
+    if (!token) {
+      return next(new Error('Unauthorized'));
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const session = await Session.findOne({
+      where: { userId: decoded.sub, revoked: false }
+    });
+
+    if (!session) {
+      return next(new Error('Unauthorized'));
+    }
+
+    socket.user = decoded;
+    next();
+  } catch (err) {
+    next(new Error('Unauthorized'));
+  }
 });
 
 // WebSocket handling
