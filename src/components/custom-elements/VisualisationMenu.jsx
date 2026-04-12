@@ -42,6 +42,14 @@ export function VisualizationMenu({ anchorEl, handleMenuClose }) {
     const navigate = useNavigate()
     const { setSubItemActive } = useNav()
 
+    const dashboardTabByPage = {
+        view: 'bandwidth',
+        bandwidth: 'bandwidth',
+        flow: 'flow',
+        service: 'service',
+        ipsource: 'ipsource',
+    }
+
     return (
         <Menu
             elevation={0}
@@ -96,7 +104,8 @@ export function VisualizationMenu({ anchorEl, handleMenuClose }) {
                                         navigate('/ip-view')
                                     } else {
                                         setSubItemActive(item)
-                                        navigate('/visualization')
+                                        const tab = dashboardTabByPage[item.page] || 'bandwidth'
+                                        navigate(`/visualization?tab=${tab}`)
                                     }
                                 }}
                                 sx={{
