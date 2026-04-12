@@ -5,6 +5,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import { DataGrid } from '@mui/x-data-grid'
 import { useNotifications } from '../context/NotificationContext'
 import { useTheme, useMediaQuery } from '@mui/material'
+import { authFetch } from '../utils/authFetch'
 
 export default function UserManagement() {
   const { addNotification } = useNotifications()
@@ -17,11 +18,7 @@ export default function UserManagement() {
   async function loadUsers() {
     setLoading(true)
     try {
-      const token = localStorage.getItem('accessToken')
-      const headers = { 'Content-Type': 'application/json' }
-      if (token) headers['Authorization'] = `Bearer ${token}`
-      
-      const res = await fetch('/api/users', { headers })
+      const res = await authFetch('/api/users', { headers: { 'Content-Type': 'application/json' } })
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
       const data = await res.json()
       // Expect data.users or array
@@ -42,11 +39,7 @@ export default function UserManagement() {
   async function deleteUser(id) {
     if (!confirm('Confirmer la suppression de cet utilisateur ?')) return
     try {
-      const token = localStorage.getItem('accessToken')
-      const headers = { 'Content-Type': 'application/json' }
-      if (token) headers['Authorization'] = `Bearer ${token}`
-      
-      const res = await fetch(`/api/users/${id}`, { method: 'DELETE', headers })
+      const res = await authFetch(`/api/users/${id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } })
       if (!res.ok) throw new Error('delete failed')
       const successMsg = 'Utilisateur supprimé'
       setNotice({ severity: 'success', message: successMsg })
