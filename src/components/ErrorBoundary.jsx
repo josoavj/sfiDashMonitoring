@@ -18,16 +18,19 @@ export default class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       const err = this.state.error
+      const isDev = import.meta.env.DEV
       return (
-        <div style={{ padding: 24, fontFamily: 'Inter, system-ui, sans-serif' }}>
+        <div style={{ padding: 24, fontFamily: 'Poppins, Segoe UI, Helvetica Neue, Arial, sans-serif' }}>
           <h2 style={{ color: '#b00020' }}>Une erreur est survenue</h2>
           <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: 12, borderRadius: 6 }}>
             {err?.message || String(err)}
           </pre>
-          <details style={{ marginTop: 12, whiteSpace: 'pre-wrap' }}>
-            <summary>Détails (developer)</summary>
-            <pre>{err?.stack}</pre>
-          </details>
+          {isDev ? (
+            <details style={{ marginTop: 12, whiteSpace: 'pre-wrap' }}>
+              <summary>Détails (developer)</summary>
+              <pre>{err?.stack}</pre>
+            </details>
+          ) : null}
         </div>
       )
     }
