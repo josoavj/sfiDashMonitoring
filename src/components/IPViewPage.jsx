@@ -4,6 +4,7 @@ import { Refresh, TrendingUp, Router, Public, LanOutlined, Close, Info } from '@
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { onThrottled } from '../socketClient'
 import { LineChart, BarChart } from '@mui/x-charts'
+import { authFetch } from '../utils/authFetch'
 
 export default function IPViewPage() {
     const [destRows, setDestRows] = useState([])
@@ -18,6 +19,24 @@ export default function IPViewPage() {
     const [showIPDetails, setShowIPDetails] = useState(false)
     const [timeRange, setTimeRange] = useState('24h') // '4h', '6h', '24h'
     const [bandwidthTimeRange, setBandwidthTimeRange] = useState('24h') // Separate for bandwidth chart
+
+    const timeRangeToggleSx = {
+        '& .MuiToggleButton-root': {
+            px: 1.25,
+            py: 0.5,
+            fontSize: 12,
+            fontWeight: 600,
+            border: '1px solid rgba(2, 100, 126, 0.3)',
+            color: '#02647E',
+            '&:hover': { backgroundColor: 'rgba(2, 100, 126, 0.08)' },
+            '&.Mui-selected': {
+                backgroundColor: '#02647E',
+                color: 'white',
+                border: '1px solid #02647E',
+                '&:hover': { backgroundColor: '#1a8fa0' }
+            }
+        }
+    }
 
     // Helper functions
     const getTimeRangeMs = (range) => {
@@ -125,7 +144,7 @@ export default function IPViewPage() {
             const to = new Date()
             const from = new Date(to.getTime() - getTimeRangeMs(timeRange))
 
-            const destRes = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/top-sources', {
+            const destRes = await authFetch('/api/top-sources', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ timeRange: { from: from.toISOString(), to: to.toISOString() }, size: 50, field: 'destination.ip' }),
             })
             const destData = await destRes.json()
@@ -134,7 +153,7 @@ export default function IPViewPage() {
                 setDestRows(rows)
             }
 
-            const srcRes = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/top-sources', {
+            const srcRes = await authFetch('/api/top-sources', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ timeRange: { from: from.toISOString(), to: to.toISOString() }, size: 50, field: 'source.ip' }),
             })
             const srcData = await srcRes.json()
@@ -155,7 +174,7 @@ export default function IPViewPage() {
             const to = new Date()
             const from = new Date(to.getTime() - getTimeRangeMs(bandwidthTimeRange))
 
-            const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/bandwidth', {
+            const res = await authFetch('/api/bandwidth', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -190,7 +209,7 @@ export default function IPViewPage() {
             const field = ipType === 'source' ? 'source.ip' : 'destination.ip'
             const interval = timeRange === '24h' ? '1h' : timeRange === '6h' ? '15m' : '5m' // Adapt interval to time range
             
-            const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/bandwidth-by-ip', {
+            const res = await authFetch('/api/bandwidth-by-ip', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -222,7 +241,7 @@ export default function IPViewPage() {
             const from = new Date(to.getTime() - getTimeRangeMs(timeRange)) // Synchro with timeRange!
 
             const field = ipType === 'source' ? 'source.ip' : 'destination.ip'
-            const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/ip-stats', {
+            const res = await authFetch('/api/ip-stats', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -267,8 +286,9 @@ export default function IPViewPage() {
         // Reload IP details when timeRange changes and an IP is selected
         if (selectedIP && selectedIPType) {
             memoLoadIPDetails(selectedIP, selectedIPType)
+            memoLoadIPBandwidthData(selectedIP, selectedIPType)
         }
-    }, [selectedIP, selectedIPType, memoLoadIPDetails])
+    }, [selectedIP, selectedIPType, memoLoadIPDetails, memoLoadIPBandwidthData])
 
     useEffect(() => {
         const unsubscribe = onThrottled((data) => {
@@ -336,78 +356,44 @@ export default function IPViewPage() {
                     </Box>
                 </Paper>
 
-                {/* Time Range Selector */}
-                <Box sx={{ mb: 4, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-                    <Box>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#02647E', fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                            Plage horaire - Tableaux IPs:
-                        </Typography>
+                <Paper
+                    elevation={0}
+                    sx={{
+                        mb: 2,
+                        p: 2,
+                        borderRadius: 2,
+                        border: '1px solid rgba(2, 100, 126, 0.12)',
+                        background: 'linear-gradient(180deg, rgba(2,100,126,0.05) 0%, rgba(2,100,126,0.02) 100%)'
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, flexWrap: 'wrap' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                            <Info sx={{ color: '#02647E', fontSize: 18 }} />
+                            <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#02647E' }}>
+                                Plage horaire des tableaux IPs
+                            </Typography>
+                            <Chip label={getTimeRangeLabel(timeRange)} size="small" sx={{ fontWeight: 600, bgcolor: alpha('#02647E', 0.1), color: '#02647E' }} />
+                        </Box>
                         <ToggleButtonGroup
                             value={timeRange}
                             exclusive
                             onChange={(e, newValue) => newValue && setTimeRange(newValue)}
-                            sx={{
-                                '& .MuiToggleButton-root': {
-                                    px: 2,
-                                    py: 1,
-                                    fontSize: 13,
-                                    fontWeight: 600,
-                                    border: '1px solid rgba(2, 100, 126, 0.3)',
-                                    color: '#02647E',
-                                    '&:hover': { backgroundColor: 'rgba(2, 100, 126, 0.08)' },
-                                    '&.Mui-selected': {
-                                        backgroundColor: '#02647E',
-                                        color: 'white',
-                                        border: '1px solid #02647E',
-                                        '&:hover': { backgroundColor: '#1a8fa0' }
-                                    }
-                                }
-                            }}
+                            size="small"
+                            sx={timeRangeToggleSx}
                         >
-                            <ToggleButton value="4h">4 heures</ToggleButton>
-                            <ToggleButton value="6h">6 heures</ToggleButton>
-                            <ToggleButton value="24h">24 heures</ToggleButton>
+                            <ToggleButton value="4h">4h</ToggleButton>
+                            <ToggleButton value="6h">6h</ToggleButton>
+                            <ToggleButton value="24h">24h</ToggleButton>
                         </ToggleButtonGroup>
                     </Box>
-
-                    <Box>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#02647E' }}>
-                            Plage horaire - Bande Passante:
-                        </Typography>
-                        <ToggleButtonGroup
-                            value={bandwidthTimeRange}
-                            exclusive
-                            onChange={(e, newValue) => newValue && setBandwidthTimeRange(newValue)}
-                            sx={{
-                                '& .MuiToggleButton-root': {
-                                    px: 2,
-                                    py: 1,
-                                    fontSize: 13,
-                                    fontWeight: 600,
-                                    border: '1px solid rgba(2, 100, 126, 0.3)',
-                                    color: '#02647E',
-                                    '&:hover': { backgroundColor: 'rgba(2, 100, 126, 0.08)' },
-                                    '&.Mui-selected': {
-                                        backgroundColor: '#02647E',
-                                        color: 'white',
-                                        border: '1px solid #02647E',
-                                        '&:hover': { backgroundColor: '#1a8fa0' }
-                                    }
-                                }
-                            }}
-                        >
-                            <ToggleButton value="4h">4 heures</ToggleButton>
-                            <ToggleButton value="6h">6 heures</ToggleButton>
-                            <ToggleButton value="24h">24 heures</ToggleButton>
-                        </ToggleButtonGroup>
-                    </Box>
-                </Box>
+                </Paper>
 
                 {/* Tables & Details Section */}
-                <Grid container spacing={1.5} sx={{ mb: 2 }}>
+                <Grid container spacing={2} sx={{ mb: 2, width: '100%' }}>
                     {/* Source IPs Table */}
-                    <Grid item xs={6} sm={6} md={6}>
+                    <Grid size={{ xs: 12, lg: 6 }}>
                         <Card sx={{
+                            width: '100%',
                             height: '100%',
                             minHeight: '600px',
                             display: 'flex',
@@ -422,7 +408,7 @@ export default function IPViewPage() {
                             <CardHeader
                                 avatar={<Router sx={{ color: 'secondary.main', fontSize: 24 }} />}
                                 title={
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                                         <Typography variant="h6" sx={{ fontWeight: 600, fontSize: 16 }}>IPs Sources</Typography>
                                         <Chip label={getTimeRangeLabel(timeRange)} size="small" variant="outlined" sx={{ height: 24, fontSize: 11, fontWeight: 600 }} />
                                     </Box>
@@ -462,8 +448,9 @@ export default function IPViewPage() {
                     </Grid>
 
                     {/* Destination IPs Table */}
-                    <Grid item xs={6} sm={6} md={6}>
+                    <Grid size={{ xs: 12, lg: 6 }}>
                         <Card sx={{
+                            width: '100%',
                             height: '100%',
                             minHeight: '600px',
                             display: 'flex',
@@ -478,7 +465,7 @@ export default function IPViewPage() {
                             <CardHeader
                                 avatar={<Public sx={{ color: 'primary.main', fontSize: 24 }} />}
                                 title={
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                                         <Typography variant="h6" sx={{ fontWeight: 600, fontSize: 16 }}>IPs Destinations</Typography>
                                         <Chip label={getTimeRangeLabel(timeRange)} size="small" variant="outlined" sx={{ height: 24, fontSize: 11, fontWeight: 600 }} />
                                     </Box>
@@ -532,13 +519,26 @@ export default function IPViewPage() {
                     <CardHeader
                         avatar={<TrendingUp sx={{ color: 'success.main', fontSize: 24 }} />}
                         title={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                                 <Typography variant="h6" sx={{ fontWeight: 600, fontSize: 16 }}>Bande Passante</Typography>
                                 <Chip label={getTimeRangeLabel(bandwidthTimeRange)} size="small" variant="outlined" sx={{ height: 24, fontSize: 11, fontWeight: 600 }} />
                             </Box>
                         }
+                        action={
+                            <ToggleButtonGroup
+                                value={bandwidthTimeRange}
+                                exclusive
+                                onChange={(e, newValue) => newValue && setBandwidthTimeRange(newValue)}
+                                size="small"
+                                sx={timeRangeToggleSx}
+                            >
+                                <ToggleButton value="4h">4h</ToggleButton>
+                                <ToggleButton value="6h">6h</ToggleButton>
+                                <ToggleButton value="24h">24h</ToggleButton>
+                            </ToggleButtonGroup>
+                        }
                         subheader=""
-                        sx={{ pb: 1.5 }}
+                        sx={{ pb: 1.5, '& .MuiCardHeader-action': { alignSelf: 'center', m: 0 } }}
                     />
                     <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 3, minHeight: 400 }}>
                         {loadingBandwidth || bandwidthData.length === 0 ? (
