@@ -1,9 +1,10 @@
 import { DataGrid } from '@mui/x-data-grid'
 import { useEffect, useState, useRef } from 'react'
-import { Box, Grid, Card, CardHeader, CardContent, Avatar, Typography, Stack, Chip, alpha, Divider, IconButton, Tooltip } from '@mui/material'
+import { Box, Grid, Card, CardHeader, CardContent, Avatar, Typography, Stack, Chip, alpha, Divider, IconButton, Tooltip, Paper } from '@mui/material'
 import { LineChart } from '@mui/x-charts'
 import { onThrottled } from '../../socketClient'
-import { Cloud, TrendingUp, Refresh } from '@mui/icons-material'
+import { Cloud, Refresh } from '@mui/icons-material'
+import { authFetch } from '../../utils/authFetch'
 
 export function FlowView() {
     const [rows, setRows] = useState([])
@@ -169,7 +170,7 @@ export function FlowView() {
         try {
             const to = new Date()
             const from = new Date(to.getTime() - 1000 * 60 * 60) // last 1h
-            const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/search', {
+            const res = await authFetch('/api/search', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: '*', size: 50, timeRange: { from: from.toISOString(), to: to.toISOString() } }),
             })
             const data = await res.json()
@@ -246,22 +247,86 @@ export function FlowView() {
         return () => { if (typeof unsubscribe === 'function') unsubscribe() }
     }, [])
 
+    const uniqueSources = new Set(rows.map((r) => r.ipsource).filter((v) => v && v !== '-')).size
+    const uniqueProtocols = new Set(rows.map((r) => r.protocol).filter((v) => v && v !== '-')).size
+    const kpiCardBaseSx = {
+        p: { xs: 2.2, md: 1.8 },
+        borderRadius: 2,
+        border: '1px solid',
+        borderColor: 'divider',
+        minHeight: { xs: 110, md: 96 },
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center'
+    }
+
     return (
         <Box sx={{ width: '100%', height: '100%' }}>
-            <Grid container spacing={3} sx={{ width: '100%', height: '100%' }}>
-                {/* Flows Table - Full width */}
-                <Grid item xs={12} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Grid container spacing={2} sx={{ width: '100%', height: '100%' }}>
+                <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+                    <Paper elevation={0} sx={{ ...kpiCardBaseSx, bgcolor: alpha('#29BAE2', 0.06) }}>
+                        <Typography fontSize={12} color="text.secondary" sx={{ letterSpacing: 0.2 }}>Flux affichés</Typography>
+                        <Typography fontSize={{ xs: 28, md: 24 }} fontWeight={700} sx={{ color: '#29BAE2', lineHeight: 1.05, mt: 0.4 }}>{rows.length}</Typography>
+                    </Paper>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+                    <Paper elevation={0} sx={{ ...kpiCardBaseSx, bgcolor: alpha('#52B57D', 0.08) }}>
+                        <Typography fontSize={12} color="text.secondary" sx={{ letterSpacing: 0.2 }}>Sources uniques</Typography>
+                        <Typography fontSize={{ xs: 28, md: 24 }} fontWeight={700} sx={{ color: '#52B57D', lineHeight: 1.05, mt: 0.4 }}>{uniqueSources}</Typography>
+                    </Paper>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+                    <Paper elevation={0} sx={{ ...kpiCardBaseSx, bgcolor: alpha('#E05B5B', 0.08) }}>
+                        <Typography fontSize={12} color="text.secondary" sx={{ letterSpacing: 0.2 }}>Protocoles actifs</Typography>
+                        <Typography fontSize={{ xs: 28, md: 24 }} fontWeight={700} sx={{ color: '#E05B5B', lineHeight: 1.05, mt: 0.4 }}>{uniqueProtocols}</Typography>
+                    </Paper>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+                    <Paper elevation={0} sx={{ ...kpiCardBaseSx, bgcolor: alpha('#F4A460', 0.1) }}>
+                        <Typography fontSize={12} color="text.secondary" sx={{ letterSpacing: 0.2 }}>Fenêtre temporelle</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.6, mt: 0.4 }}>
+                            <Typography fontSize={{ xs: 28, md: 24 }} fontWeight={700} sx={{ color: '#F4A460', lineHeight: 1.05 }}>{chartWindow}</Typography>
+                            <Typography fontSize={12} color="text.secondary">points</Typography>
+                        </Box>
+                    </Paper>
+                </Grid>
+
+                <Grid size={{ xs: 12 }}>
+                    <Paper elevation={0} sx={{ p: { xs: 2, md: 1.8 }, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+                        <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>
+                            Évolution des logs collectés
+                        </Typography>
+                        {chartLabels.length === 0 ? (
+                            <Box sx={{ minHeight: { xs: 220, md: 180 }, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 1, bgcolor: alpha('#29BAE2', 0.04) }}>
+                                <Typography color="text.secondary">Pas encore de données de flux en temps réel</Typography>
+                            </Box>
+                        ) : (
+                            <LineChart
+                                xAxis={[{ scaleType: 'point', data: chartLabels, showMark: false }]}
+                                series={chartData}
+                                grid={{ vertical: true, horizontal: true }}
+                                margin={{ left: 40, bottom: 30 }}
+                                height={220}
+                                    sx={{ '& .MuiChartsAxis-line, & .MuiChartsAxis-tick': { stroke: 'rgba(2, 100, 126, 0.35)' } }}
+                                slotProps={{ legend: { direction: 'horizontal', position: { vertical: 'top', horizontal: 'start' } } }}
+                            />
+                        )}
+                    </Paper>
+                </Grid>
+
+                <Grid size={{ xs: 12 }} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <Card 
                         variant="outlined"
                         sx={{ 
                             height: '100%',
-                            minHeight: 'calc(100vh - 130px)',
+                            minHeight: { xs: 460, md: 'calc(100vh - 220px)' },
                             borderRadius: 3,
                             border: '1px solid',
                             borderColor: 'divider',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                            boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
                             transition: 'all 0.3s',
-                            '&:hover': { boxShadow: '0 4px 16px rgba(0,0,0,0.1)' },
+                            '&:hover': { boxShadow: '0 3px 10px rgba(0,0,0,0.1)' },
                             display: 'flex',
                             flexDirection: 'column'
                         }}
@@ -286,6 +351,12 @@ export function FlowView() {
                         <Divider />
                         <CardContent sx={{ p: 0, flex: 1, display: 'flex', flexDirection: 'column' }}>
                             <Box sx={{ flex: 1, overflow: 'auto' }}>
+                                {rows.length === 0 && !loading ? (
+                                    <Box sx={{ minHeight: 260, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1.5, bgcolor: alpha('#29BAE2', 0.03) }}>
+                                        <Typography variant="subtitle1" fontWeight={600} color="text.secondary">Aucun flux disponible</Typography>
+                                        <Typography variant="body2" color="text.secondary">Les données apparaîtront ici dès réception de nouveaux logs.</Typography>
+                                    </Box>
+                                ) : (
                                 <DataGrid 
                                     columns={columns} 
                                     rows={rows} 
@@ -306,6 +377,9 @@ export function FlowView() {
                                             whiteSpace: 'normal',
                                             lineHeight: '1.2'
                                         }, 
+                                        '& .MuiDataGrid-columnHeaders': {
+                                            borderBottom: `1px solid ${alpha('#02647E', 0.2)}`
+                                        },
                                         '& .MuiDataGrid-row': { 
                                             cursor: 'pointer',
                                             '&:hover': { bgcolor: alpha('#29BAE2', 0.05) },
@@ -317,6 +391,7 @@ export function FlowView() {
                                         }
                                     }} 
                                 />
+                                )}
                             </Box>
                         </CardContent>
                     </Card>

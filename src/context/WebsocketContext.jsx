@@ -1,25 +1,36 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-
-const WebSocketContext = createContext(null);
-
-export const useWebSocket = () => useContext(WebSocketContext);
+import { useAuth } from './auth-context'
+import WebSocketContext from './websocket-context'
+const isDev = import.meta.env.DEV
 
 export const WebSocketProvider = ({ children }) => {
+    const { user } = useAuth()
     const [connected, setConnected] = useState(false);
     const socketRef = useRef(null);
 
     useEffect(() => {
-        const token = localStorage.getItem("accessToken");
+        const token = user?.accessToken || localStorage.getItem("accessToken");
+
+        // Cleanup d'une ancienne connexion si le token change
+        if (socketRef.current) {
+            socketRef.current.disconnect();
+            socketRef.current = null;
+            setConnected(false);
+        }
 
         if (!token) {
-            console.warn("❌ Aucun token => WebSocket non connectée");
+            if (isDev) {
+                console.warn("❌ Aucun token => WebSocket non connectée");
+            }
             return;
         }
 
         // 🔌 Connexion Socket.IO
         const wsUrl = import.meta.env.VITE_BACKEND_WS_URL || import.meta.env.VITE_API_URL || 'http://localhost:3001'
-        console.log('[WebSocketContext] Tentative de connexion à:', wsUrl)
+        if (isDev) {
+            console.log('[WebSocketContext] Tentative de connexion à:', wsUrl)
+        }
         const socket = io(wsUrl, {
             auth: { token },
             transports: ["websocket", "polling"],
@@ -32,12 +43,16 @@ export const WebSocketProvider = ({ children }) => {
         socketRef.current = socket;
 
         socket.on("connect", () => {
-            console.log("✅ WebSocket connectée !", socket.id);
+            if (isDev) {
+                console.log("✅ WebSocket connectée !", socket.id);
+            }
             setConnected(true);
         });
 
         socket.on("disconnect", (reason) => {
-            console.warn("⚠️ WebSocket déconnectée:", reason);
+            if (isDev) {
+                console.warn("⚠️ WebSocket déconnectée:", reason);
+            }
             setConnected(false);
         });
 
@@ -49,8 +64,10 @@ export const WebSocketProvider = ({ children }) => {
         // Cleanup à la fermeture de l'onglet ou du component
         return () => {
             socket.disconnect();
+            socketRef.current = null;
+            setConnected(false);
         };
-    }, []);
+    }, [user?.accessToken]);
 
     return (
         <WebSocketContext.Provider value={{ socket: socketRef.current, connected }}>

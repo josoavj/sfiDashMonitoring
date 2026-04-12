@@ -1,8 +1,9 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react'
-
-const AuthContext = createContext(null)
+import React, { useState, useEffect, useCallback } from 'react'
+import AuthContext from './auth-context'
+import { authFetch } from '../utils/authFetch'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const isDev = import.meta.env.DEV
 
 // Temps de tampon (ms) pour faire un refresh avant l'expiration du token
 const REFRESH_BUFFER = 60000 // 1 minute avant expiration
@@ -47,10 +48,14 @@ export function AuthProvider({ children }) {
 
         // Refresh X ms avant expiration
         const timeUntilRefresh = Math.max(expiresIn - REFRESH_BUFFER, 5000)
-        console.log(`[Auth] Token refresh schedulé dans ${timeUntilRefresh}ms`)
+        if (isDev) {
+            console.log(`[Auth] Token refresh schedulé dans ${timeUntilRefresh}ms`)
+        }
 
         const timeout = setTimeout(() => {
-            console.log('[Auth] Refresh automatique du token...')
+            if (isDev) {
+                console.log('[Auth] Refresh automatique du token...')
+            }
             refreshAccessToken()
         }, timeUntilRefresh)
 
@@ -62,10 +67,9 @@ export function AuthProvider({ children }) {
      */
     async function refreshAccessToken() {
         try {
-            const res = await fetch(`${API_BASE}/auth/refresh`, {
+            const res = await authFetch(`${API_BASE}/auth/refresh`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include' // Envoyer les cookies (refreshToken)
+                headers: { 'Content-Type': 'application/json' }
             })
 
             if (!res.ok) {
@@ -139,11 +143,10 @@ export function AuthProvider({ children }) {
     }, [refreshTokenTimeout])
 
     async function login(email, password) {
-        const res = await fetch(`${API_BASE}/auth/signin`, {
+        const res = await authFetch(`${API_BASE}/auth/signin`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-            credentials: 'include' // Recevoir le cookie refreshToken
+            body: JSON.stringify({ email, password })
         })
         if (!res.ok) {
             const err = await res.json().catch(() => ({}))
@@ -160,11 +163,10 @@ export function AuthProvider({ children }) {
     }
 
     async function signup(firstName, lastName, email, password) {
-        const res = await fetch(`${API_BASE}/auth/signup`, {
+        const res = await authFetch(`${API_BASE}/auth/signup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ firstName, lastName, email, password }),
-            credentials: 'include' // Recevoir le cookie refreshToken
+            body: JSON.stringify({ firstName, lastName, email, password })
         })
         if (!res.ok) {
             const err = await res.json().catch(() => ({}))
@@ -178,12 +180,11 @@ export function AuthProvider({ children }) {
     async function logout() {
         try {
             // Signaler au serveur de révoquer les sessions
-            await fetch(`${API_BASE}/auth/signout`, {
+            await authFetch(`${API_BASE}/auth/signout`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-                },
-                credentials: 'include'
+                }
             }).catch(() => {}) // Ignorer les erreurs (token peut être expiré)
         } finally {
             // Nettoyer le localStorage
@@ -210,5 +211,3 @@ export function AuthProvider({ children }) {
         </AuthContext.Provider>
     )
 }
-
-export default AuthContext

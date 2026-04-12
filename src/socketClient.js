@@ -1,9 +1,14 @@
 import { io } from 'socket.io-client'
 
 const SOCKET_URL = import.meta.env.VITE_BACKEND_WS_URL || import.meta.env.VITE_API_URL || 'http://localhost:3001'
-console.log('[socketClient] Attempting to connect to:', SOCKET_URL)
+const isDev = import.meta.env.DEV
+
+if (isDev) {
+	console.log('[socketClient] Attempting to connect to:', SOCKET_URL)
+}
 
 const socket = io(SOCKET_URL, {
+	auth: (cb) => cb({ token: localStorage.getItem('accessToken') }),
   transports: ['websocket', 'polling'],
   reconnection: true,
   reconnectionDelay: 1000,
@@ -13,15 +18,21 @@ const socket = io(SOCKET_URL, {
 })
 
 socket.on('connect', () => {
-  console.log('[socketClient] ✅ Connected successfully', socket.id)
+	if (isDev) {
+		console.log('[socketClient] ✅ Connected successfully', socket.id)
+	}
 })
 
 socket.on('connect_error', (error) => {
-  console.warn('[socketClient] ❌ Connection error:', error.message)
+	if (isDev) {
+		console.warn('[socketClient] ❌ Connection error:', error.message)
+	}
 })
 
 socket.on('disconnect', (reason) => {
-  console.warn('[socketClient] ⚠️ Disconnected:', reason)
+	if (isDev) {
+		console.warn('[socketClient] ⚠️ Disconnected:', reason)
+	}
 })
 
 // Simple throttled subscriber registry

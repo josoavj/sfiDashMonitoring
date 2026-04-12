@@ -18,6 +18,7 @@ function withTimeout(promise, timeoutMs = DEFAULT_TIMEOUT) {
 }
 
 function createEsClientFromEnv() {
+  const isProduction = (process.env.NODE_ENV || 'development') === 'production';
   const esConfig = {
     node: process.env.ES_NODE || 'https://localhost:9200',
     requestTimeout: process.env.ES_TIMEOUT || DEFAULT_TIMEOUT // Timeout au niveau du client
@@ -37,7 +38,11 @@ function createEsClientFromEnv() {
       console.log('✅ Certificat SSL chargé depuis:', process.env.ES_CERT_PATH);
     } catch (err) {
       console.error('❌ Impossible de charger ES_CERT_PATH:', err.message);
-      process.exit(1);
+      if (isProduction && process.env.ES_SSL_VERIFY !== 'false') {
+        process.exit(1);
+      }
+      esConfig.tls = { rejectUnauthorized: false };
+      console.warn('⚠️ Fallback TLS permissif activé (DEV/non strict).');
     }
   } else if (process.env.ES_SSL_VERIFY === 'false') {
     esConfig.tls = { rejectUnauthorized: false };

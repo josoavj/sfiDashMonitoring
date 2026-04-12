@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { 
     Box, 
     Stack, 
@@ -21,16 +21,53 @@ import {
     Info as InfoIcon
 } from '@mui/icons-material'
 import { memo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import BandwidthView from './dashboard-elements/BandwidthView'
 import { IPSourceView } from './dashboard-elements/IPSourceView'
 import { FlowView } from './dashboard-elements/FlowView'
 import { ServiceView } from './dashboard-elements/ServiceView'
+import { useNav } from '../context/NavContext'
+
+const pageToTabMap = {
+    bandwidth: 0,
+    ipsource: 1,
+    flow: 2,
+    service: 3,
+    view: 0,
+}
+
+const tabToPageMap = ['bandwidth', 'ipsource', 'flow', 'service']
 
 function DataVisualization() {
     const [activeTab, setActiveTab] = useState(0)
+    const { subItemActive } = useNav()
+    const [searchParams, setSearchParams] = useSearchParams()
+
+    useEffect(() => {
+        const tabParam = (searchParams.get('tab') || '').toLowerCase()
+        const nextTab = pageToTabMap[tabParam]
+        if (typeof nextTab === 'number' && nextTab !== activeTab) {
+            setActiveTab(nextTab)
+        }
+    }, [searchParams, activeTab])
+
+    useEffect(() => {
+        const tabParam = (searchParams.get('tab') || '').toLowerCase()
+        if (tabParam) return
+
+        const nextTab = pageToTabMap[subItemActive?.page]
+        if (typeof nextTab === 'number' && nextTab !== activeTab) {
+            setActiveTab(nextTab)
+            setSearchParams({ tab: tabToPageMap[nextTab] }, { replace: true })
+        }
+    }, [subItemActive, activeTab, searchParams, setSearchParams])
 
     const handleTabChange = (event, newValue) => {
         setActiveTab(newValue)
+        const tabKey = tabToPageMap[newValue]
+        if (tabKey) {
+            setSearchParams({ tab: tabKey }, { replace: true })
+        }
     }
 
     const dashboardCards = [

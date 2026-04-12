@@ -28,6 +28,7 @@ import { useTheme } from '@mui/material/styles'
 import { PieChart, BarChart } from '@mui/x-charts'
 import { useDebounce } from '../hooks/useDebounce'
 import { useApiCache } from '../hooks/useApiCache'
+import { authFetch } from '../utils/authFetch'
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
@@ -179,10 +180,9 @@ export default function ExplorationPage() {
         return
       }
 
-      const response = await fetch(endpoint, {
+      const response = await authFetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(body)
       })
 
@@ -235,10 +235,9 @@ export default function ExplorationPage() {
       // Récupérer les stats agrégées pour TOUS les résultats (pas seulement les 50 paginés)
       if (searchMode === 'advanced') {
         try {
-          const statsResponse = await fetch(`${BACKEND_URL}/api/exploration/stats`, {
+          const statsResponse = await authFetch(`${BACKEND_URL}/api/exploration/stats`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
             body: JSON.stringify({
               timeRange: { from: startDate, to: endDate },
               sourceIp: filters.sourceIp.trim() || undefined
@@ -267,10 +266,9 @@ export default function ExplorationPage() {
       } else if (searchMode === 'iprange') {
         // Recherche par plage d'IP - utiliser aussi l'endpoint stats
         try {
-          const statsResponse = await fetch(`${BACKEND_URL}/api/exploration/ip-range-stats`, {
+          const statsResponse = await authFetch(`${BACKEND_URL}/api/exploration/ip-range-stats`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
             body: JSON.stringify({
               timeRange: { from: startDate, to: endDate },
               startIp: ipRangeStart,

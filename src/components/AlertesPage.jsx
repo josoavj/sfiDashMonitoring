@@ -2,7 +2,10 @@ import { Box, Typography, Paper, Grid, Card, CardHeader, CardContent, Avatar, Ch
 import { TrendingUp, Warning, Refresh, SignalCellularAlt } from '@mui/icons-material'
 import { useEffect, useState } from 'react'
 import { alpha } from '@mui/material/styles'
-import { useWebSocket } from '../context/WebsocketContext'
+import { useWebSocket } from '../context/websocket-context'
+import { authFetch } from '../utils/authFetch'
+
+const isDev = import.meta.env.DEV
 
 export function AlertesPage() {
     const [alerts, setAlerts] = useState([])
@@ -24,7 +27,7 @@ export function AlertesPage() {
                 from.setDate(from.getDate() - 1)
             }
 
-            const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/top-sources', {
+            const res = await authFetch('/api/top-sources', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -35,7 +38,9 @@ export function AlertesPage() {
             })
 
             const data = await res.json()
-            console.log('Alerts data:', data)
+            if (isDev) {
+                console.log('Alerts data:', data)
+            }
             
             if (res.ok) {
                 // Les données retournées sont directement un array de buckets
@@ -64,7 +69,7 @@ export function AlertesPage() {
             const now = new Date()
             const from = new Date(now.getTime() - 1000 * 60 * 5) // Last 5 minutes
 
-            const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/top-sources', {
+            const res = await authFetch('/api/top-sources', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -109,7 +114,7 @@ export function AlertesPage() {
     }
 
     // Utiliser le socket global du contexte
-    const socket = useWebSocket()
+    const { socket } = useWebSocket() || {}
 
     useEffect(() => {
         loadAlerts()
@@ -119,7 +124,7 @@ export function AlertesPage() {
     useEffect(() => {
         if (!socket) return
 
-        socket.on('bandwidth-update', (payload) => {
+        const onBandwidthUpdate = (payload) => {
             try {
                 // Mettre à jour données temps réel
                 if (payload?.topSources) {
@@ -132,10 +137,12 @@ export function AlertesPage() {
             } catch (err) {
                 console.debug('bandwidth-update handler', err)
             }
-        })
+        }
+
+        socket.on('bandwidth-update', onBandwidthUpdate)
 
         return () => {
-            socket.off('bandwidth-update')
+            socket.off('bandwidth-update', onBandwidthUpdate)
         }
     }, [socket])
 

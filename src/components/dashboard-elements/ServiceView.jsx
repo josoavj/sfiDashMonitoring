@@ -1,7 +1,8 @@
-import { Grid, Typography, Box, CircularProgress, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
+import { Grid, Typography, Box, CircularProgress, FormControl, InputLabel, Select, MenuItem, Paper, Stack } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { LineChart } from '@mui/x-charts'
 import { onThrottled } from '../../socketClient'
+import { authFetch } from '../../utils/authFetch'
 
 const COLORS = ['#29BAE2', '#E05B5B', '#52B57D', '#F2C94C', '#9B51E0', '#FF8A65']
 
@@ -72,7 +73,7 @@ export function ServiceView() {
 			try {
 				const to = new Date()
 				const from = new Date(to.getTime() - 1000 * 60 * 60)
-				const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/protocols', {
+				const res = await authFetch('/api/protocols', {
 					method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ timeRange: { from: from.toISOString(), to: to.toISOString() }, size: 10 }),
 				})
 				const data = await res.json()
@@ -102,67 +103,98 @@ export function ServiceView() {
 
 	if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center' }}><CircularProgress /></Box>
 
+	const trackedCount = Object.keys(seriesRef.current || {}).length
+
 	return (
 		<Box sx={{ width: '100%' }}>
-			<Grid container spacing={2} sx={{ width: '100%' }}>
-				<Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
-					<FormControl size="small" sx={{ minWidth: 120 }}>
-						<InputLabel id="topn-label">Top N</InputLabel>
-						<Select labelId="topn-label" value={topNSelection} label="Top N" onChange={(e) => setTopNSelection(Number(e.target.value))}>
-							<MenuItem value={3}>Top 3</MenuItem>
-							<MenuItem value={5}>Top 5</MenuItem>
-							<MenuItem value={10}>Top 10</MenuItem>
-						</Select>
-					</FormControl>
-
-					<FormControl size="small" sx={{ minWidth: 140 }}>
-						<InputLabel id="window-label">Fenêtre (points)</InputLabel>
-						<Select labelId="window-label" value={windowSize} label="Fenêtre (points)" onChange={(e) => setWindowSize(Number(e.target.value))}>
-							<MenuItem value={30}>30 points</MenuItem>
-							<MenuItem value={60}>60 points</MenuItem>
-							<MenuItem value={120}>120 points</MenuItem>
-						</Select>
-					</FormControl>
+			<Grid container spacing={2.5} sx={{ width: '100%' }}>
+				<Grid item xs={12} sm={6} lg={3}>
+					<Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'rgba(41, 186, 226, 0.08)', height: '100%' }}>
+						<Typography fontSize={12} color="text.secondary">Séries suivies</Typography>
+						<Typography fontSize={30} fontWeight={700} sx={{ color: '#29BAE2', lineHeight: 1.1 }}>{trackedCount}</Typography>
+					</Paper>
 				</Grid>
+				<Grid item xs={12} sm={6} lg={3}>
+					<Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'rgba(82, 181, 125, 0.1)', height: '100%' }}>
+						<Typography fontSize={12} color="text.secondary">Top N affiché</Typography>
+						<Typography fontSize={30} fontWeight={700} sx={{ color: '#52B57D', lineHeight: 1.1 }}>{topN}</Typography>
+					</Paper>
+				</Grid>
+				<Grid item xs={12} sm={6} lg={3}>
+					<Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'rgba(242, 201, 76, 0.12)', height: '100%' }}>
+						<Typography fontSize={12} color="text.secondary">Fenêtre</Typography>
+						<Typography fontSize={30} fontWeight={700} sx={{ color: '#F2C94C', lineHeight: 1.1 }}>{windowSize}</Typography>
+						<Typography fontSize={12} color="text.secondary">points</Typography>
+					</Paper>
+				</Grid>
+				<Grid item xs={12} sm={6} lg={3}>
+					<Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'rgba(224, 91, 91, 0.08)', height: '100%' }}>
+						<Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems="center" justifyContent="space-between">
+							<FormControl size="small" sx={{ minWidth: 120, width: { xs: '100%', sm: 'auto' } }}>
+								<InputLabel id="topn-label">Top N</InputLabel>
+								<Select labelId="topn-label" value={topNSelection} label="Top N" onChange={(e) => setTopNSelection(Number(e.target.value))}>
+									<MenuItem value={3}>Top 3</MenuItem>
+									<MenuItem value={5}>Top 5</MenuItem>
+									<MenuItem value={10}>Top 10</MenuItem>
+								</Select>
+							</FormControl>
+
+							<FormControl size="small" sx={{ minWidth: 140, width: { xs: '100%', sm: 'auto' } }}>
+								<InputLabel id="window-label">Fenêtre</InputLabel>
+								<Select labelId="window-label" value={windowSize} label="Fenêtre" onChange={(e) => setWindowSize(Number(e.target.value))}>
+									<MenuItem value={30}>30</MenuItem>
+									<MenuItem value={60}>60</MenuItem>
+									<MenuItem value={120}>120</MenuItem>
+								</Select>
+							</FormControl>
+						</Stack>
+					</Paper>
+				</Grid>
+
 				<Grid item xs={12}>
-					{labels.length && series.length ? (
-						<LineChart
-							xAxis={[{ scaleType: 'point', data: labels, showMark: false }]}
-							series={series}
-							grid={{ vertical: true, horizontal: true }}
-							margin={{ left: 0, bottom: 0 }}
-							height={260}
-							sx={{ '& .MuiAreaElement-root': { fill: 'url(#SvcGradient)' }, '& .MuiLineElement-root': { strokeWidth: 2 } }}
-							slotProps={{ legend: { direction: 'horizontal', position: { vertical: 'top', horizontal: 'start' } } }}>
-							<linearGradient id="SvcGradient" x1="0%" y1="120%" x2="0%" y2="0%">
-								<stop offset="0" stopColor="#FFFFFF77" />
-								<stop offset="1" stopColor="#29BAE277" />
-							</linearGradient>
-						</LineChart>
-					) : (
-						<Typography color="text.secondary">Pas de données temps réel pour les services</Typography>
-					)}
+					<Paper elevation={0} sx={{ p: { xs: 2, md: 2.5 }, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+						{labels.length && series.length ? (
+							<LineChart
+								xAxis={[{ scaleType: 'point', data: labels, showMark: false }]}
+								series={series}
+								grid={{ vertical: true, horizontal: true }}
+								margin={{ left: 20, bottom: 20 }}
+								height={300}
+								sx={{ '& .MuiAreaElement-root': { fill: 'url(#SvcGradient)' }, '& .MuiLineElement-root': { strokeWidth: 2 } }}
+								slotProps={{ legend: { direction: 'horizontal', position: { vertical: 'top', horizontal: 'start' } } }}>
+								<linearGradient id="SvcGradient" x1="0%" y1="120%" x2="0%" y2="0%">
+									<stop offset="0" stopColor="#FFFFFF77" />
+									<stop offset="1" stopColor="#29BAE277" />
+								</linearGradient>
+							</LineChart>
+						) : (
+							<Typography color="text.secondary">Pas de données temps réel pour les services</Typography>
+						)}
+					</Paper>
 				</Grid>
 
-				<Grid item xs={6}>
-					<Typography fontWeight={600} sx={{ mb: 1 }}>Top Protocoles (instantané)</Typography>
-					{/* lightweight list will be filled from last received payloads if present in seriesRef */}
-					{Object.keys(seriesRef.current || {}).slice(0, 6).map((k) => (
-						<Box key={k} sx={{ display: 'flex', justifyContent: 'space-between', p: 1, bgcolor: 'background.paper', borderRadius: 1, mb: 1 }}>
-							<Typography fontWeight={700}>{k}</Typography>
-							<Typography>{((seriesRef.current[k]?.slice(-1)[0] || 0)).toFixed(2)} MB</Typography>
-						</Box>
-					))}
+				<Grid item xs={12} md={6}>
+					<Paper elevation={0} sx={{ p: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider', height: '100%' }}>
+						<Typography fontWeight={600} sx={{ mb: 1.5 }}>Top Protocoles (instantané)</Typography>
+						{Object.keys(seriesRef.current || {}).slice(0, 6).map((k) => (
+							<Box key={k} sx={{ display: 'flex', justifyContent: 'space-between', p: 1.2, bgcolor: 'background.paper', borderRadius: 1, mb: 1, border: '1px solid', borderColor: 'divider' }}>
+								<Typography fontWeight={700}>{k}</Typography>
+								<Typography>{((seriesRef.current[k]?.slice(-1)[0] || 0)).toFixed(2)} MB</Typography>
+							</Box>
+						))}
+					</Paper>
 				</Grid>
 
-				<Grid item xs={6}>
-					<Typography fontWeight={600} sx={{ mb: 1 }}>Top Applications / Ports (instantané)</Typography>
-					{Object.keys(seriesRef.current || {}).slice(0, 6).map((k) => (
-						<Box key={k} sx={{ display: 'flex', justifyContent: 'space-between', p: 1, bgcolor: 'background.paper', borderRadius: 1, mb: 1 }}>
-							<Typography fontWeight={700}>{k}</Typography>
-							<Typography>{((seriesRef.current[k]?.slice(-1)[0] || 0)).toFixed(2)} MB</Typography>
-						</Box>
-					))}
+				<Grid item xs={12} md={6}>
+					<Paper elevation={0} sx={{ p: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider', height: '100%' }}>
+						<Typography fontWeight={600} sx={{ mb: 1.5 }}>Top Applications / Ports (instantané)</Typography>
+						{Object.keys(seriesRef.current || {}).slice(0, 6).map((k) => (
+							<Box key={k} sx={{ display: 'flex', justifyContent: 'space-between', p: 1.2, bgcolor: 'background.paper', borderRadius: 1, mb: 1, border: '1px solid', borderColor: 'divider' }}>
+								<Typography fontWeight={700}>{k}</Typography>
+								<Typography>{((seriesRef.current[k]?.slice(-1)[0] || 0)).toFixed(2)} MB</Typography>
+							</Box>
+						))}
+					</Paper>
 				</Grid>
 			</Grid>
 		</Box>
