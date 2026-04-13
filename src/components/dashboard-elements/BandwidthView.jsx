@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { Box, Typography, Dialog, DialogTitle, DialogContent, Button, CircularProgress, IconButton, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Paper, Chip, Stack, Grid, alpha } from '@mui/material'
+import { Box, Typography, Dialog, DialogTitle, DialogContent, Button, CircularProgress, IconButton, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Paper, Chip, Stack, Grid, alpha, useTheme, useMediaQuery } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
@@ -28,6 +28,10 @@ function toMB(bytes) {
 }
 
 function BandwidthView() {
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+    const isTablet = useMediaQuery(theme.breakpoints.down('md'))
+
     const [timeline, setTimeline] = useState([])
     const [total, setTotal] = useState(0)
     const [topSources, setTopSources] = useState([])
@@ -316,6 +320,7 @@ function BandwidthView() {
     const sentSeries = timeline.map((p) => Number(((p.sent || 0) / 1024 / 1024).toFixed(3)))
     const recvSeries = timeline.map((p) => Number(((p.received || 0) / 1024 / 1024).toFixed(3)))
     const totalMB = Number(toMB(total).toFixed(2))
+    const chartHeight = isMobile ? 240 : isTablet ? 320 : 420
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -391,7 +396,7 @@ function BandwidthView() {
                         { data: recvSeries, label: 'Reçu (MB)', color: '#52B57D' }
                     ]}
                     grid={{ vertical: true, horizontal: true }}
-                    height={420}
+                    height={chartHeight}
                     margin={{ left: 60, bottom: 40 }}
                     slotProps={{ legend: { position: { vertical: 'top', horizontal: 'right' } } }}
                 />
