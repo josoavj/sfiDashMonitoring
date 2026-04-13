@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { LineChart } from '@mui/x-charts'
 import { onThrottled } from '../../socketClient'
 import { authFetch } from '../../utils/authFetch'
+import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
 
 function formatTime(ts) {
     try {
@@ -13,8 +14,14 @@ function formatTime(ts) {
 }
 
 export function ChartView() {
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+    const isTablet = useMediaQuery(theme.breakpoints.down('md'))
+
     const [labels, setLabels] = useState([])
     const [series, setSeries] = useState([])
+
+    const chartHeight = isMobile ? 220 : isTablet ? 320 : 520
 
     async function load() {
         try {
@@ -67,7 +74,13 @@ export function ChartView() {
     return () => { if (typeof unsubscribe === 'function') unsubscribe() }
     }, [])
 
-    if (!labels.length) return null
+    if (!labels.length) {
+        return (
+            <Box sx={{ minHeight: chartHeight, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'rgba(41, 186, 226, 0.05)', borderRadius: 2 }}>
+                <Typography color="text.secondary">Aucune donnée à afficher pour le moment</Typography>
+            </Box>
+        )
+    }
 
     return (
         <LineChart
@@ -75,7 +88,7 @@ export function ChartView() {
             series={series}
             grid={{ vertical: true, horizontal: true }}
             margin={{ left: 0, bottom: 0 }}
-            height={520}
+            height={chartHeight}
             sx={{ '& .MuiAreaElement-root': { fill: 'url(#Gradient)' }, '& .MuiLineElement-root': { strokeWidth: 4 } }}
             slotProps={{ legend: { direction: 'horizontal', position: { vertical: 'top', horizontal: 'start' } } }}>
             <linearGradient id="Gradient" x1="0%" y1="120%" x2="0%" y2="0%">
