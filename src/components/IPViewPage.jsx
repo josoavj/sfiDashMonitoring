@@ -1,4 +1,4 @@
-import { Grid, Typography, Stack, CircularProgress, IconButton, Box, Paper, Card, CardHeader, CardContent, Chip, Avatar, alpha, Button, Dialog, DialogTitle, DialogContent, Tooltip, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { Grid, Typography, Stack, CircularProgress, IconButton, Box, Paper, Card, CardHeader, CardContent, Chip, Avatar, alpha, Button, Dialog, DialogTitle, DialogContent, Tooltip, ToggleButton, ToggleButtonGroup, useTheme, useMediaQuery } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { Refresh, TrendingUp, Router, Public, LanOutlined, Close, Info } from '@mui/icons-material'
 import { useEffect, useState, useCallback, useMemo } from 'react'
@@ -7,6 +7,10 @@ import { LineChart, BarChart } from '@mui/x-charts'
 import { authFetch } from '../utils/authFetch'
 
 export default function IPViewPage() {
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+    const isTablet = useMediaQuery(theme.breakpoints.down('md'))
+
     const [destRows, setDestRows] = useState([])
     const [srcRows, setSrcRows] = useState([])
     const [loading, setLoading] = useState(false)
@@ -19,6 +23,11 @@ export default function IPViewPage() {
     const [showIPDetails, setShowIPDetails] = useState(false)
     const [timeRange, setTimeRange] = useState('24h') // '4h', '6h', '24h'
     const [bandwidthTimeRange, setBandwidthTimeRange] = useState('24h') // Separate for bandwidth chart
+
+    const tableCardMinHeight = isMobile ? 420 : isTablet ? 500 : 600
+    const bandwidthChartHeight = isMobile ? 260 : isTablet ? 320 : 400
+    const ipDetailsBarChartWidth = isMobile ? 300 : isTablet ? 420 : 500
+    const ipDetailsBarChartHeight = isMobile ? 240 : 300
 
     const timeRangeToggleSx = {
         '& .MuiToggleButton-root': {
@@ -395,7 +404,7 @@ export default function IPViewPage() {
                         <Card sx={{
                             width: '100%',
                             height: '100%',
-                            minHeight: '600px',
+                            minHeight: tableCardMinHeight,
                             display: 'flex',
                             flexDirection: 'column',
                             boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
@@ -452,7 +461,7 @@ export default function IPViewPage() {
                         <Card sx={{
                             width: '100%',
                             height: '100%',
-                            minHeight: '600px',
+                            minHeight: tableCardMinHeight,
                             display: 'flex',
                             flexDirection: 'column',
                             boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
@@ -550,8 +559,7 @@ export default function IPViewPage() {
                             </Box>
                         ) : (
                             <LineChart
-                                width={Math.min(1200, window.innerWidth - 100)}
-                                height={400}
+                                height={bandwidthChartHeight}
                                 series={[
                                     {
                                         data: bandwidthData.map(d => Math.round(d.bytes / (1024 * 1024)) || 0), // Convert to MB
@@ -715,8 +723,8 @@ export default function IPViewPage() {
                                                     color: '#02647E'
                                                 }
                                             ]}
-                                            width={500}
-                                            height={300}
+                                            width={ipDetailsBarChartWidth}
+                                            height={ipDetailsBarChartHeight}
                                             margin={{ top: 10, bottom: 40, left: 60, right: 10 }}
                                             slotProps={{
                                                 legend: { hidden: false, position: 'top-right' }
