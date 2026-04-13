@@ -43,14 +43,27 @@ export async function authFetch(url, options = {}) {
     }
   }
 
-  const response = await fetch(toAbsoluteUrl(url), {
+  const requestInit = {
     credentials: 'include',
     ...options,
     headers
-  })
+  }
+
+  let response = await fetch(toAbsoluteUrl(url), requestInit)
 
   if (response.status === 403 && isUnsafeMethod) {
     csrfToken = null
+    const refreshedToken = await getCsrfToken().catch(() => null)
+    if (refreshedToken) {
+      const retryHeaders = {
+        ...headers,
+        'X-CSRF-Token': refreshedToken
+      }
+      response = await fetch(toAbsoluteUrl(url), {
+        ...requestInit,
+        headers: retryHeaders
+      })
+    }
   }
 
   return response
