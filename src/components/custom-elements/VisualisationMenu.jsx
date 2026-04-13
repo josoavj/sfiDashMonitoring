@@ -38,7 +38,7 @@ const listMenuItems = [
     },
 ]
 
-export function VisualizationMenu({ anchorEl, handleMenuClose }) {
+export function VisualizationMenu({ anchorEl, handleMenuClose, onMenuMouseEnter, onMenuMouseLeave }) {
     const navigate = useNavigate()
     const { setSubItemActive } = useNav()
 
@@ -61,6 +61,8 @@ export function VisualizationMenu({ anchorEl, handleMenuClose }) {
             transformOrigin={{ vertical: 'top', horizontal: 'left' }}
             slotProps={{
                 paper: {
+                    onMouseEnter: onMenuMouseEnter,
+                    onMouseLeave: onMenuMouseLeave,
                     sx: {
                         width: '100%',
                         maxWidth: '100%',

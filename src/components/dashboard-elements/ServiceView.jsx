@@ -1,4 +1,4 @@
-import { Grid, Typography, Box, CircularProgress, FormControl, InputLabel, Select, MenuItem, Paper, Stack } from '@mui/material'
+import { Grid, Typography, Box, CircularProgress, FormControl, InputLabel, Select, MenuItem, Paper, Stack, useTheme, useMediaQuery } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { LineChart } from '@mui/x-charts'
 import { onThrottled } from '../../socketClient'
@@ -7,6 +7,10 @@ import { authFetch } from '../../utils/authFetch'
 const COLORS = ['#29BAE2', '#E05B5B', '#52B57D', '#F2C94C', '#9B51E0', '#FF8A65']
 
 export function ServiceView() {
+	const theme = useTheme()
+	const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+	const isTablet = useMediaQuery(theme.breakpoints.down('md'))
+
 	const [loading, setLoading] = useState(false)
 	const [labels, setLabels] = useState([])
 	const [series, setSeries] = useState([])
@@ -104,6 +108,7 @@ export function ServiceView() {
 	if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center' }}><CircularProgress /></Box>
 
 	const trackedCount = Object.keys(seriesRef.current || {}).length
+	const chartHeight = isMobile ? 220 : isTablet ? 260 : 300
 
 	return (
 		<Box sx={{ width: '100%' }}>
@@ -159,7 +164,7 @@ export function ServiceView() {
 								series={series}
 								grid={{ vertical: true, horizontal: true }}
 								margin={{ left: 20, bottom: 20 }}
-								height={300}
+								height={chartHeight}
 								sx={{ '& .MuiAreaElement-root': { fill: 'url(#SvcGradient)' }, '& .MuiLineElement-root': { strokeWidth: 2 } }}
 								slotProps={{ legend: { direction: 'horizontal', position: { vertical: 'top', horizontal: 'start' } } }}>
 								<linearGradient id="SvcGradient" x1="0%" y1="120%" x2="0%" y2="0%">

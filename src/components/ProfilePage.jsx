@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Paper, Avatar, Typography, TextField, Button, CircularProgress, Snackbar, Alert, Grid, Card, CardHeader, CardContent, Divider, Chip, Stack } from '@mui/material'
+import { Box, Paper, Avatar, Typography, TextField, Button, CircularProgress, Snackbar, Alert, Grid, Card, CardHeader, CardContent, Divider, Chip, Stack, Switch, FormControlLabel, LinearProgress, IconButton } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import LogoutIcon from '@mui/icons-material/Logout'
 import SaveIcon from '@mui/icons-material/Save'
@@ -12,6 +12,8 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import VerifiedIcon from '@mui/icons-material/Verified'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import SecurityIcon from '@mui/icons-material/Security'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import DevicesIcon from '@mui/icons-material/Devices'
 import { useAuth } from '../context/auth-context'
 import { authFetch } from '../utils/authFetch'
 
@@ -27,6 +29,13 @@ export default function ProfilePage() {
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [editMode, setEditMode] = useState(false)
+  const [preferences, setPreferences] = useState({
+    emailAlerts: true,
+    weeklyReports: true,
+    darkTheme: false,
+    dataSharing: true,
+  })
+  const [lastSeenAt, setLastSeenAt] = useState('')
 
   function getAuthHeaders() {
     const token = localStorage.getItem('accessToken')
@@ -51,6 +60,9 @@ export default function ProfilePage() {
           console.log('[ProfilePage] Profil chargé:', data)
         }
         setProfile(data.user || data)
+        if (data.preferences && typeof data.preferences === 'object') {
+          setPreferences((prev) => ({ ...prev, ...data.preferences }))
+        }
       } catch (err) {
         console.error('[ProfilePage] Erreur:', err)
         setProfile({ firstName: '', lastName: '', email: '', role: 'user', createdAt: new Date().toISOString() })
@@ -59,6 +71,9 @@ export default function ProfilePage() {
         setLoading(false)
       }
     }
+
+    setLastSeenAt(new Date().toLocaleString('fr-FR'))
+
     load()
   }, [])
 
@@ -72,6 +87,7 @@ export default function ProfilePage() {
         if (password.length < 6) throw new Error('Le mot de passe doit contenir au moins 6 caractères')
         body.password = password
       }
+      body.preferences = preferences
       const res = await authFetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -86,6 +102,9 @@ export default function ProfilePage() {
       }
       const updated = await res.json()
       setProfile(updated.user || updated)
+      if (updated.preferences && typeof updated.preferences === 'object') {
+        setPreferences((prev) => ({ ...prev, ...updated.preferences }))
+      }
       setPassword('')
       setPasswordConfirm('')
       setEditMode(false)
@@ -112,13 +131,52 @@ export default function ProfilePage() {
   const initials = fullName.split(' ').map(n => n.charAt(0).toUpperCase()).join('').slice(0, 2)
   const createdDate = profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'
   const isAdmin = profile?.role === 'admin'
+  const passwordStrength = (() => {
+    const p = password || ''
+    if (!p) return { value: 0, label: 'Vide', color: '#BDBDBD' }
+    let score = 0
+    if (p.length >= 8) score += 35
+    if (/[A-Z]/.test(p)) score += 20
+    if (/[0-9]/.test(p)) score += 20
+    if (/[^A-Za-z0-9]/.test(p)) score += 25
+    if (score < 40) return { value: score, label: 'Faible', color: '#E05B5B' }
+    if (score < 75) return { value: score, label: 'Moyen', color: '#F2C94C' }
+    return { value: score, label: 'Fort', color: '#52B57D' }
+  })()
+
+  const preferenceMeta = {
+    emailAlerts: {
+      title: 'Alertes par Email',
+      description: 'Notifications importantes envoyées par email'
+    },
+    weeklyReports: {
+      title: 'Rapports Hebdomadaires',
+      description: 'Résumé périodique de l\'activité réseau'
+    },
+    darkTheme: {
+      title: 'Thème Sombre',
+      description: 'Basculer vers une apparence sombre (préparation UI)'
+    },
+    dataSharing: {
+      title: 'Partage de Données',
+      description: 'Partage anonyme pour améliorer le service'
+    }
+  }
+  const cardBaseSx = {
+    borderRadius: 3,
+    height: '100%',
+    width: '100%',
+    border: '1px solid',
+    borderColor: 'divider',
+    boxShadow: '0 2px 10px rgba(0,0,0,0.04)'
+  }
 
   return (
     <Box sx={{ 
       width: '100%', 
       minHeight: '100vh', 
       background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
-      p: { xs: 1, sm: 2.5, md: 4 },
+      p: { xs: 1.25, sm: 2.5, md: 4 },
       pt: { xs: 12, sm: 11, md: 10 }
     }}>
       <Box sx={{ maxWidth: '1200px', mx: 'auto', width: '100%' }}>
@@ -242,7 +300,8 @@ export default function ProfilePage() {
                   color: '#fff', 
                   fontWeight: 600,
                   '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' },
-                  width: { xs: '100%', sm: 'auto' }
+                  width: { xs: '100%', sm: 'auto' },
+                  borderRadius: 2
                 }}
               >
                 Modifier
@@ -257,7 +316,8 @@ export default function ProfilePage() {
                   color: '#fff', 
                   fontWeight: 600,
                   '&:hover': { bgcolor: 'rgba(224, 91, 91, 0.5)' },
-                  width: { xs: '100%', sm: 'auto' }
+                  width: { xs: '100%', sm: 'auto' },
+                  borderRadius: 2
                 }}
               >
                 Déconnexion
@@ -270,8 +330,8 @@ export default function ProfilePage() {
       {/* Main Content */}
       <Grid container spacing={{ xs: 1.5, sm: 2.5, md: 3 }} sx={{ mb: 3 }}>
         {/* Personal Information */}
-        <Grid item xs={12} md={6}>
-          <Card elevation={1} sx={{ borderRadius: 2, height: '100%', width: '100%' }}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card elevation={0} sx={cardBaseSx}>
             <CardHeader
               avatar={<Avatar sx={{ bgcolor: 'rgba(2, 100, 126, 0.15)', color: '#02647E' }}><PersonIcon /></Avatar>}
               title={<Typography variant="h6" sx={{ fontSize: { xs: '0.95rem', sm: '1.05rem' }, fontWeight: 600 }}>Informations Personnelles</Typography>}
@@ -328,8 +388,8 @@ export default function ProfilePage() {
         </Grid>
 
         {/* Account & Security */}
-        <Grid item xs={12} md={6}>
-          <Card elevation={1} sx={{ borderRadius: 2, height: '100%', width: '100%' }}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card elevation={0} sx={cardBaseSx}>
             <CardHeader
               avatar={<Avatar sx={{ bgcolor: 'rgba(82, 181, 125, 0.15)', color: '#52B57D' }}><SecurityIcon /></Avatar>}
               title={<Typography variant="h6" sx={{ fontSize: { xs: '0.95rem', sm: '1.05rem' }, fontWeight: 600 }}>Sécurité & Compte</Typography>}
@@ -369,7 +429,7 @@ export default function ProfilePage() {
 
       {/* Password Change Section */}
       {editMode && (
-        <Card elevation={1} sx={{ borderRadius: 2, mb: 3 }}>
+        <Card elevation={0} sx={{ ...cardBaseSx, mb: 3 }}>
           <CardHeader
             avatar={<Avatar sx={{ bgcolor: 'rgba(224, 91, 91, 0.15)', color: '#E05B5B' }}><LockIcon /></Avatar>}
             title={<Typography variant="h6" sx={{ fontSize: { xs: '0.95rem', sm: '1.05rem' }, fontWeight: 600 }}>Changer le mot de passe</Typography>}
@@ -379,7 +439,7 @@ export default function ProfilePage() {
           <Divider />
           <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Nouveau mot de passe"
                   type="password"
@@ -390,8 +450,24 @@ export default function ProfilePage() {
                   size="small"
                   placeholder="Min. 6 caractères"
                 />
+                <Box sx={{ mt: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                    <Typography variant="caption" color="text.secondary">Force</Typography>
+                    <Typography variant="caption" sx={{ color: passwordStrength.color, fontWeight: 700 }}>{passwordStrength.label}</Typography>
+                  </Box>
+                  <LinearProgress
+                    variant="determinate"
+                    value={passwordStrength.value}
+                    sx={{
+                      height: 7,
+                      borderRadius: 20,
+                      bgcolor: 'rgba(0,0,0,0.08)',
+                      '& .MuiLinearProgress-bar': { bgcolor: passwordStrength.color }
+                    }}
+                  />
+                </Box>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Confirmer le mot de passe"
                   type="password"
@@ -401,6 +477,11 @@ export default function ProfilePage() {
                   variant="outlined"
                   size="small"
                 />
+                {passwordConfirm ? (
+                  <Typography variant="caption" sx={{ mt: 0.8, display: 'block', color: password === passwordConfirm ? '#52B57D' : '#E05B5B', fontWeight: 600 }}>
+                    {password === passwordConfirm ? 'Les mots de passe correspondent' : 'Les mots de passe ne correspondent pas'}
+                  </Typography>
+                ) : null}
               </Grid>
             </Grid>
           </CardContent>
@@ -408,7 +489,7 @@ export default function ProfilePage() {
       )}
 
       {/* Preferences & Notifications Section */}
-      <Card elevation={1} sx={{ borderRadius: 2, mb: 3 }}>
+      <Card elevation={0} sx={{ ...cardBaseSx, mb: 3 }}>
         <CardHeader
           avatar={<Avatar sx={{ bgcolor: 'rgba(41, 186, 226, 0.15)', color: '#29BAE2' }}><NotificationsIcon /></Avatar>}
           title={<Typography variant="h6" sx={{ fontSize: { xs: '0.95rem', sm: '1.05rem' }, fontWeight: 600 }}>Préférences & Notifications</Typography>}
@@ -417,33 +498,123 @@ export default function ProfilePage() {
         <Divider />
         <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
           <Grid container spacing={{ xs: 1.5, sm: 2 }}>
-            <Grid item xs={12} sm={6}>
-              <Box sx={{ p: { xs: 1, sm: 1.5 }, background: 'rgba(2, 100, 126, 0.03)', borderRadius: 1 }}>
-                <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: '#02647E', fontSize: '0.9rem' }}>📧 Alertes par Email</Typography>
-                <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem', display: 'block', mb: 1 }}>Notifications importantes par email</Typography>
-                <Chip label="Activé" size="small" sx={{ bgcolor: 'rgba(82, 181, 125, 0.15)', color: '#52B57D', fontWeight: 600, fontSize: '0.7rem' }} />
-              </Box>
+            {Object.keys(preferenceMeta).map((key) => {
+              const pref = preferenceMeta[key]
+              const enabled = Boolean(preferences[key])
+              return (
+              <Grid key={key} size={{ xs: 12, sm: 6 }}>
+                <Box sx={{ p: { xs: 1.25, sm: 1.5 }, background: 'rgba(2, 100, 126, 0.03)', border: '1px solid rgba(2, 100, 126, 0.12)', borderRadius: 2, height: '100%' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.5, color: '#02647E', fontSize: '0.92rem' }}>
+                    {pref.title}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.76rem', display: 'block', mb: 1.2 }}>
+                    {pref.description}
+                  </Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1 }}>
+                    <Chip
+                      label={enabled ? 'Activé' : 'Désactivé'}
+                      size="small"
+                      sx={{
+                        bgcolor: enabled ? 'rgba(82, 181, 125, 0.15)' : 'rgba(153, 153, 153, 0.15)',
+                        color: enabled ? '#52B57D' : '#666',
+                        fontWeight: 700,
+                        fontSize: '0.7rem'
+                      }}
+                    />
+                    <FormControlLabel
+                      label=""
+                      sx={{ m: 0 }}
+                      control={
+                        <Switch
+                          size="small"
+                          checked={enabled}
+                          onChange={(e) => {
+                            const next = { ...preferences, [key]: e.target.checked }
+                            setPreferences(next)
+                            ;(async () => {
+                              try {
+                                const apiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/me/preferences'
+                                const res = await authFetch(apiUrl, {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                    ...getAuthHeaders()
+                                  },
+                                  body: JSON.stringify({ preferences: next })
+                                })
+                                if (!res.ok) throw new Error('Impossible de sauvegarder la préférence')
+                                const payload = await res.json().catch(() => ({}))
+                                if (payload.preferences) {
+                                  setPreferences((prev) => ({ ...prev, ...payload.preferences }))
+                                }
+                                setNotice({ severity: 'info', message: `Préférence "${pref.title}" mise à jour` })
+                              } catch (err) {
+                                setPreferences(preferences)
+                                setNotice({ severity: 'error', message: err.message || 'Échec de sauvegarde de la préférence' })
+                              }
+                            })()
+                          }}
+                        />
+                      }
+                    />
+                  </Box>
+                </Box>
+              </Grid>
+              )
+            })}
+          </Grid>
+        </CardContent>
+      </Card>
+
+      <Card elevation={0} sx={{ ...cardBaseSx, mb: 3 }}>
+        <CardHeader
+          avatar={<Avatar sx={{ bgcolor: 'rgba(2, 100, 126, 0.15)', color: '#02647E' }}><DevicesIcon /></Avatar>}
+          title={<Typography variant="h6" sx={{ fontSize: { xs: '0.95rem', sm: '1.05rem' }, fontWeight: 600 }}>Activité & Session</Typography>}
+          sx={{ pb: 1.5, p: { xs: 1.5, sm: 2 } }}
+        />
+        <Divider />
+        <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+          <Grid container spacing={{ xs: 1.5, sm: 2 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'rgba(2,100,126,0.03)' }}>
+                <Typography variant="caption" sx={{ color: '#02647E', fontWeight: 700, display: 'block', mb: 0.5 }}>Dernière activité</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>{lastSeenAt || 'N/A'}</Typography>
+              </Paper>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <Box sx={{ p: { xs: 1, sm: 1.5 }, background: 'rgba(2, 100, 126, 0.03)', borderRadius: 1 }}>
-                <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: '#02647E', fontSize: '0.9rem' }}>📊 Rapports Hebdomadaires</Typography>
-                <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem', display: 'block', mb: 1 }}>Résumé de l'activité réseau</Typography>
-                <Chip label="Activé" size="small" sx={{ bgcolor: 'rgba(82, 181, 125, 0.15)', color: '#52B57D', fontWeight: 600, fontSize: '0.7rem' }} />
-              </Box>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'rgba(2,100,126,0.03)' }}>
+                <Typography variant="caption" sx={{ color: '#02647E', fontWeight: 700, display: 'block', mb: 0.5 }}>Token de session</Typography>
+                <Chip
+                  label={localStorage.getItem('accessToken') ? 'Valide' : 'Absent'}
+                  size="small"
+                  sx={{
+                    bgcolor: localStorage.getItem('accessToken') ? 'rgba(82, 181, 125, 0.15)' : 'rgba(224,91,91,0.15)',
+                    color: localStorage.getItem('accessToken') ? '#52B57D' : '#E05B5B',
+                    fontWeight: 700
+                  }}
+                />
+              </Paper>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <Box sx={{ p: { xs: 1, sm: 1.5 }, background: 'rgba(2, 100, 126, 0.03)', borderRadius: 1 }}>
-                <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: '#02647E', fontSize: '0.9rem' }}>🌙 Thème Sombre</Typography>
-                <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem', display: 'block', mb: 1 }}>Interface sombre (bientôt)</Typography>
-                <Chip label="Désactivé" size="small" sx={{ bgcolor: 'rgba(153, 153, 153, 0.15)', color: '#666', fontWeight: 600, fontSize: '0.7rem' }} />
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Box sx={{ p: { xs: 1, sm: 1.5 }, background: 'rgba(2, 100, 126, 0.03)', borderRadius: 1 }}>
-                <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: '#02647E', fontSize: '0.9rem' }}>📈 Partage de Données</Typography>
-                <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem', display: 'block', mb: 1 }}>Amélioration du service</Typography>
-                <Chip label="Autorisé" size="small" sx={{ bgcolor: 'rgba(82, 181, 125, 0.15)', color: '#52B57D', fontWeight: 600, fontSize: '0.7rem' }} />
-              </Box>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'rgba(2,100,126,0.03)' }}>
+                <Typography variant="caption" sx={{ color: '#02647E', fontWeight: 700, display: 'block', mb: 0.5 }}>Identifiant utilisateur</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                  <Typography variant="caption" sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>{profile?.id || 'N/A'}</Typography>
+                  <IconButton
+                    size="small"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(String(profile?.id || ''))
+                        setNotice({ severity: 'success', message: 'ID utilisateur copié' })
+                      } catch (err) {
+                        setNotice({ severity: 'error', message: 'Impossible de copier l\'ID' })
+                      }
+                    }}
+                  >
+                    <ContentCopyIcon fontSize="inherit" />
+                  </IconButton>
+                </Box>
+              </Paper>
             </Grid>
           </Grid>
         </CardContent>
@@ -454,7 +625,7 @@ export default function ProfilePage() {
         <Stack 
           direction={{ xs: 'column', sm: 'row' }} 
           spacing={1.5} 
-          sx={{ justifyContent: 'flex-end' }}
+          sx={{ justifyContent: 'flex-end', position: { xs: 'sticky', sm: 'static' }, bottom: { xs: 10, sm: 'auto' }, zIndex: { xs: 2, sm: 'auto' } }}
         >
           <Button
             variant="outlined"
@@ -465,8 +636,8 @@ export default function ProfilePage() {
               setPasswordConfirm('')
             }}
             disabled={saving}
-            fullWidth={{ xs: true, sm: false }}
             size="small"
+            sx={{ width: { xs: '100%', sm: 'auto' }, bgcolor: { xs: 'rgba(255,255,255,0.95)', sm: 'transparent' }, borderRadius: 2 }}
           >
             Annuler
           </Button>
@@ -475,12 +646,14 @@ export default function ProfilePage() {
             startIcon={<SaveIcon />}
             onClick={save}
             disabled={saving}
-            fullWidth={{ xs: true, sm: false }}
             size="small"
             sx={{
               background: `linear-gradient(135deg, #02647E 0%, #72BDD1 100%)`,
               color: '#fff',
-              fontWeight: 600
+              fontWeight: 600,
+              width: { xs: '100%', sm: 'auto' },
+              borderRadius: 2,
+              boxShadow: '0 6px 16px rgba(2, 100, 126, 0.25)'
             }}
           >
             {saving ? 'Enregistrement...' : 'Enregistrer'}
