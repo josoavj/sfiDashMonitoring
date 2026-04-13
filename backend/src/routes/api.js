@@ -56,6 +56,13 @@ const apiLimiter = rateLimit({
 });
 
 function mountApiRoutes(app, esClient, logService) {
+  const normalizePreferences = (preferences = {}) => ({
+    emailAlerts: Boolean(preferences.emailAlerts),
+    weeklyReports: Boolean(preferences.weeklyReports),
+    darkTheme: Boolean(preferences.darkTheme),
+    dataSharing: Boolean(preferences.dataSharing)
+  });
+
   // health
   app.get('/api/health', async (req, res) => {
     try {
@@ -357,8 +364,9 @@ function mountApiRoutes(app, esClient, logService) {
     try {
       const uid = req.user?.sub;
       if (!uid) return res.status(401).json({ error: 'Missing user' });
-      const user = await User.findByPk(uid, { attributes: ['id', 'firstName', 'lastName', 'email', 'role', 'createdAt'] });
-      res.json({ user });
+      const user = await User.findByPk(uid, { attributes: ['id', 'firstName', 'lastName', 'email', 'role', 'createdAt', 'preferences'] });
+      if (!user) return res.status(404).json({ error: 'User not found' });
+      res.json({ user, preferences: normalizePreferences(user.preferences || {}) });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
@@ -369,17 +377,43 @@ function mountApiRoutes(app, esClient, logService) {
       const uid = req.user?.sub;
       if (!uid) return res.status(401).json({ error: 'Missing user' });
       const body = req.body || {};
-      const allowed = ['firstName', 'lastName', 'email', 'password'];
+      const allowed = ['firstName', 'lastName', 'email', 'password', 'preferences'];
       const updateData = {};
       for (const k of allowed) {
         if (body[k] !== undefined) {
           if (k === 'password') updateData.password = await bcrypt.hash(body.password, 10);
+          else if (k === 'preferences') updateData.preferences = normalizePreferences(body.preferences || {});
           else updateData[k] = body[k];
         }
       }
       await User.update(updateData, { where: { id: uid } });
-      const user = await User.findByPk(uid, { attributes: ['id', 'firstName', 'lastName', 'email', 'role', 'createdAt'] });
-      res.json({ user });
+      const user = await User.findByPk(uid, { attributes: ['id', 'firstName', 'lastName', 'email', 'role', 'createdAt', 'preferences'] });
+      if (!user) return res.status(404).json({ error: 'User not found' });
+      res.json({ user, preferences: normalizePreferences(user.preferences || {}) });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get('/api/me/preferences', authenticate, async (req, res) => {
+    try {
+      const uid = req.user?.sub;
+      if (!uid) return res.status(401).json({ error: 'Missing user' });
+      const user = await User.findByPk(uid, { attributes: ['preferences'] });
+      if (!user) return res.status(404).json({ error: 'User not found' });
+      res.json({ preferences: normalizePreferences(user.preferences || {}) });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post('/api/me/preferences', authenticate, async (req, res) => {
+    try {
+      const uid = req.user?.sub;
+      if (!uid) return res.status(401).json({ error: 'Missing user' });
+      const preferences = normalizePreferences(req.body?.preferences || {});
+      await User.update({ preferences }, { where: { id: uid } });
+      res.json({ preferences });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
