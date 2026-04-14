@@ -11,7 +11,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  CircularProgress,
   Alert,
   Card,
   CardContent,
@@ -21,14 +20,15 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Divider
+  Divider,
+  Skeleton
 } from '@mui/material'
 import { Search as SearchIcon, Download as DownloadIcon, FilterList as FilterIconMUI, Explore as ExploreIcon } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
-import { PieChart, BarChart } from '@mui/x-charts'
 import { useDebounce } from '../hooks/useDebounce'
 import { useApiCache } from '../hooks/useApiCache'
 import { authFetch } from '../utils/authFetch'
+import ChartLoadingSkeleton from './common/ChartLoadingSkeleton'
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
@@ -733,9 +733,40 @@ export default function ExplorationPage() {
 
       {/* Tableau des résultats */}
       {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-          <CircularProgress />
-        </Box>
+        <Stack spacing={2.5} sx={{ py: 1 }}>
+          <Grid container spacing={2}>
+            <Grid sx={{ xs: 12, sm: 6, md: 3 }}><Skeleton variant="rounded" height={96} /></Grid>
+            <Grid sx={{ xs: 12, sm: 6, md: 3 }}><Skeleton variant="rounded" height={96} /></Grid>
+            <Grid sx={{ xs: 12, sm: 6, md: 3 }}><Skeleton variant="rounded" height={96} /></Grid>
+            <Grid sx={{ xs: 12, sm: 6, md: 3 }}><Skeleton variant="rounded" height={96} /></Grid>
+          </Grid>
+
+          <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
+            <Skeleton variant="text" width="36%" height={36} sx={{ mb: 2 }} />
+            <Grid container spacing={2}>
+              {[...Array(8)].map((_, idx) => (
+                <Grid key={idx} sx={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+                  <Skeleton variant="rounded" height={190} />
+                </Grid>
+              ))}
+            </Grid>
+          </Paper>
+
+          <Grid container spacing={3}>
+            <Grid sx={{ xs: 12, md: 6 }}>
+              <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
+                <Skeleton variant="text" width="56%" height={32} sx={{ mb: 1.5 }} />
+                <ChartLoadingSkeleton height={220} chartType="line" />
+              </Paper>
+            </Grid>
+            <Grid sx={{ xs: 12, md: 6 }}>
+              <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
+                <Skeleton variant="text" width="52%" height={32} sx={{ mb: 1.5 }} />
+                <ChartLoadingSkeleton height={220} withLegend={false} chartType="bar" />
+              </Paper>
+            </Grid>
+          </Grid>
+        </Stack>
       )}
 
       {!loading && results.length > 0 && (
@@ -852,41 +883,44 @@ export default function ExplorationPage() {
         </Paper>
 
         {/* Statistiques détaillées et graphiques */}
-        {chartData.protocolData.length > 0 && (
-          <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid container spacing={3} sx={{ mb: 4 }}>
             {/* Protocoles */}
             <Grid sx={{ xs: 12, md: 6}}>
               <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                   📊 Distribution des Protocoles
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                  {chartData.protocolData.map((proto, idx) => (
-                    <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box
-                        sx={{
-                          width: 12,
-                          height: 12,
-                          borderRadius: '50%',
-                          backgroundColor: ['#2196F3', '#FF9800', '#4CAF50', '#F44336', '#9C27B0', '#00BCD4'][idx % 6]
-                        }}
-                      />
-                      <Typography variant="caption">
-                        {proto.name}: {proto.value}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Box>
+                {chartData.protocolData.length > 0 ? (
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                    {chartData.protocolData.map((proto, idx) => (
+                      <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: '50%',
+                            backgroundColor: ['#2196F3', '#FF9800', '#4CAF50', '#F44336', '#9C27B0', '#00BCD4'][idx % 6]
+                          }}
+                        />
+                        <Typography variant="caption">
+                          {proto.name}: {proto.value}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography color="text.secondary">Aucune donnée de protocole à afficher pour l'instant.</Typography>
+                )}
               </Paper>
             </Grid>
 
             {/* Top Services */}
-            {chartData.serviceData.length > 0 && (
-              <Grid sx={{ xs: 12, md: 6}}>
-                <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                    📈 Top Services par Volume
-                  </Typography>
+            <Grid sx={{ xs: 12, md: 6}}>
+              <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                  📈 Top Services par Volume
+                </Typography>
+                {chartData.serviceData.length > 0 ? (
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                     {chartData.serviceData.map((service, idx) => (
                       <Box key={idx}>
@@ -918,11 +952,12 @@ export default function ExplorationPage() {
                       </Box>
                     ))}
                   </Box>
-                </Paper>
-              </Grid>
-            )}
+                ) : (
+                  <Typography color="text.secondary">Aucune donnée service à afficher pour l'instant.</Typography>
+                )}
+              </Paper>
+            </Grid>
           </Grid>
-        )}
 
         {/* Pagination */}
         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2, alignItems: 'center', flexWrap: 'wrap' }}>
