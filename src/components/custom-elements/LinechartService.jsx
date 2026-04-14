@@ -16,7 +16,22 @@ import {
 import { LineChart } from '@mui/x-charts'
 
 export function LinechartService({ title, dataFrom }) {
-    if (!dataFrom || !dataFrom.length) return null
+    if (!dataFrom || !dataFrom.length) {
+        return (
+            <Card>
+                <CardHeader
+                    title={title}
+                    slotProps={{ title: { fontSize: 16, color: 'text.dark' } }}
+                    sx={{ bgcolor: '#F7F7F7' }}
+                />
+                <CardContent>
+                    <Box sx={{ minHeight: 250, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Typography color="text.secondary">Aucune donnée disponible pour ce graphe.</Typography>
+                    </Box>
+                </CardContent>
+            </Card>
+        )
+    }
 
     // Extraire les noms des services selon le tableau
     const serviceNames = Object.keys(dataFrom[0]).filter((key) => key !== 'time')

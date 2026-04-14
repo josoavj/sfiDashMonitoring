@@ -4,13 +4,12 @@ import {
     Stack, 
     Paper, 
     Typography, 
-    Grid, 
-    Card, 
-    CardContent, 
     Chip,
     IconButton,
     Tabs,
-    Tab
+    Tab,
+    useTheme,
+    useMediaQuery
 } from '@mui/material'
 import { 
     Dashboard as DashboardIcon,
@@ -39,6 +38,8 @@ const pageToTabMap = {
 const tabToPageMap = ['bandwidth', 'ipsource', 'flow', 'service']
 
 function DataVisualization() {
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
     const [activeTab, setActiveTab] = useState(0)
     const { subItemActive } = useNav()
     const [searchParams, setSearchParams] = useSearchParams()
@@ -74,6 +75,7 @@ function DataVisualization() {
         {
             id: 'bandwidth',
             title: 'Bande Passante',
+            shortTitle: 'Bande',
             icon: TrendingUp,
             description: 'Analyse en temps réel du débit réseau',
             color: '#02647E'
@@ -81,6 +83,7 @@ function DataVisualization() {
         {
             id: 'ipsource',
             title: 'Sources IP',
+            shortTitle: 'Sources',
             icon: Speed,
             description: 'Top IPs sources avec leurs statistiques',
             color: '#29BAE2'
@@ -88,6 +91,7 @@ function DataVisualization() {
         {
             id: 'flow',
             title: 'Flux Réseau',
+            shortTitle: 'Flux',
             icon: SignalCellularAlt,
             description: 'Détail des flux entre IPs',
             color: '#52B57D'
@@ -95,6 +99,7 @@ function DataVisualization() {
         {
             id: 'service',
             title: 'Services & Protocoles',
+            shortTitle: 'Services',
             icon: InfoIcon,
             description: 'Utilisation par service et protocole',
             color: '#F2C94C'
@@ -195,24 +200,45 @@ function DataVisualization() {
                         borderBottom: '2px solid',
                         borderColor: 'divider',
                         bgcolor: 'background.default',
-                        px: 0,
-                        overflowX: { xs: 'auto', md: 'hidden' }
+                        px: { xs: 0.5, sm: 0 },
+                        pt: { xs: 0.5, sm: 0 },
+                        overflowX: { xs: 'auto', md: 'hidden' },
+                        scrollbarWidth: 'none',
+                        '&::-webkit-scrollbar': { display: 'none' }
                     }}
                 >
+                    {isMobile ? (
+                        <Typography sx={{ px: 1, pb: 0.5, fontSize: '0.72rem', color: 'text.secondary', fontWeight: 600 }}>
+                            Glissez pour naviguer
+                        </Typography>
+                    ) : null}
                     <Tabs
                         value={activeTab}
                         onChange={handleTabChange}
                         variant="scrollable"
                         scrollButtons="auto"
+                        allowScrollButtonsMobile
+                        aria-label="Navigation des sections du tableau de bord"
                         sx={{
+                            minHeight: { xs: 46, sm: 56 },
+                            '& .MuiTabs-scrollButtons': {
+                                color: '#02647E',
+                                '&.Mui-disabled': { opacity: 0.25 }
+                            },
+                            '& .MuiTabs-scroller': {
+                                scrollBehavior: 'smooth'
+                            },
                             '& .MuiTab-root': {
                                 fontWeight: 600,
                                 textTransform: 'none',
-                                fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' },
-                                minHeight: { xs: 48, sm: 56 },
-                                py: { xs: 1.5, sm: 2 },
-                                px: { xs: 1.5, sm: 2 },
-                                minWidth: { xs: 'auto', sm: 120 },
+                                fontSize: { xs: '0.78rem', sm: '0.9rem', md: '0.95rem' },
+                                minHeight: { xs: 42, sm: 56 },
+                                py: { xs: 1, sm: 2 },
+                                px: { xs: 1.25, sm: 2 },
+                                minWidth: { xs: 106, sm: 120 },
+                                borderRadius: { xs: 1.5, sm: 0 },
+                                mx: { xs: 0.25, sm: 0 },
+                                mb: { xs: 0.5, sm: 0 },
                                 color: 'text.secondary',
                                 transition: 'all 0.3s ease',
                                 whiteSpace: 'nowrap',
@@ -223,7 +249,8 @@ function DataVisualization() {
                             },
                             '& .MuiTab-root.Mui-selected': {
                                 color: 'primary.main',
-                                fontWeight: 700
+                                fontWeight: 700,
+                                bgcolor: { xs: 'rgba(2, 100, 126, 0.08)', sm: 'transparent' }
                             },
                             '& .MuiTabs-indicator': {
                                 height: 3,
@@ -232,7 +259,15 @@ function DataVisualization() {
                         }}
                     >
                         {dashboardCards.map((card, idx) => (
-                            <Tab key={idx} label={card.title} icon={<card.icon sx={{ fontSize: { xs: 16, sm: 18 }, mr: 0.5 }} />} iconPosition="start" />
+                            <Tab
+                                key={card.id}
+                                id={`dashboard-tab-${card.id}`}
+                                aria-controls={`dashboard-panel-${card.id}`}
+                                aria-label={card.title}
+                                label={isMobile ? card.shortTitle : card.title}
+                                icon={<card.icon sx={{ fontSize: { xs: 16, sm: 18 }, mr: 0.5 }} />}
+                                iconPosition="start"
+                            />
                         ))}
                     </Tabs>
                 </Box>

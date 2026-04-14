@@ -1,10 +1,24 @@
-import { Grid, Typography, Stack, CircularProgress, IconButton, Box, Paper, Card, CardHeader, CardContent, Chip, Avatar, alpha, Button, Dialog, DialogTitle, DialogContent, Tooltip, ToggleButton, ToggleButtonGroup, useTheme, useMediaQuery } from '@mui/material'
+import { Grid, Typography, Stack, IconButton, Box, Paper, Card, CardHeader, CardContent, Chip, Avatar, alpha, Button, Dialog, DialogTitle, DialogContent, Tooltip, ToggleButton, ToggleButtonGroup, useTheme, useMediaQuery, Alert, Skeleton } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { Refresh, TrendingUp, Router, Public, LanOutlined, Close, Info } from '@mui/icons-material'
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { onThrottled } from '../socketClient'
 import { LineChart, BarChart } from '@mui/x-charts'
 import { authFetch } from '../utils/authFetch'
+import ChartLoadingSkeleton from './common/ChartLoadingSkeleton'
+
+function TableLoadingSkeleton() {
+    return (
+        <Stack spacing={1.25} sx={{ width: '100%', p: 2 }}>
+            <Skeleton variant="rounded" height={36} />
+            <Skeleton variant="rounded" height={48} />
+            <Skeleton variant="rounded" height={48} />
+            <Skeleton variant="rounded" height={48} />
+            <Skeleton variant="rounded" height={48} />
+            <Skeleton variant="rounded" height={48} />
+        </Stack>
+    )
+}
 
 export default function IPViewPage() {
     const theme = useTheme()
@@ -16,9 +30,12 @@ export default function IPViewPage() {
     const [loading, setLoading] = useState(false)
     const [loadingBandwidth, setLoadingBandwidth] = useState(false)
     const [bandwidthData, setBandwidthData] = useState([])
+    const [bandwidthError, setBandwidthError] = useState(null)
     const [selectedIP, setSelectedIP] = useState(null)
     const [selectedIPType, setSelectedIPType] = useState(null) // 'source' or 'dest'
     const [selectedIPBandwidth, setSelectedIPBandwidth] = useState([])
+    const [selectedIPBandwidthLoading, setSelectedIPBandwidthLoading] = useState(false)
+    const [selectedIPBandwidthError, setSelectedIPBandwidthError] = useState(null)
     const [selectedIPDetails, setSelectedIPDetails] = useState(null) // Additional IP info
     const [showIPDetails, setShowIPDetails] = useState(false)
     const [timeRange, setTimeRange] = useState('24h') // '4h', '6h', '24h'
@@ -180,6 +197,7 @@ export default function IPViewPage() {
     const memoLoadBandwidthData = useCallback(async () => {
         try {
             setLoadingBandwidth(true)
+            setBandwidthError(null)
             const to = new Date()
             const from = new Date(to.getTime() - getTimeRangeMs(bandwidthTimeRange))
 
@@ -202,9 +220,13 @@ export default function IPViewPage() {
                 setBandwidthData(formattedData)
             } else {
                 console.error('No timeline data:', data)
+                setBandwidthData([])
+                setBandwidthError('Impossible de charger les données de bande passante.')
             }
         } catch (err) {
             console.error('Error loading bandwidth data:', err)
+            setBandwidthData([])
+            setBandwidthError('Impossible de charger les données de bande passante.')
         } finally {
             setLoadingBandwidth(false)
         }
@@ -212,6 +234,8 @@ export default function IPViewPage() {
 
     const memoLoadIPBandwidthData = useCallback(async (ip, ipType) => {
         try {
+            setSelectedIPBandwidthLoading(true)
+            setSelectedIPBandwidthError(null)
             const to = new Date()
             const from = new Date(to.getTime() - getTimeRangeMs(timeRange)) // Use same timeRange as tables
 
@@ -238,9 +262,16 @@ export default function IPViewPage() {
                     receivedBytes: bucket.received_bytes?.value || 0,
                 }))
                 setSelectedIPBandwidth(formattedData)
+            } else {
+                setSelectedIPBandwidth([])
+                setSelectedIPBandwidthError('Impossible de charger le détail de bande passante pour cette IP.')
             }
         } catch (err) {
             console.error('Error loading IP bandwidth data:', err)
+            setSelectedIPBandwidth([])
+            setSelectedIPBandwidthError('Impossible de charger le détail de bande passante pour cette IP.')
+        } finally {
+            setSelectedIPBandwidthLoading(false)
         }
     }, [timeRange])
 
@@ -427,9 +458,7 @@ export default function IPViewPage() {
                             />
                             <CardContent sx={{ flex: 1, display: 'flex', overflow: 'hidden', p: 0 }}>
                                 {loading ? (
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', p: 3 }}>
-                                        <CircularProgress size={40} />
-                                    </Box>
+                                    <TableLoadingSkeleton />
                                 ) : (
                                     <DataGrid
                                         rows={srcRows}
@@ -484,9 +513,7 @@ export default function IPViewPage() {
                             />
                             <CardContent sx={{ flex: 1, display: 'flex', overflow: 'hidden', p: 0 }}>
                                 {loading ? (
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', p: 3 }}>
-                                        <CircularProgress size={40} />
-                                    </Box>
+                                    <TableLoadingSkeleton />
                                 ) : (
                                     <DataGrid
                                         rows={destRows}
@@ -550,13 +577,15 @@ export default function IPViewPage() {
                         sx={{ pb: 1.5, '& .MuiCardHeader-action': { alignSelf: 'center', m: 0 } }}
                     />
                     <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 3, minHeight: 400 }}>
-                        {loadingBandwidth || bandwidthData.length === 0 ? (
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                                <CircularProgress size={40} />
-                                <Typography variant="body2" color="textSecondary">
-                                    {bandwidthData.length === 0 && !loadingBandwidth ? 'Aucune donnée disponible' : 'Chargement...'}
-                                </Typography>
-                            </Box>
+                        {loadingBandwidth ? (
+                            <ChartLoadingSkeleton height={bandwidthChartHeight} withLegend={false} chartType="line" />
+                        ) : bandwidthError ? (
+                            <Stack spacing={1.5} sx={{ width: '100%', maxWidth: 560, alignItems: 'center' }}>
+                                <Alert severity="error" sx={{ width: '100%' }}>{bandwidthError}</Alert>
+                                <Button variant="outlined" onClick={memoLoadBandwidthData}>Réessayer</Button>
+                            </Stack>
+                        ) : bandwidthData.length === 0 ? (
+                            <Typography variant="body2" color="textSecondary">Aucune donnée disponible</Typography>
                         ) : (
                             <LineChart
                                 height={bandwidthChartHeight}
@@ -611,10 +640,17 @@ export default function IPViewPage() {
                 </DialogTitle>
                 <DialogContent>
                     <Box sx={{ pt: 3 }}>
-                        {selectedIPBandwidth.length === 0 ? (
-                            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-                                <CircularProgress />
+                        {selectedIPBandwidthLoading ? (
+                            <Box sx={{ width: '100%', py: 1 }}>
+                                <ChartLoadingSkeleton height={280} withLegend={false} withHeader chartType="bar" />
                             </Box>
+                        ) : selectedIPBandwidthError ? (
+                            <Stack spacing={1.5} sx={{ width: '100%', maxWidth: 560, mx: 'auto', alignItems: 'center' }}>
+                                <Alert severity="error" sx={{ width: '100%' }}>{selectedIPBandwidthError}</Alert>
+                                <Button variant="outlined" onClick={() => memoLoadIPBandwidthData(selectedIP, selectedIPType)}>Réessayer</Button>
+                            </Stack>
+                        ) : selectedIPBandwidth.length === 0 ? (
+                            <Typography color="text.secondary" textAlign="center">Aucune donnée disponible pour cette IP.</Typography>
                         ) : (
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                                 {/* Info Header */}

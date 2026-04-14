@@ -25,3 +25,4 @@ dist-ssr
 *.sw?
 package-lock.json
 fortigate-monitor/back/.env
+backend/data/backend.sqlite
