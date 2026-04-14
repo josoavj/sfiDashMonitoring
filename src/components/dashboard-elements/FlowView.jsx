@@ -1,16 +1,18 @@
 import { DataGrid } from '@mui/x-data-grid'
 import { useEffect, useState, useRef } from 'react'
-import { Box, Grid, Card, CardHeader, CardContent, Avatar, Typography, Stack, Chip, alpha, Divider, IconButton, Tooltip, Paper } from '@mui/material'
+import { Box, Grid, Card, CardHeader, CardContent, Avatar, Typography, Stack, Chip, alpha, Divider, IconButton, Tooltip, Paper, Alert, Button } from '@mui/material'
 import { LineChart } from '@mui/x-charts'
 import { onThrottled } from '../../socketClient'
 import { Cloud, Refresh } from '@mui/icons-material'
 import { authFetch } from '../../utils/authFetch'
+import ChartLoadingSkeleton from '../common/ChartLoadingSkeleton'
 
 export function FlowView() {
     const [rows, setRows] = useState([])
     const [loading, setLoading] = useState(false)
     const [chartLabels, setChartLabels] = useState([])
     const [chartData, setChartData] = useState([])
+    const [chartError, setChartError] = useState(null)
     const chartRef = useRef({ counts: [], labels: [] })
     const [chartWindow, setChartWindow] = useState(60)
 
@@ -167,6 +169,7 @@ export function FlowView() {
 
     async function loadFlows() {
         setLoading(true)
+        setChartError(null)
         try {
             const to = new Date()
             const from = new Date(to.getTime() - 1000 * 60 * 60) // last 1h
@@ -198,6 +201,7 @@ export function FlowView() {
             }
         } catch (err) {
             console.error('loadFlows', err)
+            setChartError('Impossible de charger les données de flux.')
         } finally {
             setLoading(false)
         }
@@ -238,6 +242,7 @@ export function FlowView() {
                 }
                 setChartLabels([...chartRef.current.labels])
                 setChartData([{ data: [...chartRef.current.counts], label: 'Logs collectés', color: '#29BAE2', area: true }])
+                setChartError(null)
             } catch (err) {
                 console.debug('FlowView socket handler', err)
             }
@@ -249,6 +254,7 @@ export function FlowView() {
 
     const uniqueSources = new Set(rows.map((r) => r.ipsource).filter((v) => v && v !== '-')).size
     const uniqueProtocols = new Set(rows.map((r) => r.protocol).filter((v) => v && v !== '-')).size
+    const hasChartData = chartLabels.length > 0 && chartData.some((serie) => Array.isArray(serie.data) && serie.data.length > 0)
     const kpiCardBaseSx = {
         p: { xs: 2.2, md: 1.8 },
         borderRadius: 2,
@@ -297,21 +303,31 @@ export function FlowView() {
                         <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>
                             Évolution des logs collectés
                         </Typography>
-                        {chartLabels.length === 0 ? (
-                            <Box sx={{ minHeight: { xs: 220, md: 180 }, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 1, bgcolor: alpha('#29BAE2', 0.04) }}>
-                                <Typography color="text.secondary">Pas encore de données de flux en temps réel</Typography>
-                            </Box>
-                        ) : (
+                        <Box sx={{ minHeight: { xs: 220, md: 180 }, borderRadius: 1, bgcolor: alpha('#29BAE2', 0.04), display: 'flex', alignItems: 'center', justifyContent: 'center', px: 2 }}>
+                        {!hasChartData && loading ? <ChartLoadingSkeleton height={220} chartType="area" /> : null}
+                        {!hasChartData && !loading && chartError ? (
+                            <Stack spacing={1.5} sx={{ width: '100%', maxWidth: 520 }}>
+                                <Alert severity="error">{chartError}</Alert>
+                                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                                    <Button variant="outlined" onClick={loadFlows}>Réessayer</Button>
+                                </Box>
+                            </Stack>
+                        ) : null}
+                        {!hasChartData && !loading && !chartError ? (
+                            <Typography color="text.secondary">Pas encore de données de flux en temps réel</Typography>
+                        ) : null}
+                        {hasChartData ? (
                             <LineChart
                                 xAxis={[{ scaleType: 'point', data: chartLabels, showMark: false }]}
                                 series={chartData}
                                 grid={{ vertical: true, horizontal: true }}
                                 margin={{ left: 40, bottom: 30 }}
                                 height={220}
-                                    sx={{ '& .MuiChartsAxis-line, & .MuiChartsAxis-tick': { stroke: 'rgba(2, 100, 126, 0.35)' } }}
+                                sx={{ width: '100%', '& .MuiChartsAxis-line, & .MuiChartsAxis-tick': { stroke: 'rgba(2, 100, 126, 0.35)' } }}
                                 slotProps={{ legend: { direction: 'horizontal', position: { vertical: 'top', horizontal: 'start' } } }}
                             />
-                        )}
+                        ) : null}
+                        </Box>
                     </Paper>
                 </Grid>
 
