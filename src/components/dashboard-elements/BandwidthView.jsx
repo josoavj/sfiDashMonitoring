@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { Box, Typography, Dialog, DialogTitle, DialogContent, Button, CircularProgress, IconButton, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Paper, Chip, Stack, Grid, alpha, useTheme, useMediaQuery } from '@mui/material'
+import { Box, Typography, Dialog, DialogTitle, DialogContent, Button, CircularProgress, IconButton, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Paper, Chip, Stack, Grid, alpha, useTheme, useMediaQuery, Alert } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
@@ -9,6 +9,7 @@ import StorageIcon from '@mui/icons-material/Storage'
 import { LineChart } from '@mui/x-charts'
 import { io } from 'socket.io-client'
 import { authFetch } from '../../utils/authFetch'
+import ChartLoadingSkeleton from '../common/ChartLoadingSkeleton'
 
 // Fonctions utilitaires
 function formatTime(ts) {
@@ -47,8 +48,12 @@ function BandwidthView() {
     const [sampleHits, setSampleHits] = useState([])
     const [sampleSize, setSampleSize] = useState(10)
     const [ipBandwidth, setIpBandwidth] = useState(null)
+    const [bandwidthError, setBandwidthError] = useState(null)
+    const [bandwidthLoading, setBandwidthLoading] = useState(false)
 
     async function fetchBandwidth() {
+        setBandwidthLoading(true)
+        setBandwidthError(null)
         try {
             const to = new Date()
             const from = new Date(to.getTime() - 1000 * 60 * 5)
@@ -69,9 +74,16 @@ function BandwidthView() {
                 }))
                 setTimeline(points)
                 setTotal(data.total || 0)
+            } else {
+                setBandwidthError('Impossible de charger la bande passante.')
+                setTimeline([])
             }
         } catch (err) {
             console.error('fetchBandwidth', err)
+            setBandwidthError('Impossible de charger la bande passante.')
+            setTimeline([])
+        } finally {
+            setBandwidthLoading(false)
         }
     }
 
@@ -321,6 +333,7 @@ function BandwidthView() {
     const recvSeries = timeline.map((p) => Number(((p.received || 0) / 1024 / 1024).toFixed(3)))
     const totalMB = Number(toMB(total).toFixed(2))
     const chartHeight = isMobile ? 240 : isTablet ? 320 : 420
+    const hasBandwidthData = timeline.length > 0
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -388,18 +401,37 @@ function BandwidthView() {
                     <TrendingUpIcon sx={{ color: '#02647E' }} />
                     Graphique de débit
                 </Typography>
-                <LineChart
-                    xAxis={[{ scaleType: 'point', data: xData, showMark: false }]}
-                    series={[
-                        { data: totalSeries, label: 'Débit (MB/s)', color: '#02647E', area: true },
-                        { data: sentSeries, label: 'Envoyé (MB)', color: '#29BBE2' },
-                        { data: recvSeries, label: 'Reçu (MB)', color: '#52B57D' }
-                    ]}
-                    grid={{ vertical: true, horizontal: true }}
-                    height={chartHeight}
-                    margin={{ left: 60, bottom: 40 }}
-                    slotProps={{ legend: { position: { vertical: 'top', horizontal: 'right' } } }}
-                />
+                <Box sx={{ minHeight: chartHeight, display: 'flex', alignItems: 'center', justifyContent: 'center', px: 2 }}>
+                    {!hasBandwidthData && bandwidthLoading ? (
+                        <ChartLoadingSkeleton height={chartHeight} chartType="area" />
+                    ) : null}
+                    {!hasBandwidthData && !bandwidthLoading && bandwidthError ? (
+                        <Stack spacing={1.5} sx={{ width: '100%', maxWidth: 520 }}>
+                            <Alert severity="error">{bandwidthError}</Alert>
+                            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                                <Button variant="outlined" onClick={fetchBandwidth}>Réessayer</Button>
+                            </Box>
+                        </Stack>
+                    ) : null}
+                    {!hasBandwidthData && !bandwidthLoading && !bandwidthError ? (
+                        <Typography color="text.secondary">Aucune donnée de bande passante disponible.</Typography>
+                    ) : null}
+                    {hasBandwidthData ? (
+                        <LineChart
+                            xAxis={[{ scaleType: 'point', data: xData, showMark: false }]}
+                            series={[
+                                { data: totalSeries, label: 'Débit (MB/s)', color: '#02647E', area: true },
+                                { data: sentSeries, label: 'Envoyé (MB)', color: '#29BBE2' },
+                                { data: recvSeries, label: 'Reçu (MB)', color: '#52B57D' }
+                            ]}
+                            grid={{ vertical: true, horizontal: true }}
+                            height={chartHeight}
+                            margin={{ left: 60, bottom: 40 }}
+                            sx={{ width: '100%' }}
+                            slotProps={{ legend: { position: { vertical: 'top', horizontal: 'right' } } }}
+                        />
+                    ) : null}
+                </Box>
             </Paper>
 
             {/* Bloc principal: sources + protocoles/applications */}
