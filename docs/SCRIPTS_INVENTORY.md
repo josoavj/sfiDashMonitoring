@@ -1,7 +1,6 @@
-# 📋 Scripts & Documentation - Inventaire Complet
+# 📋 Scripts & Documentation — Inventaire Complet
 
-**Date:** 8 février 2026  
-**Status:** ✅ Phases 1 & 2 Complètes
+**Date :** 8 février 2026 · **Statut :** ✅ Opérationnel
 
 ---
 
@@ -10,7 +9,7 @@
 ```
 sfiDashMonitoring/
 ├── backend/
-│   ├── setup-env.sh             (🆕 Phases 1 & 2)
+│   ├── setup-env.sh
 │   ├── start.sh
 │   ├── test-connection.js
 │   ├── test-data.js
@@ -18,14 +17,14 @@ sfiDashMonitoring/
 ├── local/
 │   ├── configure.sh
 │   ├── setup.sh
-│   ├── start.sh                 (👈 Principal)
+│   ├── start.sh                 ← Principal
 │   ├── start-backend-only.sh
 │   ├── start-frontend-only.sh
 │   ├── test-websocket.sh
 │   └── test.sh
 ├── deployed/
 │   ├── check.sh
-│   ├── health-check.sh          (👈 Important)
+│   ├── health-check.sh          ← Important
 │   ├── install-production.sh
 │   ├── install.sh
 │   ├── start-deploy.sh
@@ -36,38 +35,35 @@ sfiDashMonitoring/
 │   ├── verify-deployment.sh
 │   ├── verify.sh
 │   └── SUMMARY.sh
-├── start.sh                     (🆕 Root)
-├── test-local.sh                (🆕 Root)
+├── start.sh
+├── test-local.sh
 └── docs/
-    ├── PHASES_1_2_GUIDE.md      (🆕)
-    └── DEPLOYMENT_PHASES_1_2.md (🆕)
+    ├── PHASES_1_2_GUIDE.md
+    └── DEPLOYMENT_PHASES_1_2.md
 ```
-
-**Légende:** 🆕 = Nouveau (Phases 1 & 2), 👈 = Principal, ✅ = À jour
 
 ---
 
 ## 🔧 Scripts Backend
 
-### `backend/setup-env.sh` (NOUVEAU ✨)
-**Purpose:** Générer les variables d'environnement sécurisées
+### `backend/setup-env.sh`
 
-**Quand l'utiliser:**
+**Rôle :** Générer les variables d'environnement sécurisées
+
 ```bash
 cd backend
 bash setup-env.sh
 ```
 
-**Ce qu'il fait:**
-- ✅ Génère JWT_SECRET, JWT_REFRESH_SECRET, SESSION_SECRET
-- ✅ Demande l'environnement (dev/prod)
-- ✅ Configure Elasticsearch
-- ✅ Crée `.env` avec permissions `600`
-- ✅ Backup l'ancien `.env` s'il existe
+**Actions :**
+- Génère `JWT_SECRET`, `JWT_REFRESH_SECRET`, `SESSION_SECRET`
+- Demande l'environnement (`dev` / `prod`)
+- Configure Elasticsearch
+- Crée `.env` avec permissions `600`
+- Sauvegarde l'ancien `.env` s'il existe
 
-**Résultat:** Fichier `.env` configuré et sécurisé
+**Variables générées :**
 
-**Variables créées:**
 ```env
 JWT_SECRET=<random_base64_32>
 JWT_REFRESH_SECRET=<random_base64_32>
@@ -79,36 +75,44 @@ ES_USERNAME=elastic
 ES_PASSWORD=...
 ```
 
-### `backend/start.sh`
-**Purpose:** Démarrer le serveur backend
+---
 
-**Usage:**
+### `backend/start.sh`
+
+**Rôle :** Démarrer le serveur backend
+
 ```bash
 bash backend/start.sh
-# Ou: cd backend && npm start
+# Ou : cd backend && npm start
 ```
 
-**Vérifie:**
-- Node.js est installé
-- npm dependencies
-- PORT 3001 disponible
+Vérifie que Node.js est installé, les dépendances npm, et que le port `3001` est disponible.
+
+---
 
 ### `backend/test-connection.js`
-**Purpose:** Tester la connexion à Elasticsearch
+
+**Rôle :** Tester la connexion à Elasticsearch
 
 ```bash
 node backend/test-connection.js
 ```
 
+---
+
 ### `backend/test-data.js`
-**Purpose:** Injecter des données de test dans Elasticsearch
+
+**Rôle :** Injecter des données de test dans Elasticsearch
 
 ```bash
 node backend/test-data.js
 ```
 
+---
+
 ### `backend/testDataFortigate.js`
-**Purpose:** Données Fortigate simulées pour test
+
+**Rôle :** Données Fortigate simulées pour test
 
 ```bash
 node backend/testDataFortigate.js
@@ -118,215 +122,223 @@ node backend/testDataFortigate.js
 
 ## 🏠 Scripts Local (Développement)
 
-### `local/start.sh` (PRINCIPAL ⭐)
-**Purpose:** Démarrer frontend + backend ensemble localement
+### `local/start.sh` ⭐ Principal
 
-**Usage:**
+**Rôle :** Démarrer frontend + backend ensemble localement
+
 ```bash
 bash local/start.sh
-# Ou depuis racine: ./start.sh
+# Ou depuis la racine : ./start.sh
 ```
 
-**Vérifie:**
-- Node.js, npm, bash
-- Ports disponibles (3000, 3001)
-- Dépendances npm
+**Vérifie :** Node.js, npm, bash, ports disponibles (`3000`, `3001`), dépendances npm.
 
-**Démarre:**
-1. Backend sur `http://localhost:3001`
-2. Frontend sur `http://localhost:3000`
+**Démarre :**
+1. Backend → `http://localhost:3001`
+2. Frontend → `http://localhost:3000`
 
-**Logs en temps réel** avec couleurs
+Logs en temps réel avec couleurs. Arrêt gracieux via `Ctrl+C`.
 
-**Arrêt gracieux:** Ctrl+C → cleanup PID
+---
 
 ### `local/setup.sh`
-**Purpose:** Configuration initiale du projet
+
+**Rôle :** Configuration initiale du projet
 
 ```bash
 bash local/setup.sh
 ```
 
-**Actions:**
-- npm install (frontend + backend)
-- Vérifier prérequis
-- Créer répertoires logs/data
-- Initialiser `.env` si absent
+**Actions :** `npm install` (frontend + backend), vérification des prérequis, création des répertoires `logs/data`, initialisation du `.env` si absent.
+
+---
 
 ### `local/configure.sh`
-**Purpose:** Configuration interactive détaillée
+
+**Rôle :** Configuration interactive détaillée
 
 ```bash
 bash local/configure.sh
 ```
 
+---
+
 ### `local/start-backend-only.sh`
-**Purpose:** Démarrer backend seul (test API)
+
+**Rôle :** Démarrer le backend seul (test API)
 
 ```bash
 bash local/start-backend-only.sh
-# Accès: http://localhost:3001
-# Swagger: http://localhost:3001/api/docs
+# Accès API    : http://localhost:3001
+# Swagger docs : http://localhost:3001/api/docs
 ```
 
+---
+
 ### `local/start-frontend-only.sh`
-**Purpose:** Démarrer frontend seul (avec proxy)
+
+**Rôle :** Démarrer le frontend seul avec proxy vers le backend
 
 ```bash
 bash local/start-frontend-only.sh
-# Accès: http://localhost:3000
-# Proxy vers backend: localhost:3001
+# Accès : http://localhost:3000 (proxy → localhost:3001)
 ```
 
+---
+
 ### `local/test-websocket.sh`
-**Purpose:** Tester la connexion WebSocket
+
+**Rôle :** Tester la connexion WebSocket
 
 ```bash
 bash local/test-websocket.sh
 ```
 
-Connecte à `ws://localhost:3001` et envoie messages de test
+Se connecte à `ws://localhost:3001` et envoie des messages de test.
+
+---
 
 ### `local/test.sh`
-**Purpose:** Lancer tous les tests
+
+**Rôle :** Lancer tous les tests
 
 ```bash
 bash local/test.sh
 ```
 
-**Tests:**
-- Frontend: `npm test`
-- Backend: `cd backend && npm test:security`
-- Vérifications npm audit
+**Tests exécutés :** frontend (`npm test`), backend (`npm test:security`), `npm audit`.
 
 ---
 
 ## 🚀 Scripts Déploiement Production
 
-### `deployed/start.sh` (DÉMARRAGE)
-**Purpose:** Démarrer en production avec Docker ou Systemd
+### `deployed/start.sh`
 
-**Usage:**
+**Rôle :** Démarrer en production
+
 ```bash
 bash deployed/start.sh
 ```
 
-**Détecte automatiquement:**
-- Docker Compose disponible → lance services Docker
-- Systemd disponible → lance services Systemd
+Détecte automatiquement l'environnement : Docker Compose s'il est disponible, sinon Systemd. Affiche les URLs d'accès et les logs en temps réel.
 
-**Affiche:**
-- URLs d'accès
-- Logs en temps réel
+---
 
 ### `deployed/install.sh`
-**Purpose:** Installation initiale en production
+
+**Rôle :** Installation initiale en production
 
 ```bash
 sudo bash deployed/install.sh
 ```
 
-**Installe:**
-- Docker & Docker Compose (optionnel)
-- Node.js 18+
-- Nginx
-- Services Systemd
-- SSL certificates
+Installe Docker & Docker Compose (optionnel), Node.js 18+, Nginx, les services Systemd et les certificats SSL.
+
+---
 
 ### `deployed/install-production.sh`
-**Purpose:** Installation optimisée production avec sécurité
+
+**Rôle :** Installation optimisée production avec sécurité renforcée
 
 ```bash
 sudo bash deployed/install-production.sh
 ```
 
-### `deployed/health-check.sh` (IMPORTANT ✨)
-**Purpose:** Vérifier l'état de tous les services
+---
+
+### `deployed/health-check.sh` ✨ Important
+
+**Rôle :** Vérifier l'état de tous les services
 
 ```bash
 bash deployed/health-check.sh
 ```
 
-**Contrôle:**
-- Backend API (GET `/health`)
-- Frontend accessibility
-- Elasticsearch connexion
-- Database connexion
-- WebSocket
-- Metrics endpoint
+**Contrôle :** Backend API (`GET /health`), accessibilité frontend, connexion Elasticsearch, connexion base de données, WebSocket, endpoint Metrics.
 
-**Output:** Détaillé avec statuts ✓/✗
+Retourne un rapport détaillé avec statuts `✓` / `✗`.
+
+---
 
 ### `deployed/verify-deployment.sh`
-**Purpose:** Vérifier le déploiement après installation
+
+**Rôle :** Vérifier le déploiement après installation
 
 ```bash
 bash deployed/verify-deployment.sh
 ```
 
-**Vérifie:**
-- Services démarrés
-- Ports ouverts
-- SSL certificats valides
-- Permissions fichiers
-- Variables d'env
+**Vérifie :** services démarrés, ports ouverts, certificats SSL valides, permissions fichiers, variables d'environnement.
+
+---
 
 ### `deployed/verify.sh`
-**Purpose:** Vérification rapide (alias)
+
+**Rôle :** Vérification rapide (alias de `verify-deployment.sh`)
 
 ```bash
 bash deployed/verify.sh
 ```
 
+---
+
 ### `deployed/check.sh`
-**Purpose:** Vérification complète du système
+
+**Rôle :** Vérification complète du système
 
 ```bash
 bash deployed/check.sh
 ```
 
+---
+
 ### `deployed/start-deploy.sh`
-**Purpose:** Démarrage sécurisé avec vérifications
+
+**Rôle :** Démarrage sécurisé avec vérifications préalables
 
 ```bash
 bash deployed/start-deploy.sh
 ```
 
+---
+
 ### `deployed/update.sh`
-**Purpose:** Mettre à jour le code depuis git
+
+**Rôle :** Mettre à jour le code depuis git
 
 ```bash
 bash deployed/update.sh
 ```
 
-**Actions:**
-- Pull depuis git
-- npm install
-- Restart services
-- Health check
+Pull git → `npm install` → restart services → health check.
+
+---
 
 ### `deployed/update-production.sh`
-**Purpose:** Mise à jour production avec backup
+
+**Rôle :** Mise à jour production avec backup
 
 ```bash
 bash deployed/update-production.sh
 ```
 
-**Inclut:**
-- Backup base de données
-- Backup configuration
-- Zero-downtime deployment
-- Health check post-deploy
+Inclut backup de la base de données et de la configuration, déploiement sans interruption (*zero-downtime*), et health check post-déploiement.
+
+---
 
 ### `deployed/update-frontend-config.sh`
-**Purpose:** Mettre à jour configuration frontend
+
+**Rôle :** Mettre à jour la configuration frontend uniquement
 
 ```bash
 bash deployed/update-frontend-config.sh
 ```
 
+---
+
 ### `deployed/SUMMARY.sh`
-**Purpose:** Afficher un résumé du déploiement
+
+**Rôle :** Afficher un résumé du déploiement
 
 ```bash
 bash deployed/SUMMARY.sh
@@ -334,73 +346,73 @@ bash deployed/SUMMARY.sh
 
 ---
 
-## 📄 Root Scripts
+## 📄 Scripts Racine
 
-### `./start.sh` (NOUVEAU ✨)
-**Purpose:** Raccourci pour `local/start.sh`
+### `./start.sh`
 
-**Usage:**
+**Rôle :** Raccourci vers `local/start.sh`
+
 ```bash
 ./start.sh
-# Équivalent: bash local/start.sh
-```
-
-### `./test-local.sh` (NOUVEAU ✨)
-**Purpose:** Raccourci pour `local/test.sh`
-
-**Usage:**
-```bash
-./test-local.sh
-# Équivalent: bash local/test.sh
 ```
 
 ---
 
-## 📚 Documentation (Phases 1 & 2)
+### `./test-local.sh`
 
-### Core Documentation
+**Rôle :** Raccourci vers `local/test.sh`
 
-**`docs/PHASES_1_2_GUIDE.md`** (NOUVEAU ✨)
-- 🔐 Vue d'ensemble sécurité
-- 🔄 Flux authentification avec JWT + cookies
-- 📊 Tableau comparatif (ancien vs nouveau)
-- 📝 Fichiers modifiés & points clés
-- 🧪 Tests à exécuter
-- 📊 API Documentation (Swagger)
-- ⚙️ Configuration variables d'env
-- 🔄 Migration base de données (si nécessaire)
-- ✅ Checklist implémentation
+```bash
+./test-local.sh
+```
 
-**`docs/DEPLOYMENT_PHASES_1_2.md`** (NOUVEAU ✨)
-- 📋 Guide étape par étape
-- 🔐 Configuration sécurité complète
-- 🚀 Déploiement (Docker, Systemd, Manual)
-- 🧪 Tests & validation
-- 🐛 Troubleshooting
-- 📊 Monitoring & logs
-- ✅ Checklist validation
+---
 
-### Documentation Existante (À jour)
+## 📚 Documentation
 
-**`docs/SECURITY.md`**
-- ✅ Intégration Phases 1 & 2
-- ✅ JWT token refresh flow
-- ✅ CSRF protection details
-- ✅ Cookie security options
-- Voir: [SECURITY.md](./SECURITY.md#jwt-refresh-flow)
+### `docs/PHASES_1_2_GUIDE.md`
 
-**`deployed/docs/`**
-- CHECKLIST.md
-- DEPLOYMENT-INDEX.md
-- DEPLOYMENT-README.md
-- DEPLOYMENT-SUMMARY.txt
-- DEPLOYMENT-SYSTEMD.md
-- FILES-DEPLOYMENT.md
-- GETTING-STARTED.md
-- INDEX.md
-- POST-INSTALLATION-CHECKLIST.md
-- SETUP-QUICK.md
-- UBUNTU-DEPLOYMENT-GUIDE.md
+- Vue d'ensemble sécurité
+- Flux authentification JWT + cookies
+- Tableau comparatif (avant / après)
+- Fichiers modifiés et points clés
+- Tests à exécuter
+- Documentation API (Swagger)
+- Configuration variables d'environnement
+- Migration base de données
+- Checklist d'implémentation
+
+### `docs/DEPLOYMENT_PHASES_1_2.md`
+
+- Guide étape par étape
+- Configuration sécurité complète
+- Déploiement (Docker, Systemd, Manuel)
+- Tests & validation
+- Troubleshooting
+- Monitoring & logs
+- Checklist de validation
+
+### `docs/SECURITY.md`
+
+- JWT token refresh flow
+- Protection CSRF
+- Options de sécurité des cookies
+
+### `deployed/docs/`
+
+| Fichier | Description |
+|---------|-------------|
+| `CHECKLIST.md` | Checklist déploiement |
+| `DEPLOYMENT-INDEX.md` | Index général |
+| `DEPLOYMENT-README.md` | README déploiement |
+| `DEPLOYMENT-SUMMARY.txt` | Résumé texte |
+| `DEPLOYMENT-SYSTEMD.md` | Guide Systemd |
+| `FILES-DEPLOYMENT.md` | Fichiers concernés |
+| `GETTING-STARTED.md` | Démarrage rapide |
+| `INDEX.md` | Index docs |
+| `POST-INSTALLATION-CHECKLIST.md` | Post-install |
+| `SETUP-QUICK.md` | Setup rapide |
+| `UBUNTU-DEPLOYMENT-GUIDE.md` | Guide Ubuntu |
 
 ---
 
@@ -409,31 +421,35 @@ bash deployed/SUMMARY.sh
 ### Développement
 
 ```bash
-# 1. Configuration initiale (une fois)
+# 1. Configuration initiale (une seule fois)
 bash local/setup.sh
 
-# 2. Générer les secrets (une fois)
+# 2. Générer les secrets (une seule fois)
 cd backend && bash setup-env.sh
 
-# 3. Démarrer (répété)
+# 3. Démarrer
 ./start.sh
-# Ou: bash local/start.sh
 ```
 
-**Accès:**
-- Frontend: http://localhost:3000
-- Backend: http://localhost:3001
-- Swagger: http://localhost:3001/api/docs
-- Prometheus: http://localhost:3001/metrics
+**URLs disponibles :**
 
-### Production (Première fois)
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:3000 |
+| Backend | http://localhost:3001 |
+| Swagger | http://localhost:3001/api/docs |
+| Prometheus | http://localhost:3001/metrics |
+
+---
+
+### Production — Première installation
 
 ```bash
 # 1. Installation
 sudo bash deployed/install-production.sh
 
 # 2. Configuration sécurité
-cd backend && bash setup-env.sh  # Choisir "production"
+cd backend && bash setup-env.sh   # Choisir "production"
 
 # 3. Démarrer
 bash deployed/start.sh
@@ -442,98 +458,84 @@ bash deployed/start.sh
 bash deployed/health-check.sh
 ```
 
-### Production (Mises à jour)
+### Production — Mises à jour
 
 ```bash
-# Mettre à jour le code
+# Mise à jour complète avec backup
 bash deployed/update-production.sh
 
-# Ou: Manuel
+# Ou : manuelle
 bash deployed/update.sh
 bash deployed/health-check.sh
 ```
 
 ---
 
-## 📊 Résumé des Changements (Phases 1 & 2)
-
-| Script | Statut | Utilité |
-|--------|--------|---------|
-| `backend/setup-env.sh` | 🆕 NEW | Générer secrets JWT/Session |
-| `backend/start.sh` | ✅ OK | Démarrer backend |
-| `local/start.sh` | ✅ OK | Démarrer frontend+backend |
-| `local/start-backend-only.sh` | ✅ OK | Tester API seule |
-| `deployed/start.sh` | ✅ OK | Déployer production |
-| `deployed/health-check.sh` | ✅ OK | Vérifier services |
-| `deployed/install-production.sh` | ✅ OK | Setup production |
-| `root/start.sh` | 🆕 NEW | Raccourci local/start.sh |
-| `root/test-local.sh` | 🆕 NEW | Raccourci local/test.sh |
-
----
-
-## 🔒 Sécurité - Points Importants
+## 🔒 Sécurité — Points Importants
 
 ### Variables d'environnement
-✅ **À faire:**
-- Générer avec `openssl rand -base64 32`
-- Stocker dans `.env` (permissions 600)
-- Ne JAMAIS committer `.env` en git
 
-❌ **À ne pas faire:**
+✅ **À faire :**
+
+- Générer avec `openssl rand -base64 32`
+- Stocker dans `.env` (permissions `600`)
+- Ne **jamais** committer `.env` dans git
+
+❌ **À ne pas faire :**
+
 - Utiliser des valeurs par défaut
 - Partager les secrets
 - Stocker en clair dans git
 
-### Script Permissions
+### Permissions des scripts
+
 ```bash
 # Vérifier les permissions
 ls -la local/*.sh deployed/*.sh backend/*.sh
 
-# Doivent être exécutables (755 ou 750)
+# Rendre exécutables si nécessaire (755 ou 750)
 chmod 755 local/start.sh deployed/start.sh
 ```
 
-### Configuration Production
-```bash
-# ✓ Production obligatoire:
+### Configuration production obligatoire
+
+```env
 NODE_ENV=production
 SESSION_COOKIE_SECURE=true
 SESSION_COOKIE_HTTPONLY=true
-HTTPS enabled (certificat SSL)
 ```
+
+HTTPS avec certificat SSL requis.
 
 ---
 
-## 📞 Utilisation Rapide
+## 📞 Référence Rapide
 
 | Besoin | Commande |
 |--------|----------|
 | Démarrer localement | `./start.sh` |
 | Tester localement | `./test-local.sh` |
-| Setup production | `bash deployed/install-production.sh` |
+| Setup production | `sudo bash deployed/install-production.sh` |
 | Démarrer production | `bash deployed/start.sh` |
-| Vérifier services | `bash deployed/health-check.sh` |
-| Mettre à jour code | `bash deployed/update-production.sh` |
-| Générer secrets | `cd backend && bash setup-env.sh` |
-| Tester API | `bash local/start-backend-only.sh` |
-| Voir Swagger | `http://localhost:3001/api/docs` |
-| Voir Metrics | `http://localhost:3001/metrics` |
+| Vérifier les services | `bash deployed/health-check.sh` |
+| Mettre à jour le code | `bash deployed/update-production.sh` |
+| Générer les secrets | `cd backend && bash setup-env.sh` |
+| Tester l'API seule | `bash local/start-backend-only.sh` |
+| Voir Swagger | http://localhost:3001/api/docs |
+| Voir Metrics | http://localhost:3001/metrics |
 
 ---
 
 ## ✅ Checklist
 
-- [x] Script `setup-env.sh` créé (sécurité)
-- [x] Script `setup-env.sh` rendu exécutable
-- [x] `.env.template` complété (Phase 1 & 2)
+- [x] Script `setup-env.sh` créé et rendu exécutable
+- [x] `.env.template` complété
 - [x] Documentation `PHASES_1_2_GUIDE.md` créée
 - [x] Documentation `DEPLOYMENT_PHASES_1_2.md` créée
-- [x] Inventaire scripts documenté (ce fichier)
+- [x] Inventaire scripts documenté
 - [ ] Tests manuels des scripts
 - [ ] Vérification déploiement en environnement test
 
 ---
 
-**Dernière mise à jour:** 8 février 2026  
-**Version:** 1.0 (Phases 1 & 2 Complètes)  
-**Responsable:** System Setup Agent
+**Dernière mise à jour :** 8 février 2026 · **Version :** 1.0

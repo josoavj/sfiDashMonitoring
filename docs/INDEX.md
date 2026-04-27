@@ -19,6 +19,7 @@ Vous êtes nouveau? Suivez ces étapes:
 ## 📋 Prérequis
 
 ### Système
+
 ```bash
 # Vérifier les dépendances
 node --version      # >= 18.0.0
@@ -28,6 +29,7 @@ docker -v           # (optionnel)
 ```
 
 ### Services externes
+
 - **Elasticsearch 8+** - Pour les logs Fortigate/appliances
 - **Certificat SSL** - Pour HTTPS en production
 
@@ -38,6 +40,7 @@ docker -v           # (optionnel)
 ### Mode Développement (Local)
 
 **1. Cloner & Installer (une fois)**
+
 ```bash
 git clone <repo-url> sfiDashMonitoring
 cd sfiDashMonitoring
@@ -46,6 +49,7 @@ cd backend && npm install
 ```
 
 **2. Configurer l'environnement (une fois)**
+
 ```bash
 cd backend
 bash setup-env.sh
@@ -53,12 +57,14 @@ bash setup-env.sh
 ```
 
 **3. Démarrer (répété)**
+
 ```bash
 ./start.sh
 # Ou: bash local/start.sh
 ```
 
 **Accès:**
+
 - **Frontend:** http://localhost:3000
 - **Backend:** http://localhost:3001
 - **API Docs:** http://localhost:3001/api/docs
@@ -67,32 +73,35 @@ bash setup-env.sh
 ### Mode Production
 
 **1. Installation (une fois)**
+
 ```bash
 sudo bash deployed/install-production.sh
 ```
 
 **2. Configuration (une fois)**
+
 ```bash
 cd backend
 bash setup-env.sh  # Choisir "production"
 ```
 
 **3. Démarrer**
+
 ```bash
 bash deployed/start.sh
 ```
 
 **4. Vérifier**
+
 ```bash
 bash deployed/health-check.sh
 ```
 
 ---
 
-## 🔐 Sécurité (Phases 1 & 2)
+## 🔐 Sécurité
 
-### Phase 1 - Sécurité Critique ⚠️
-✅ **Complétée**
+### Sécurité Critique ⚠️
 
 - **JWT → HttpOnly Secure Cookies** - Élimine XSS
 - **Refresh Token Rotation** - Invalide les anciens tokens
@@ -101,6 +110,7 @@ bash deployed/health-check.sh
 - **npm Audit Fix** - 0 vulnérabilités (frontend), dépendances (backend)
 
 **Variables clés:**
+
 ```env
 JWT_SECRET=<généré>                 # Access token
 JWT_REFRESH_SECRET=<généré>         # Refresh token
@@ -110,14 +120,14 @@ SESSION_SECRET=<généré>             # CSRF protection
 openssl rand -base64 32
 ```
 
-### Phase 2 - Observabilité & CSRF ✅
-✅ **Complétée**
+### Observabilité & CSRF 
 
 - **CSRF Protection** - Double-submit pattern avec session
 - **Swagger/OpenAPI** - Documentation interactive `/api/docs`
 - **Prometheus Metrics** - Export sur `/metrics`
 
 **Endpoints nouveaux:**
+
 - `POST /auth/refresh` - Rotation tokens
 - `GET /api/csrf-token` - Récupérer token CSRF
 - `GET /metrics` - Prometheus metrics
@@ -128,7 +138,9 @@ openssl rand -base64 32
 ## 📖 Documentation Complète
 
 ### 🔐 Sécurité (À LIRE)
+
 **[SECURITY.md](./SECURITY.md)**
+
 - Flux authentification JWT + refresh
 - CSRF protection implémentation
 - Cookie security options
@@ -136,12 +148,15 @@ openssl rand -base64 32
 - Best practices
 
 **Pages utiles:**
+
 - [JWT Refresh Flow](./SECURITY.md#jwt-refresh-flow) - Comprendre le refresh
 - [CSRF Protection](./SECURITY.md#csrf-protection) - Validation tokens
 - [Token Storage](./SECURITY.md#token-storage) - HttpOnly cookies vs localStorage
 
 ### 🚀 Déploiement (À LIRE)
+
 **[DEPLOYMENT_PHASES_1_2.md](./DEPLOYMENT_PHASES_1_2.md)**
+
 - Prérequis système
 - Installation local + production
 - Configuration sécurité
@@ -151,13 +166,16 @@ openssl rand -base64 32
 - Troubleshooting
 
 **Sections utiles:**
+
 - [Installation Locale](./DEPLOYMENT_PHASES_1_2.md#installation-locale) - Setup dev
 - [Déploiement Production](./DEPLOYMENT_PHASES_1_2.md#déploiement-production) - Deploy
 - [Nginx Configuration](./DEPLOYMENT_PHASES_1_2.md#nginx-configuration-reverse-proxy) - HTTPS
 - [Tests & Validation](./DEPLOYMENT_PHASES_1_2.md#tests--validation) - Vérifier
 
 ### 📋 Phases 1 & 2 (Guide Complet)
+
 **[PHASES_1_2_GUIDE.md](./PHASES_1_2_GUIDE.md)**
+
 - Résumé sécurité Phase 1
 - Résumé observabilité Phase 2
 - Fichiers modifiés détail
@@ -167,33 +185,41 @@ openssl rand -base64 32
 - Troubleshooting
 
 **Sections utiles:**
+
 - [Flux Authentification](./PHASES_1_2_GUIDE.md#-flux-authentification-nouveau) - Diagramme
 - [Fichiers Clés](./PHASES_1_2_GUIDE.md#-fichiers-clés---modifications) - Quoi a changé
 - [API Documentation](./PHASES_1_2_GUIDE.md#-api-documentation) - Swagger + Prometheus
 - [Configuration](./PHASES_1_2_GUIDE.md#-configuration) - Variables .env
 
 ### 📋 Scripts & Inventaire
+
 **[SCRIPTS_INVENTORY.md](./SCRIPTS_INVENTORY.md)**
+
 - Tous les scripts documentés
 - Quand & comment utiliser chaque script
 - Paramètres & options
 - Résumé des changements
 
 **Rapide lookup:**
+
 - [Scripts Backend](./SCRIPTS_INVENTORY.md#-scripts-backend) - setup-env.sh, start.sh, test-*.js
 - [Scripts Local](./SCRIPTS_INVENTORY.md#-scripts-local-développement) - start.sh, start-backend-only.sh
 - [Scripts Prod](./SCRIPTS_INVENTORY.md#-scripts-déploiement-production) - install.sh, health-check.sh
 - [Guide Rapide](./SCRIPTS_INVENTORY.md#-guide-de-démarrage-rapide) - Pense-bête
 
-### ✅ Checklist Production
+### Checklist Production
+
 **[CHECKLIST_PRODUCTION.md](./CHECKLIST_PRODUCTION.md)**
+
 - 25+ points de vérification
 - Problèmes courants & solutions
 - Commands de vérification
 - Sécurité validation
 
 ### 📋 Audit Initial (Référence)
+
 **[AUDIT_PHASES_1_2_SUMMARY.md](./AUDIT_PHASES_1_2_SUMMARY.md)**
+
 - Résumé audit complet
 - Vulnérabilités trouvées
 - Fixes appliquées
@@ -221,11 +247,13 @@ npm run dev             # Mode développement avec hot-reload
 ### Vérifier endpoints
 
 **Swagger UI (Interactive):**
+
 ```
 http://localhost:3001/api/docs
 ```
 
 **Signin:**
+
 ```bash
 curl -X POST http://localhost:3001/auth/signin \
   -H "Content-Type: application/json" \
@@ -233,12 +261,14 @@ curl -X POST http://localhost:3001/auth/signin \
 ```
 
 **Refresh Token:**
+
 ```bash
 curl -X POST http://localhost:3001/auth/refresh \
   --cookie "refreshToken=<token_from_signin>"
 ```
 
 **Health Check:**
+
 ```bash
 bash deployed/health-check.sh
 ```
@@ -285,28 +315,33 @@ deployed/
 ## 🎯 Cas d'Usage Courants
 
 ### "Je suis nouveau, je veux juste tester localement"
+
 1. Lire: [Démarrage Rapide](#démarrage-rapide)
 2. Exécuter: `./start.sh`
 3. Visiter: http://localhost:3000
 4. API Docs: http://localhost:3001/api/docs
 
 ### "Je dois comprendre la sécurité"
+
 1. Lire: [SECURITY.md](./SECURITY.md)
 2. Consulter: [PHASES_1_2_GUIDE.md](./PHASES_1_2_GUIDE.md#-flux-authentification-nouveau)
 3. Points clés: JWT cookies, refresh tokens, CSRF
 
 ### "Je déploie en production"
+
 1. Lire: [DEPLOYMENT_PHASES_1_2.md](./DEPLOYMENT_PHASES_1_2.md)
 2. Checklist: [CHECKLIST_PRODUCTION.md](./CHECKLIST_PRODUCTION.md)
 3. Exécuter: `sudo bash deployed/install-production.sh`
 4. Vérifier: `bash deployed/health-check.sh`
 
 ### "Les scripts ne fonctionnent pas"
+
 1. Consulter: [SCRIPTS_INVENTORY.md](./SCRIPTS_INVENTORY.md)
 2. Lire: section "Troubleshooting" dans [DEPLOYMENT_PHASES_1_2.md](./DEPLOYMENT_PHASES_1_2.md#-troubleshooting)
 3. Vérifier: `bash deployed/check.sh`
 
 ### "Je dois mettre à jour la config"
+
 1. Lire: [PHASES_1_2_GUIDE.md#configuration](./PHASES_1_2_GUIDE.md#-configuration)
 2. Éditer: `backend/.env`
 3. Redémarrer: `systemctl restart sfiDashMonitoring-backend`
@@ -334,7 +369,7 @@ bash deployed/verify-deployment.sh       # Rapport complet
 
 ---
 
-## ✅ Checklist de Vérification
+## Checklist de Vérification
 
 - [ ] Node.js 18+ installé
 - [ ] Backend `.env` configuré
@@ -350,45 +385,42 @@ bash deployed/verify-deployment.sh       # Rapport complet
 ## 📞 Besoin d'Aide?
 
 ### Problème local?
+
 1. Vérifier: `npm install`
 2. Configurer: `bash backend/setup-env.sh`
 3. Consulter: [DEPLOYMENT_PHASES_1_2.md#troubleshooting](./DEPLOYMENT_PHASES_1_2.md#-troubleshooting)
 
 ### Problème production?
+
 1. Vérifier: `bash deployed/health-check.sh`
 2. Logs: `journalctl -u sfiDashMonitoring-backend -f`
 3. Consulter: [CHECKLIST_PRODUCTION.md](./CHECKLIST_PRODUCTION.md)
 
 ### Sécurité?
+
 1. Lire: [SECURITY.md](./SECURITY.md)
 2. Vérifier: Variables `.env` généré avec `openssl`
 3. Tester: `npm run test:security`
 
 ### API?
+
 1. Swagger UI: http://localhost:3001/api/docs
 2. Consulter: [PHASES_1_2_GUIDE.md#api-documentation](./PHASES_1_2_GUIDE.md#-api-documentation)
 
 ---
 
-## 📊 Résumé Phases 1 & 2
-
-| Phase | Status | Détail |
-|-------|--------|--------|
-| **Phase 1 - Sécurité Critique** | ✅ COMPLÉTÉE | JWT → HttpOnly cookies, refresh rotation, token hashing, tests sécurité |
-| **Phase 2 - Observabilité & CSRF** | ✅ COMPLÉTÉE | CSRF protection, Swagger API docs, Prometheus metrics |
-| **Phase 3 - TypeScript** | 🔄 À venir | Migration TypeScript, ELK stack, circuit breaker, E2E tests |
-
----
 
 ## 🗓️ Chronologie
 
 **6-7 février 2026:**
+
 - ✅ Audit sécurité complet (6.4/10)
 - ✅ Phase 1: npm audit fix, JWT cookies, refresh tokens, token hashing, tests
 - ✅ Phase 2: CSRF protection, Swagger, Prometheus metrics
 - ✅ Documentation complète
 
 **8 février 2026:**
+
 - ✅ Scripts de configuration (`setup-env.sh`)
 - ✅ Documentation de déploiement
 - ✅ Inventaire scripts
@@ -399,15 +431,18 @@ bash deployed/verify-deployment.sh       # Rapport complet
 ## 📚 Ressources Supplémentaires
 
 ### Documentation Technique
+
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Architecture système
 - **[SECURITY.md](./SECURITY.md)** - Sécurité détaillée
 - **[MIGRATION.md](./MIGRATION.md)** - Migrations base de données
 
 ### Déploiement
+
 - **[deployed/docs/DEPLOYMENT-README.md](../deployed/docs/DEPLOYMENT-README.md)** - Guide déploiement avancé
 - **[deployed/docs/UBUNTU-DEPLOYMENT-GUIDE.md](../deployed/docs/UBUNTU-DEPLOYMENT-GUIDE.md)** - Ubuntu spécifique
 
 ### Autre
+
 - **[README.md](./README.md)** - Racine du projet
 - **[start.sh](../start.sh)** - Script de démarrage
 - **[test-local.sh](../test-local.sh)** - Script de test
@@ -419,22 +454,27 @@ bash deployed/verify-deployment.sh       # Rapport complet
 Recommandation de lecture par profil:
 
 **👨‍💼 Manager/PO:**
+
 - [PHASES_1_2_GUIDE.md](./PHASES_1_2_GUIDE.md) - Vue d'ensemble
 - [CHECKLIST_PRODUCTION.md](./CHECKLIST_PRODUCTION.md) - Points critiques
 
 **👨‍💻 Développeur Frontend:**
+
 - [DEPLOYMENT_PHASES_1_2.md](./DEPLOYMENT_PHASES_1_2.md) - Setup
 - [SECURITY.md](./SECURITY.md#token-storage) - JWT handling
 
 **👨‍💻 Développeur Backend:**
+
 - [SECURITY.md](./SECURITY.md) - Complètement
 - [PHASES_1_2_GUIDE.md](./PHASES_1_2_GUIDE.md#-fichiers-clés---modifications) - Fichiers modifiés
 
 **🔐 Responsable Sécurité:**
+
 - [SECURITY.md](./SECURITY.md) - Complètement
 - [DEPLOYMENT_PHASES_1_2.md](./DEPLOYMENT_PHASES_1_2.md#-configuration-sécurité) - Configuration
 
 **🚀 DevOps/SysAdmin:**
+
 - [SCRIPTS_INVENTORY.md](./SCRIPTS_INVENTORY.md) - Tous les scripts
 - [DEPLOYMENT_PHASES_1_2.md](./DEPLOYMENT_PHASES_1_2.md#-déploiement-production) - Déploiement
 - [deployed/docs/](../deployed/docs/) - Docs avancées
