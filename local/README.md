@@ -5,6 +5,7 @@ Mode LOCAL pour développement sur votre machine avec localhost.
 ## ⚡ Démarrage Rapide
 
 ### Option 1: Tout en Un (Backend + Frontend)
+
 ```bash
 ./start.sh
 ```
@@ -14,6 +15,7 @@ Mode LOCAL pour développement sur votre machine avec localhost.
 - Ouvre: **http://localhost:5173**
 
 ### Option 2: Backend Seul
+
 ```bash
 ./start-backend-only.sh
 ```
@@ -23,6 +25,7 @@ Mode LOCAL pour développement sur votre machine avec localhost.
 - ✅ Initialise la base de données
 
 ### Option 3: Frontend Seul
+
 ```bash
 ./start-frontend-only.sh
 ```
@@ -42,6 +45,7 @@ Mode LOCAL pour développement sur votre machine avec localhost.
 ## � Workflow Recommandé
 
 ### Développement Rapide (Temps de réaction optimal)
+
 ```bash
 # Terminal 1: Backend (redémarre automatiquement avec nodemon)
 cd backend && npm run dev
@@ -51,12 +55,13 @@ npm run dev -- --port 5173
 ```
 
 ### Développement Simplifié
+
 ```bash
 # Tout dans un terminal
 ./start.sh
 ```
 
-## ✅ Initialisation Automatique
+## Initialisation Automatique
 
 Tous les scripts font automatiquement :
 

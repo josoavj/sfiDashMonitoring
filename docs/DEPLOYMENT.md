@@ -1,6 +1,6 @@
 # 🚀 Deployment Guide - SFI Dashboard v2.0
 
-> **Version:** 2.0 (Phases 1 & 2)  
+> **Version:** 2.0 
 > **Date:** 8 février 2026  
 > **Status:** ✅ Production-ready
 
@@ -19,6 +19,7 @@
 ## Pre-deployment Checks
 
 ### 1. Build & Tests
+
 ```bash
 # Root directory
 npm run build          # ✅ Doit réussir
@@ -33,6 +34,7 @@ npm test              # ✅ Security tests passent
 ```
 
 ### 2. Security Review
+
 - [ ] JWT_SECRET & JWT_REFRESH_SECRET générés (`openssl rand -base64 32`)
 - [ ] Aucun secret en clair dans le code
 - [ ] .env NOT committed à Git
@@ -41,6 +43,7 @@ npm test              # ✅ Security tests passent
 - [ ] Rate limits appropriés
 
 ### 3. Performance Check
+
 ```bash
 npm run build
 
@@ -57,6 +60,7 @@ du -sh backend/
 ## Environment Setup
 
 ### Backend .env Production
+
 ```bash
 # Générer les secrets AVANT de créer le fichier
 SECRET1=$(openssl rand -base64 32)
@@ -99,6 +103,7 @@ chown sfi:sfi backend/.env  # User dédié
 ```
 
 ### Frontend Configuration
+
 ```bash
 # .env.production (peut être committé)
 cat > .env.production << EOF
@@ -112,6 +117,7 @@ EOF
 ## Database Migration
 
 ### Session Table Update
+
 ```sql
 -- Ajouter colonne refreshTokenHash (si elle n'existe pas)
 ALTER TABLE sessions 
@@ -131,6 +137,7 @@ ADD COLUMN IF NOT EXISTS expiresAt DATETIME;
 ```
 
 ### Cleanup Sessions anciennes
+
 ```sql
 -- Supprimer les sessions expirées
 DELETE FROM sessions 
@@ -147,6 +154,7 @@ WHERE revoked = 1
 ## Docker Deployment
 
 ### Build Images
+
 ```bash
 # Backend
 docker build -f deployed/docker/Dockerfile.backend -t sfi-dashboard-backend:v2.0 .
@@ -164,6 +172,7 @@ docker push registry.example.com/sfi-dashboard-frontend:v2.0
 ```
 
 ### Docker Compose
+
 ```yaml
 version: '3.8'
 
@@ -217,6 +226,7 @@ networks:
 ```
 
 ### Lancer
+
 ```bash
 # Avec variables d'environnement
 docker-compose --env-file production.env up -d
@@ -231,6 +241,7 @@ docker-compose ps
 ## Nginx Configuration
 
 ### Reverse Proxy Setup
+
 ```nginx
 upstream backend {
   server 127.0.0.1:3001;
@@ -331,6 +342,7 @@ server {
 ```
 
 ### SSL Certificate (Let's Encrypt)
+
 ```bash
 # Installer certbot
 sudo apt-get install certbot python3-certbot-nginx
@@ -350,6 +362,7 @@ sudo systemctl start certbot.timer
 ## Monitoring Setup
 
 ### Prometheus Configuration
+
 ```yaml
 # /etc/prometheus/prometheus.yml
 global:
@@ -364,6 +377,7 @@ scrape_configs:
 ```
 
 ### Health Checks
+
 ```bash
 # Backend health
 curl -k https://api.example.com/api/health
@@ -376,6 +390,7 @@ wscat -c wss://api.example.com/socket.io/
 ```
 
 ### Logs
+
 ```bash
 # Container logs (Docker)
 docker logs -f sfi-dashboard-backend
@@ -393,6 +408,7 @@ tail -f /var/log/nginx/error.log
 ## Troubleshooting
 
 ### JWT Token Issues
+
 ```bash
 # Vérifier que les secrets sont définis
 grep JWT_ backend/.env
@@ -408,6 +424,7 @@ curl -X POST \
 ```
 
 ### Database Connection
+
 ```bash
 # Tester connexion
 mysql -h $DB_HOST -u $DB_USER -p $DB_NAME
@@ -418,6 +435,7 @@ SELECT COUNT(*) FROM sessions WHERE revoked=0;
 ```
 
 ### Elasticsearch Issues
+
 ```bash
 # Tester connexion
 curl -u elastic:$ES_PASSWORD \
@@ -431,6 +449,7 @@ curl -u elastic:$ES_PASSWORD \
 ```
 
 ### CORS Issues
+
 ```bash
 # Vérifier FRONTEND_URL
 grep FRONTEND_URL backend/.env
@@ -447,7 +466,9 @@ curl -H "Origin: https://app.example.com" \
 ## Post-Deployment
 
 ### 1. Verify Services
+
 ```bash
+
 # Backend health
 curl -f https://api.example.com/api/health
 
@@ -459,6 +480,7 @@ curl -f https://prometheus.example.com/
 ```
 
 ### 2. Test Authentication
+
 ```bash
 # Signup
 curl -X POST -H "Content-Type: application/json" \
@@ -477,6 +499,7 @@ curl -X POST \
 ```
 
 ### 3. Backup Database
+
 ```bash
 # MySQL dump
 mysqldump -u $DB_USER -p $DB_NAME > sfi_dashboard_$(date +%Y%m%d).sql
@@ -489,6 +512,7 @@ gzip sfi_dashboard_*.sql
 ```
 
 ### 4. Monitor
+
 ```bash
 # Systemd service status
 systemctl status sfi-dashboard-backend
@@ -534,6 +558,7 @@ docker logs -f sfi-dashboard-backend
 ## Support
 
 Besoin d'aide?
+
 1. Consultez les logs: `docker logs sfi-dashboard-backend`
 2. Vérifiez SECURITY.md pour JWT issues
 3. Vérifiez README.md pour configuration
