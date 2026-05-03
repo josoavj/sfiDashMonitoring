@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, memo } from 'react'
 import {
   Paper,
   TextField,
@@ -32,7 +32,7 @@ import ChartLoadingSkeleton from './common/ChartLoadingSkeleton'
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
-export default function ExplorationPage() {
+const ExplorationPage = memo(function ExplorationPage() {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
 
@@ -1008,4 +1008,6 @@ export default function ExplorationPage() {
       </Box>
     </Box>
   )
-}
+})
+
+export default ExplorationPage
