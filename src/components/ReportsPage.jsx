@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, memo } from 'react'
 import {
   Box,
   Paper,
@@ -40,7 +40,7 @@ import {
 import { alpha } from '@mui/material/styles'
 import { authFetch } from '../utils/authFetch'
 
-export default function ReportsPage() {
+const ReportsPage = memo(function ReportsPage() {
   const [loading, setLoading] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [reportData, setReportData] = useState(null)
@@ -558,4 +558,6 @@ export default function ReportsPage() {
       </Dialog>
     </Box>
   )
-}
+})
+
+export default ReportsPage

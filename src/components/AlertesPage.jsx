@@ -1,13 +1,13 @@
 import { Box, Typography, Paper, Grid, Card, CardHeader, CardContent, Avatar, Chip, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, IconButton, Tooltip, Stack, Alert, AlertTitle } from '@mui/material'
 import { TrendingUp, Warning, Refresh, SignalCellularAlt } from '@mui/icons-material'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, memo } from 'react'
 import { alpha } from '@mui/material/styles'
 import { useWebSocket } from '../context/websocket-context'
 import { authFetch } from '../utils/authFetch'
 
 const isDev = import.meta.env.DEV
 
-export function AlertesPage() {
+export const AlertesPage = memo(function AlertesPage() {
     const [alerts, setAlerts] = useState([])
     const [topConsumers, setTopConsumers] = useState([])
     const [loading, setLoading] = useState(false)
@@ -399,4 +399,4 @@ export function AlertesPage() {
             </Box>
         </Box>
     )
-}
+})

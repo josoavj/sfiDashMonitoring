@@ -1,7 +1,7 @@
 import { Grid, Typography, Stack, IconButton, Box, Paper, Card, CardHeader, CardContent, Chip, Avatar, alpha, Button, Dialog, DialogTitle, DialogContent, Tooltip, ToggleButton, ToggleButtonGroup, useTheme, useMediaQuery, Alert, Skeleton } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { Refresh, TrendingUp, Router, Public, LanOutlined, Close, Info } from '@mui/icons-material'
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback, useMemo, memo } from 'react'
 import { onThrottled } from '../socketClient'
 import { LineChart, BarChart } from '@mui/x-charts'
 import { authFetch } from '../utils/authFetch'
@@ -20,7 +20,7 @@ function TableLoadingSkeleton() {
     )
 }
 
-export default function IPViewPage() {
+const IPViewPage = memo(function IPViewPage() {
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
     const isTablet = useMediaQuery(theme.breakpoints.down('md'))
@@ -775,5 +775,7 @@ export default function IPViewPage() {
             </Dialog>
         </Box>
     )
-}
+})
+
+export default IPViewPage
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import { 
     Box, 
     Stack, 
@@ -21,11 +21,20 @@ import {
 } from '@mui/icons-material'
 import { memo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import BandwidthView from './dashboard-elements/BandwidthView'
-import { IPSourceView } from './dashboard-elements/IPSourceView'
-import { FlowView } from './dashboard-elements/FlowView'
-import { ServiceView } from './dashboard-elements/ServiceView'
+import ChartLoadingSkeleton from './common/ChartLoadingSkeleton'
 import { useNav } from '../context/NavContext'
+
+// Lazy load dashboard views for better initial load
+const BandwidthView = lazy(() => import('./dashboard-elements/BandwidthView'))
+const IPSourceView = lazy(() => 
+  import('./dashboard-elements/IPSourceView').then(m => ({ default: m.IPSourceView }))
+)
+const FlowView = lazy(() => 
+  import('./dashboard-elements/FlowView').then(m => ({ default: m.FlowView }))
+)
+const ServiceView = lazy(() => 
+  import('./dashboard-elements/ServiceView').then(m => ({ default: m.ServiceView }))
+)
 
 const pageToTabMap = {
     bandwidth: 0,
@@ -36,6 +45,13 @@ const pageToTabMap = {
 }
 
 const tabToPageMap = ['bandwidth', 'ipsource', 'flow', 'service']
+
+// Loading fallback for dashboard views
+const DashboardLoadingFallback = () => (
+    <Box sx={{ p: { xs: 2, md: 3 }, width: '100%' }}>
+        <ChartLoadingSkeleton variant="area" />
+    </Box>
+)
 
 function DataVisualization() {
     const theme = useTheme()
@@ -282,10 +298,18 @@ function DataVisualization() {
                         flexDirection: 'column'
                     }}
                 >
-                    {activeTab === 0 && <BandwidthView />}
-                    {activeTab === 1 && <IPSourceView />}
-                    {activeTab === 2 && <FlowView />}
-                    {activeTab === 3 && <ServiceView />}
+                    <Suspense fallback={<DashboardLoadingFallback />}>
+                        {activeTab === 0 && <BandwidthView />}
+                    </Suspense>
+                    <Suspense fallback={<DashboardLoadingFallback />}>
+                        {activeTab === 1 && <IPSourceView />}
+                    </Suspense>
+                    <Suspense fallback={<DashboardLoadingFallback />}>
+                        {activeTab === 2 && <FlowView />}
+                    </Suspense>
+                    <Suspense fallback={<DashboardLoadingFallback />}>
+                        {activeTab === 3 && <ServiceView />}
+                    </Suspense>
                 </Box>
             </Paper>
         </Box>
