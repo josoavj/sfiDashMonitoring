@@ -8,6 +8,7 @@
     "license": "MIT",
     "scripts": {
         "dev": "vite",
+        "dev:log": "vite --port 5173 >> logs/frontend.log 2>&1",
         "build": "vite build",
         "lint": "eslint src",
         "lint:all": "eslint .",
@@ -16,10 +17,15 @@
         "test:ui": "vitest --ui",
         "test:coverage": "vitest --coverage",
         "start": "npm run start:backend & npm run dev",
+        "start:log": "npm run start:backend:log & npm run dev:log",
         "start:backend": "cd backend && npm install && npm start",
+        "start:backend:log": "cd backend && npm install && npm start >> ../logs/backend.log 2>&1",
         "start:all": "concurrently \"npm run start:backend\" \"npm run dev\"",
+        "start:all:log": "concurrently \"npm run start:backend:log\" \"npm run dev:log\"",
         "backend": "cd backend && npm start",
+        "backend:log": "cd backend && npm start >> ../logs/backend.log 2>&1",
         "frontend": "vite",
+        "frontend:log": "vite --port 5173 >> logs/frontend.log 2>&1",
         "setup": "npm install && cd backend && npm install && cd .."
     },
     "dependencies": {
