@@ -1,5 +1,5 @@
 import { DataGrid } from '@mui/x-data-grid'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, memo } from 'react'
 import { Box, Grid, Card, CardHeader, CardContent, Avatar, Typography, Stack, Chip, alpha, Divider, IconButton, Tooltip, Paper, Alert, Button } from '@mui/material'
 import { LineChart } from '@mui/x-charts'
 import { onThrottled } from '../../socketClient'
@@ -7,7 +7,7 @@ import { Cloud, Refresh } from '@mui/icons-material'
 import { authFetch } from '../../utils/authFetch'
 import ChartLoadingSkeleton from '../common/ChartLoadingSkeleton'
 
-export function FlowView() {
+export const FlowView = memo(function FlowView() {
     const [rows, setRows] = useState([])
     const [loading, setLoading] = useState(false)
     const [chartLabels, setChartLabels] = useState([])
@@ -415,4 +415,6 @@ export function FlowView() {
             </Grid>
         </Box>
     )
-}
+})
+
+export default FlowView

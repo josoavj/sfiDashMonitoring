@@ -21,6 +21,7 @@ Ce projet est configuré pour fonctionner en **mode local** sur votre machine. T
 ```
 
 Le script :
+
 - ✅ Vérifie les dépendances (Node.js, npm)
 - ✅ Installe les packages manquants
 - ✅ Lance le backend sur localhost:3001
@@ -55,6 +56,7 @@ VITE_BACKEND_WS_URL=ws://localhost:3001
 ```
 
 **Fonctionnement des fallbacks :**
+
 - Si `VITE_API_URL` n'est pas accessible → utilise `http://localhost:3001`
 - Si `VITE_BACKEND_WS_URL` n'est pas accessible → utilise `ws://localhost:3001`
 - Code avec fallbacks intégré dans :
@@ -76,6 +78,7 @@ NODE_ENV=development
 ```
 
 **Fonctionnement CORS :**
+
 - Le backend accepte les connexions CORS de :
   - `http://localhost:3000`
   - `http://localhost:5173`
@@ -85,6 +88,7 @@ NODE_ENV=development
 ### Vite Config (`vite.config.js`)
 
 Le serveur Vite est configuré avec :
+
 - **Host** : `0.0.0.0` → Écoute sur toutes les interfaces
 - **Port** : `5173` (strictPort=false, passera au 5174 si occupé)
 - **HMR** : WebSocket sur `localhost:5173`
@@ -93,6 +97,7 @@ Le serveur Vite est configuré avec :
 ## 🌍 Accès via IPv4
 
 Les services sont aussi accessibles via l'IPv4 `127.0.0.1` :
+
 - Frontend: http://127.0.0.1:5173
 - Backend: http://127.0.0.1:3001
 - WebSocket: ws://127.0.0.1:3001/socket.io

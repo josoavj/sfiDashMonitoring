@@ -13,25 +13,30 @@ La page Exploration permet une recherche personnalisée et avancée dans les don
 ## Fonctionnalités principales
 
 ### 1. **Recherche par IP Source**
+
 - Entrez une adresse IP source (ex: `192.168.1.100`)
 - Filtre les résultats aux paquets provenant de cette IP
 - Format: IPv4 standard
 
 ### 2. **Recherche par IP Destination**
+
 - Entrez une adresse IP destination (ex: `10.0.0.50`)
 - Filtre les résultats aux paquets allant à cette IP
 - Format: IPv4 standard
 
 ### 3. **Recherche par Port Source**
+
 - Numéro du port source (ex: `443`, `8080`)
 - Optionnel - laissez vide pour tous les ports
 
 ### 4. **Recherche par Port Destination**
+
 - **Port 14 configuré par défaut** pour recherches spécifiques
 - Modifiez si besoin (ex: `80`, `443`, `3306`)
 - Recherche courante pour le port 14
 
 ### 5. **Filtrage par Protocole**
+
 - **Options disponibles**:
   - TCP (Transmission Control Protocol)
   - UDP (User Datagram Protocol)
@@ -41,6 +46,7 @@ La page Exploration permet une recherche personnalisée et avancée dans les don
 - Sélectionnez "-- Tous --" pour ne pas filtrer
 
 ### 6. **Plage de temps**
+
 - **Date de début**: Sélectionnez la date de début (par défaut: -24 heures)
 - **Date de fin**: Sélectionnez la date de fin (par défaut: aujourd'hui)
 - Les heures sont automatiquement fixées à 00:00:00 et 23:59:59
@@ -96,6 +102,7 @@ Au-dessus du tableau, 4 cartes affichent:
 ## Cas d'usage courants
 
 ### 1. Analyser le trafic sur le port 14
+
 ```
 Port Destination: 14
 Date: Hier à aujourd'hui
@@ -103,6 +110,7 @@ Date: Hier à aujourd'hui
 ```
 
 ### 2. Analyser une IP spécifique
+
 ```
 IP Source: 192.168.1.100
 Date: Dernières 24 heures
@@ -110,6 +118,7 @@ Date: Dernières 24 heures
 ```
 
 ### 3. Analyser une connexion spécifique
+
 ```
 IP Source: 192.168.1.100
 IP Destination: 10.0.0.50
@@ -118,6 +127,7 @@ Port Destination: 443
 ```
 
 ### 4. Analyser le trafic UDP
+
 ```
 Protocole: UDP
 Date: Dernières 48 heures
@@ -125,6 +135,7 @@ Date: Dernières 48 heures
 ```
 
 ### 5. Plage horaire spécifique
+
 ```
 Date de début: 2024-11-15
 Date de fin: 2024-11-16
@@ -135,6 +146,7 @@ IP Source: 10.0.0.0/24 (simulé)
 ## Endpoints API utilisés
 
 ### 1. **POST /api/exploration/search**
+
 Recherche principale avec tous les filtres
 
 **Paramètres**:
@@ -166,6 +178,7 @@ Recherche principale avec tous les filtres
 ```
 
 ### 2. **POST /api/exploration/ip-range** (Futur)
+
 Recherche par plage d'IP
 
 **Paramètres**:
@@ -179,6 +192,7 @@ Recherche par plage d'IP
 ```
 
 ### 3. **POST /api/exploration/services-by-port** (Futur)
+
 Services sur un port spécifique
 
 **Paramètres**:

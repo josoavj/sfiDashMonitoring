@@ -27,6 +27,7 @@
 ## 📊 Fichiers Créés
 
 ### Dossier `local/` (6 fichiers)
+
 | Fichier | Rôle | Executable |
 |---------|------|-----------|
 | `.env.local` | Config frontend | ❌ |
@@ -37,6 +38,7 @@
 | `README.md` | Docs | ❌ |
 
 ### Dossier `deployed/` (11 fichiers)
+
 | Fichier | Rôle | Executable |
 |---------|------|-----------|
 | `.env.example` | Template | ❌ |
@@ -52,6 +54,7 @@
 | `README.md` | Docs | ❌ |
 
 ### Documentation (4 fichiers)
+
 - `ARCHITECTURE.md` - Structure complète
 - `MIGRATION.md` - Guide de transition
 - `SUMMARY-ARCHITECTURE.md` - Résumé exécutif
@@ -62,11 +65,13 @@
 ## 🎯 Avantages
 
 ### ✅ Clarté Architecturale
+
 - ✅ Séparation claire: LOCAL vs DEPLOYED
 - ✅ Pas de confusion sur où lancer quoi
 - ✅ Chaque mode optimisé pour son usage
 
 ### ✅ Facilité d'Utilisation
+
 ```bash
 # Développeur nouveau
 cd local && ./configure.sh && ./start.sh
@@ -78,18 +83,21 @@ cd deployed && export SERVER_IP=192.168.1.100 && ./start.sh
 ```
 
 ### ✅ Production-Ready
+
 - ✅ Docker support (+ Systemd fallback)
 - ✅ Nginx reverse proxy + SSL ready
 - ✅ Health checks intégrés
 - ✅ Rate limiting, optimisation, sécurité
 
 ### ✅ Maintenance
+
 - ✅ Code partagé 100% (backend/ src/)
 - ✅ Configurations séparées per-mode
 - ✅ Documentation centralisée
 - ✅ Migration guide inclus
 
 ### ✅ Scalabilité
+
 - ✅ Prêt pour multi-instance backend
 - ✅ Redis cache support (futur)
 - ✅ Kubernetes manifests ready (futur)
@@ -99,6 +107,7 @@ cd deployed && export SERVER_IP=192.168.1.100 && ./start.sh
 ## 🚀 Utilisation
 
 ### Scenario 1: Développement Rapide
+
 ```bash
 cd local
 ./start.sh
@@ -107,6 +116,7 @@ cd local
 ```
 
 ### Scenario 2: Test Production Locale
+
 ```bash
 cd deployed
 docker-compose up -d
@@ -115,6 +125,7 @@ docker-compose up -d
 ```
 
 ### Scenario 3: Déploiement Réseau
+
 ```bash
 cd deployed
 export SERVER_IP=192.168.1.100
@@ -157,6 +168,7 @@ export SERVER_IP=192.168.1.100
 ## ⏭️ Prochaines Étapes
 
 ### Immédiat
+
 ```bash
 # Vérifier
 ./verify-architecture.sh
@@ -170,6 +182,7 @@ cd deployed && docker-compose up -d
 ```
 
 ### Avant Commit
+
 ```bash
 git status              # Voir les changements
 git add -A              # Stage tous les fichiers
@@ -178,6 +191,7 @@ git diff --staged       # Vérifier les changements
 ```
 
 ### Après Validation
+
 ```bash
 git commit -m "🏗 Architecture moderne: local/ et deployed/
 
@@ -220,6 +234,7 @@ Utilisation:
 ## 🎓 Learning Path
 
 ### Pour Nouveaux Développeurs
+
 1. Lire `README.md` (5 min)
 2. Lire `local/README.md` (5 min)
 3. Lancer `cd local && ./configure.sh && ./start.sh` (2 min)
@@ -229,6 +244,7 @@ Utilisation:
 **Total: ~15 minutes**
 
 ### Pour Admins Production
+
 1. Lire `deployed/README.md` (10 min)
 2. Éditer `.env.production` avec IP serveur (2 min)
 3. Lancer `cd deployed && ./start.sh` (3 min)
@@ -242,18 +258,21 @@ Utilisation:
 ## ✨ Highlights
 
 ### Innovation
+
 - 🎯 Architecture modulaire et claire
 - 🐳 Docker ready avec fallback Systemd
 - 📡 Accès réseau transparent
 - 🔐 Prêt pour production
 
 ### Qualité
+
 - ✅ 100% code partagé réutilisé
 - ✅ Configuration per-mode robuste
 - ✅ Tests et healthchecks intégrés
 - ✅ Documentation exhaustive
 
 ### Usabilité
+
 - ✅ Setup automatisé (`./configure.sh`)
 - ✅ Commandes simples et intuitives
 - ✅ Messages d'erreur clairs
@@ -264,6 +283,7 @@ Utilisation:
 ## 🎉 Status
 
 ### ✅ TERMINÉ
+
 - Architecture complète et validée
 - 17 fichiers nouveaux créés
 - Documentation exhaustive écrite
@@ -271,6 +291,7 @@ Utilisation:
 - Code partagé inchangé
 
 ### ⏳ EN ATTENTE
+
 - **Git add (sans commit)** - Comme demandé par l'utilisateur
 - Validation finale par l'utilisateur
 - Tests pratiques sur les deux modes
@@ -280,11 +301,13 @@ Utilisation:
 ## 📞 Support
 
 ### Questions?
+
 - Consultez `ARCHITECTURE.md` pour structure
 - Consultez `local/README.md` ou `deployed/README.md` per-mode
 - Lancez `./verify-architecture.sh` pour valider setup
 
 ### Issues?
+
 - Vérifiez les logs: `logs/backend.log`, `logs/frontend.log`
 - Tester les ports: `lsof -i :5173`, `lsof -i :3001`
 - Health check: `cd deployed && ./health-check.sh`

@@ -19,17 +19,20 @@
 ## 🔧 Prérequis
 
 ### Système
+
 - **OS:** Ubuntu 20.04+ ou Linux équivalent
 - **Node.js:** 18+ (`node --version`)
 - **npm:** 9+ (`npm --version`)
 - **Bash:** 5+
 
 ### Services
+
 - **Elasticsearch:** 8+ (avec certificate)
 - **MariaDB/MySQL:** 5.7+ (optionnel - SQLite par défaut)
 - **Docker:** 20+ (optionnel - pour déploiement containerisé)
 
 ### Commandes requises
+
 ```bash
 # Vérifier les dépendances
 node --version   # >= 18.0.0
@@ -42,6 +45,7 @@ openssl version  # >= 1.1.1
 ## 📦 Installation Locale
 
 ### 1️⃣ Cloner le projet
+
 ```bash
 git clone <repo-url> sfiDashMonitoring
 cd sfiDashMonitoring
@@ -50,6 +54,7 @@ cd sfiDashMonitoring
 ### 2️⃣ Installer les dépendances
 
 **Frontend:**
+
 ```bash
 npm install
 npm audit fix  # Corriger les vulnérabilités
@@ -57,6 +62,7 @@ npm run build   # Optionnel - vérifier le build
 ```
 
 **Backend:**
+
 ```bash
 cd backend
 npm install
@@ -71,12 +77,14 @@ bash setup-env.sh
 ```
 
 Script interactif qui:
+
 - Génère les secrets sécurisés (JWT, Session)
 - Demande l'environnement (dev/prod)
 - Configure les variables Elasticsearch
 - Crée `.env` avec permissions `600`
 
 **Ou manuellement:**
+
 ```bash
 cp .env.template .env
 nano .env
@@ -98,6 +106,7 @@ npm run seed          # Données de test (optionnel)
 ### Phase 1 - Sécurité Critique
 
 #### JWT & HttpOnly Cookies
+
 ```env
 JWT_SECRET=<valeur générée>          # pour access token
 JWT_REFRESH_SECRET=<valeur générée>  # pour refresh token
@@ -105,6 +114,7 @@ SESSION_SECRET=<valeur générée>      # pour CSRF
 ```
 
 #### Générer les secrets
+
 ```bash
 # Générer 3 secrets (copier-coller dans .env)
 openssl rand -base64 32  # JWT_SECRET
@@ -113,12 +123,14 @@ openssl rand -base64 32  # SESSION_SECRET
 ```
 
 #### Expiration tokens
+
 ```env
 JWT_EXPIRATION=3600              # 1 heure
 REFRESH_TOKEN_EXPIRATION=604800  # 7 jours
 ```
 
 ### Phase 2 - CSRF Protection
+
 ```env
 SESSION_SECRET=<secret généré>
 SESSION_COOKIE_SECURE=true      # HTTPS only
@@ -127,12 +139,14 @@ SESSION_COOKIE_SAMESITE=strict  # strict | lax
 ```
 
 ### Elasticsearch - Certificate SSL
+
 ```env
 ES_CERT_PATH=./certs/http_ca.crt
 ES_SSL_VERIFY=true  # En production obligatoire
 ```
 
 Ou télécharger le certificat:
+
 ```bash
 mkdir -p backend/certs
 cd backend/certs
@@ -185,12 +199,14 @@ http://<SERVER_IP>
 ### Déploiement Manual (Systemd)
 
 **1. Créer les services:**
+
 ```bash
 sudo cp deployed/services/*.service /etc/systemd/system/
 sudo systemctl daemon-reload
 ```
 
 **2. Vérifier les chemins:**
+
 ```bash
 # Dans sfiDashMonitoring-backend.service:
 ExecStart=/usr/bin/node /path/to/backend/server.js
@@ -203,6 +219,7 @@ WorkingDirectory=/path/to/frontend
 ```
 
 **3. Démarrer les services:**
+
 ```bash
 sudo systemctl start sfiDashMonitoring-backend
 sudo systemctl start sfiDashMonitoring-frontend
@@ -211,6 +228,7 @@ sudo systemctl enable sfiDashMonitoring-frontend
 ```
 
 **4. Vérifier le statut:**
+
 ```bash
 sudo systemctl status sfiDashMonitoring-backend
 sudo systemctl status sfiDashMonitoring-frontend
@@ -288,6 +306,7 @@ server {
 ```
 
 Appliquer:
+
 ```bash
 sudo nginx -t
 sudo systemctl reload nginx
@@ -318,11 +337,13 @@ npm run dev             # Mode développement
 ### Vérification API Endpoints
 
 **Swagger UI (Documentation Interactive):**
+
 ```
 http://localhost:3001/api/docs
 ```
 
 **Signin:**
+
 ```bash
 curl -X POST http://localhost:3001/auth/signin \
   -H "Content-Type: application/json" \
@@ -330,6 +351,7 @@ curl -X POST http://localhost:3001/auth/signin \
 ```
 
 **Refresh Token:**
+
 ```bash
 curl -X POST http://localhost:3001/auth/refresh \
   -H "Content-Type: application/json" \
@@ -337,12 +359,14 @@ curl -X POST http://localhost:3001/auth/refresh \
 ```
 
 **CSRF Token:**
+
 ```bash
 curl http://localhost:3001/api/csrf-token \
   -H "Cookie: connect.sid=<session_id>"
 ```
 
 **Prometheus Metrics:**
+
 ```bash
 curl http://localhost:3001/metrics
 ```
@@ -354,6 +378,7 @@ bash deployed/health-check.sh
 ```
 
 Vérifie:
+
 - Backend accessible
 - Elasticsearch connexion
 - Database connexion
@@ -364,8 +389,10 @@ Vérifie:
 ## 🐛 Troubleshooting
 
 ### "Token validation failed"
+
 **Cause:** SECRET mal configuré  
 **Solution:**
+
 ```bash
 # Vérifier .env
 cat backend/.env | grep SECRET
@@ -375,8 +402,10 @@ bash backend/setup-env.sh
 ```
 
 ### "CORS error - Credentials not included"
+
 **Cause:** `credentials: 'include'` manquant  
 **Solution:**
+
 ```javascript
 // Dans fetch:
 fetch('/api/...', {
@@ -386,8 +415,10 @@ fetch('/api/...', {
 ```
 
 ### "RefreshToken cookie not set"
+
 **Cause:** HTTPS/Secure flag en dev  
 **Solution:**
+
 ```bash
 # En développement:
 SESSION_COOKIE_SECURE=false
@@ -395,8 +426,10 @@ SESSION_COOKIE_SECURE=false
 ```
 
 ### "Elasticsearch certificate error"
+
 **Cause:** ES_CERT_PATH incorrect  
 **Solution:**
+
 ```bash
 # Télécharger le cert depuis Elasticsearch:
 curl -u elastic:password https://ES_HOST:9200/_ssl/certificates > backend/certs/http_ca.crt
@@ -406,8 +439,10 @@ ES_SSL_VERIFY=false  # DEV SEULEMENT
 ```
 
 ### "Port 3001 already in use"
+
 **Cause:** Process précédent ne s'est pas arrêté  
 **Solution:**
+
 ```bash
 # Trouver le process:
 lsof -i :3001
@@ -418,8 +453,10 @@ PORT=3002 npm start
 ```
 
 ### "Database lock error"
+
 **Cause:** SQLite verrouillé (dev)  
 **Solution:**
+
 ```bash
 # Supprimer la DB de dev:
 rm backend/data/database.sqlite
@@ -433,6 +470,7 @@ cd backend && npm start
 ## 📊 Monitoring & Logs
 
 ### Logs Backend
+
 ```bash
 # Live logs
 journalctl -u sfiDashMonitoring-backend -f
@@ -445,6 +483,7 @@ grep ERROR backend/logs/server.log
 ```
 
 ### Prometheus Metrics
+
 ```bash
 # Scraper manuellement:
 curl http://localhost:3001/metrics | grep sfi_dashboard
@@ -459,6 +498,7 @@ scrape_configs:
 ```
 
 ### Health Check Endpoint
+
 ```bash
 curl http://localhost:3001/health
 # {
@@ -499,6 +539,7 @@ curl http://localhost:3001/health
 ## 📞 Support
 
 Pour les questions:
+
 1. Consulter [SECURITY.md](./SECURITY.md)
 2. Vérifier les [logs](#logs-backend)
 3. Lancer [health-check.sh](../deployed/health-check.sh)

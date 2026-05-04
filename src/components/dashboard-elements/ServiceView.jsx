@@ -1,5 +1,5 @@
 import { Grid, Typography, Box, FormControl, InputLabel, Select, MenuItem, Paper, Stack, useTheme, useMediaQuery, Alert, Button } from '@mui/material'
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, memo } from 'react'
 import { LineChart } from '@mui/x-charts'
 import { onThrottled } from '../../socketClient'
 import { authFetch } from '../../utils/authFetch'
@@ -7,7 +7,7 @@ import ChartLoadingSkeleton from '../common/ChartLoadingSkeleton'
 
 const COLORS = ['#29BAE2', '#E05B5B', '#52B57D', '#F2C94C', '#9B51E0', '#FF8A65']
 
-export function ServiceView() {
+export const ServiceView = memo(function ServiceView() {
 	const theme = useTheme()
 	const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 	const isTablet = useMediaQuery(theme.breakpoints.down('md'))
@@ -300,5 +300,7 @@ export function ServiceView() {
 			</Grid>
 		</Box>
 	)
-}
+})
+
+export default ServiceView
 
