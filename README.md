@@ -33,6 +33,7 @@
 - ✅ **Vulnérabilités npm fixées** - 0 vulnérabilités
 
 ### 🔐 Authentification
+
 ```javascript
 // ✅ Login → Access Token (JWT 15m) + Refresh Token (HttpOnly cookie)
 POST /auth/signin
@@ -53,6 +54,7 @@ POST /auth/signout
 ## 🧪 Tests & Qualité (Phase 2 ✅)
 
 ### Tests
+
 ```bash
 npm test              # Lancer les tests Vitest
 npm run test:ui       # Interface Vitest UI
@@ -60,12 +62,14 @@ npm run test:coverage # Report couverture
 ```
 
 **Couverture:**
+
 - ✅ Auth Security Tests (JWT, hashing, expiration)
 - ✅ AuthContext Tests (login, refresh, logout)
 - ✅ Password hashing & verification
 - ✅ Token expiration & rotation
 
 ### Linting
+
 ```bash
 npm run lint          # ESLint (frontend)
 ```
@@ -75,11 +79,13 @@ npm run lint          # ESLint (frontend)
 ## 📊 Monitoring & Observabilité (Phase 2 ✅)
 
 ### Prometheus Metrics
+
 ```bash
 GET /metrics          # Format Prometheus (port 3001)
 ```
 
 **Métriques collectées:**
+
 - `http_requests_total` - Total requêtes HTTP
 - `http_request_duration_ms` - Latence par endpoint
 - `http_requests_in_progress` - Requêtes actives
@@ -87,6 +93,7 @@ GET /metrics          # Format Prometheus (port 3001)
 - `nodejs_uptime_seconds` - Uptime serveur
 
 **Intégration Prometheus:**
+
 ```yaml
 # prometheus.yml
 scrape_configs:
@@ -100,12 +107,14 @@ scrape_configs:
 ## 📚 API Documentation (Phase 2 ✅)
 
 ### Swagger/OpenAPI
+
 ```bash
 # Documentation disponible à:
 GET http://localhost:3001/api-docs
 ```
 
 **Endpoints documentés:**
+
 - `POST /auth/signin` - Connexion
 - `POST /auth/signup` - Inscription
 - `POST /auth/refresh` - Rafraîchir token
@@ -140,6 +149,7 @@ HOST=0.0.0.0
 ```
 
 ### Checklist déploiement
+
 - [ ] `NODE_ENV=production`
 - [ ] JWT_SECRET & JWT_REFRESH_SECRET générés
 - [ ] HTTPS forcé (Nginx SSL)
@@ -189,6 +199,7 @@ export SERVER_IP=192.168.1.100
 ## 🚀 Démarrage rapide
 
 ### Installation
+
 ```bash
 # Clone et install dépendances
 git clone https://github.com/koulienathalie/sfiDashboard.git
@@ -201,21 +212,45 @@ cp backend/envDefault backend/.env
 ```
 
 ### Démarrage développement
-```bash
-# Terminal 1 - Backend
-cd backend
-npm install
-npm start               # http://localhost:3001
 
-# Terminal 2 - Frontend  
-npm run dev            # http://localhost:5173
+```bash
+# Démarrage standard
+./start.sh              # Backend + Frontend
+
+# Avec logs en direct
+./scripts/logs/start-with-logs.sh
+
+# Seulement backend ou frontend
+./scripts/logs/start-with-logs.sh backend-only
+./scripts/logs/start-with-logs.sh frontend-only
 ```
 
-### Tests
+### Tests & Validation
+
 ```bash
-npm test               # Lancer les tests
-npm run test:ui        # Voir les tests en graphique
+npm test               # Lancer les tests unitaires
+npm run test:ui        # Interface Vitest
+./scripts/utils/test-local.sh  # Validation projet complète
 ```
+
+### Scripts utiles
+
+```bash
+# Initialiser l'environnement
+./scripts/dev/setup.sh
+
+# Surveiller les logs
+./scripts/logs/watch-logs.sh
+
+# Vérifier la santé des services
+./scripts/utils/health-check.sh
+
+# Builder pour production
+./scripts/build/build-frontend.sh
+./scripts/build/analyze-build.sh
+```
+
+**📖 Docs complètes:** Voir [scripts/README.md](./scripts/README.md)
 
 ---
 
@@ -256,6 +291,21 @@ FRONTEND_URL=http://localhost:5173        # Pour CORS
 
 ```
 sfiDashMonitoring/
+├── 📁 scripts/                  ← 🎯 Scripts utilitaires
+│   ├── 📁 logs/                 ← Gestion des logs
+│   │   ├── watch-logs.sh        ← Surveiller logs en direct
+│   │   ├── manage-logs.sh       ← Archiver/nettoyer logs
+│   │   └── start-with-logs.sh   ← Démarrer + logs actifs
+│   ├── 📁 dev/                  ← Développement
+│   │   ├── setup.sh             ← Initialiser l'env
+│   │   └── test.sh              ← Lancer les tests
+│   ├── 📁 build/                ← Build & analyse
+│   │   ├── build-frontend.sh    ← Builder le frontend
+│   │   └── analyze-build.sh     ← Analyser la taille
+│   ├── 📁 utils/                ← Utilitaires
+│   │   └── health-check.sh      ← Vérifier santé services
+│   └── README.md                ← 📖 Docs scripts
+│
 ├── 📁 local/                    ← Mode développement (localhost)
 │   ├── start.sh                 ← Démarrer services
 │   ├── test.sh                  ← Tester configuration
@@ -276,8 +326,11 @@ sfiDashMonitoring/
 ├── 📁 backend/                  ← Code backend (partagé)
 ├── 📁 src/                      ← Code React (partagé)
 ├── package.json                 ← Dépendances (partagé)
+├── start.sh                     ← 🎯 Point d'entrée principal
 └── README.md                    ← Ce fichier
 ```
+
+**📖 Documentation scripts:** Voir [scripts/README.md](./scripts/README.md) pour le détail complet de chaque script et les workflows.
 
 ---
 
@@ -335,9 +388,11 @@ export SERVER_IP=192.168.1.100
 ## 👥 Équipe
 
 **Frontend:**
+
 - Koloina (@koulienathalie)
 
 **Backend:**
+
 - josoavj (@josoavj)
 - haritsimba (@haritsimba)
 
@@ -358,7 +413,8 @@ MIT
 
 ## 🆘 Support
 
-Problème? 
+Problème?
+
 1. Consultez la documentation du mode que vous utilisez
 2. Vérifiez les logs: `tail -f logs/*.log`
 3. Lancez les tests: `npm test`
