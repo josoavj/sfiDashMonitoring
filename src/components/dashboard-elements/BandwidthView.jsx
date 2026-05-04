@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, memo } from 'react'
 import { Box, Typography, Dialog, DialogTitle, DialogContent, Button, CircularProgress, IconButton, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Paper, Chip, Stack, Grid, alpha, useTheme, useMediaQuery, Alert } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import RefreshIcon from '@mui/icons-material/Refresh'
@@ -22,13 +22,11 @@ function formatTime(ts) {
     }
 }
 
-export default BandwidthView
-
 function toMB(bytes) {
     return bytes / 1024 / 1024
 }
 
-function BandwidthView() {
+const BandwidthView = memo(function BandwidthView() {
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
     const isTablet = useMediaQuery(theme.breakpoints.down('md'))
@@ -706,4 +704,6 @@ function BandwidthView() {
             `}</style>
         </Box>
     )
-}
+})
+
+export default BandwidthView
