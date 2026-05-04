@@ -3,10 +3,21 @@ import { apiCache, CACHE_TTL } from './apiCache'
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 let csrfToken = null
 
+// Map to track in-flight requests for deduplication
+const inflightRequests = new Map()
+
 function toAbsoluteUrl(url) {
   if (/^https?:\/\//i.test(url)) return url
   if (url.startsWith('/')) return `${API_BASE}${url}`
   return `${API_BASE}/${url}`
+}
+
+/**
+ * Create a unique key for deduplication based on request details
+ */
+function createRequestKey(url, method, body) {
+  const bodyStr = body ? JSON.stringify(body) : ''
+  return `${method}:${url}:${bodyStr}`
 }
 
 async function getCsrfToken() {
@@ -29,13 +40,13 @@ async function getCsrfToken() {
 export async function authFetch(url, options = {}) {
   const method = (options.method || 'GET').toUpperCase()
   const isUnsafeMethod = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
-  
-  // Skip cache if explicitly requested
   const skipCache = options.skipCache === true
+  const skipDedup = options.skipDedup === true
+  
+  const absoluteUrl = toAbsoluteUrl(url)
   
   // Try to get from cache for GET requests
   if (method === 'GET' && !skipCache) {
-    const absoluteUrl = toAbsoluteUrl(url)
     const cached = apiCache.get(absoluteUrl)
     if (cached) {
       // Return cached response (clone it if it's a Response object)
@@ -46,6 +57,14 @@ export async function authFetch(url, options = {}) {
         status: 200,
         headers: { 'Content-Type': 'application/json' }
       })
+    }
+  }
+
+  // Check for in-flight request deduplication (for GET requests)
+  if (method === 'GET' && !skipDedup) {
+    const requestKey = createRequestKey(absoluteUrl, method, null)
+    if (inflightRequests.has(requestKey)) {
+      return inflightRequests.get(requestKey)
     }
   }
 
@@ -71,39 +90,54 @@ export async function authFetch(url, options = {}) {
     headers
   }
 
-  let response = await fetch(toAbsoluteUrl(url), requestInit)
+  // Create the request promise for deduplication
+  const requestPromise = (async () => {
+    let response = await fetch(absoluteUrl, requestInit)
 
-  if (response.status === 403 && isUnsafeMethod) {
-    csrfToken = null
-    const refreshedToken = await getCsrfToken().catch(() => null)
-    if (refreshedToken) {
-      const retryHeaders = {
-        ...headers,
-        'X-CSRF-Token': refreshedToken
+    if (response.status === 403 && isUnsafeMethod) {
+      csrfToken = null
+      const refreshedToken = await getCsrfToken().catch(() => null)
+      if (refreshedToken) {
+        const retryHeaders = {
+          ...headers,
+          'X-CSRF-Token': refreshedToken
+        }
+        response = await fetch(absoluteUrl, {
+          ...requestInit,
+          headers: retryHeaders
+        })
       }
-      response = await fetch(toAbsoluteUrl(url), {
-        ...requestInit,
-        headers: retryHeaders
-      })
     }
+
+    // Cache successful GET responses
+    if (method === 'GET' && response.ok && !skipCache) {
+      const cacheTtl = options.cacheTtl || CACHE_TTL.MEDIUM
+      
+      // Clone response for caching (since response body can only be read once)
+      const responseToCache = response.clone()
+      
+      try {
+        const data = await responseToCache.json()
+        apiCache.set(absoluteUrl, data, cacheTtl)
+      } catch {
+        // If response is not JSON, cache the whole response
+        apiCache.set(absoluteUrl, response.clone(), cacheTtl)
+      }
+    }
+
+    return response
+  })()
+
+  // Store the promise for GET requests (for deduplication)
+  if (method === 'GET' && !skipDedup) {
+    const requestKey = createRequestKey(absoluteUrl, method, null)
+    inflightRequests.set(requestKey, requestPromise)
+    
+    // Clean up after request completes
+    requestPromise.finally(() => {
+      inflightRequests.delete(requestKey)
+    })
   }
 
-  // Cache successful GET responses
-  if (method === 'GET' && response.ok && !skipCache) {
-    const absoluteUrl = toAbsoluteUrl(url)
-    const cacheTtl = options.cacheTtl || CACHE_TTL.MEDIUM
-    
-    // Clone response for caching (since response body can only be read once)
-    const responseToCache = response.clone()
-    
-    try {
-      const data = await responseToCache.json()
-      apiCache.set(absoluteUrl, data, cacheTtl)
-    } catch {
-      // If response is not JSON, cache the whole response
-      apiCache.set(absoluteUrl, response.clone(), cacheTtl)
-    }
-  }
-
-  return response
+  return requestPromise
 }
