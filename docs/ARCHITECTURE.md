@@ -279,11 +279,13 @@ docker-compose logs -f
 ## 🔐 Sécurité
 
 ### LOCAL
+
 - ✅ Localhost uniquement (secure par défaut)
 - ❌ Pas de SSL (non-nécessaire)
 - ✅ CORS restreint à localhost
 
 ### DEPLOYED
+
 - ✅ Nginx reverse proxy
 - ✅ SSL/TLS support (commenté)
 - ✅ Rate limiting (nginx)
@@ -295,11 +297,13 @@ docker-compose logs -f
 ## 📈 Scalabilité
 
 ### LOCAL (Single machine)
+
 ```
 Frontend (5173) ←→ Backend (3001) ←→ Elasticsearch
 ```
 
 ### DEPLOYED (Multiple services)
+
 ```
 Internet
     ↓
