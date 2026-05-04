@@ -3,6 +3,7 @@
 ## 📋 Introduction à la Problématique
 
 ### Contexte Général
+
 Avant d'aborder les solutions techniques apportées par le projet SFI Dashboard Monitoring, il est essentiel de comprendre les difficultés auxquelles l'entreprise était confrontée.
 
 ---
@@ -10,6 +11,7 @@ Avant d'aborder les solutions techniques apportées par le projet SFI Dashboard 
 ## 🎯 Modèles d'Introduction
 
 ### Introduction 1 : Approche Progressive
+
 ```
 "Avant la mise en place de notre solution de monitoring, l'entreprise SFI 
 faisait face à plusieurs défis majeurs dans la gestion de son infrastructure 
@@ -18,6 +20,7 @@ et la capacité de réaction face aux incidents."
 ```
 
 ### Introduction 2 : Approche Contextuelle
+
 ```
 "Dans le cadre de mon stage/projet chez SFI, j'ai été amené à travailler sur 
 une problématique centrale : comment améliorer la visibilité et le contrôle 
@@ -26,6 +29,7 @@ imposée suite à plusieurs constats alarmants..."
 ```
 
 ### Introduction 3 : Approche Problème-Solution
+
 ```
 "Permettez-moi de vous présenter d'abord le contexte qui a motivé ce projet. 
 L'entreprise rencontrait des difficultés significatives dans la surveillance 
@@ -34,6 +38,7 @@ voir comment le SFI Dashboard Monitoring y répond."
 ```
 
 ### Introduction 4 : Approche par l'Impact
+
 ```
 "Les entreprises modernes dépendent fortement de leur infrastructure réseau. 
 Chez SFI, cette dépendance rendait critique le besoin d'un système de 
@@ -145,6 +150,7 @@ inefficacités et des malentendus dans la résolution des problèmes."
 ## 🎬 Structure de Présentation Recommandée
 
 ### Phase 1 : Introduction du Contexte (2-3 minutes)
+
 1. **Présentation de l'entreprise SFI**
    - Secteur d'activité
    - Taille de l'infrastructure réseau
@@ -155,6 +161,7 @@ inefficacités et des malentendus dans la résolution des problèmes."
    - Objectifs initiaux
 
 ### Phase 2 : Présentation des Problèmes (5-7 minutes)
+
 1. **Problème Principal 1** : [Visibilité]
    - Description du problème
    - Impacts sur l'entreprise
@@ -171,6 +178,7 @@ inefficacités et des malentendus dans la résolution des problèmes."
    - Exemples concrets
 
 ### Phase 3 : Transition vers la Solution (1-2 minutes)
+
 ```
 "Face à ces défis, il est devenu évident qu'une solution dédiée était 
 nécessaire. C'est dans ce contexte que le projet SFI Dashboard Monitoring 
@@ -182,30 +190,35 @@ a été conçu. Voyons maintenant comment il répond à ces problématiques..."
 ## 💡 Formulations et Transitions Utiles
 
 ### Pour Introduire un Problème
+
 - "Un des défis majeurs rencontrés concernait..."
 - "L'entreprise faisait face à une difficulté importante : ..."
 - "Parmi les problématiques identifiées, on trouve..."
 - "Il est apparu que..."
 
 ### Pour Décrire l'Impact
+
 - "Cette situation entraînait..."
 - "Les conséquences étaient multiples : ..."
 - "Cela se traduisait par..."
 - "L'impact sur l'activité était significatif, notamment..."
 
 ### Pour Donner des Exemples
+
 - "Concrètement, cela signifiait que..."
 - "Par exemple, lors d'un incident récent..."
 - "Dans la pratique quotidienne, on observait..."
 - "Prenons le cas de..."
 
 ### Pour Faire des Transitions
+
 - "Au-delà de cette première problématique..."
 - "Un autre aspect critique concernait..."
 - "En lien avec ce point..."
 - "Cette difficulté était amplifiée par..."
 
 ### Pour Conclure la Section Problèmes
+
 - "L'ensemble de ces défis justifiait pleinement..."
 - "Ces constats ont motivé le développement de..."
 - "Face à cette situation, il était nécessaire de..."
@@ -216,26 +229,31 @@ a été conçu. Voyons maintenant comment il répond à ces problématiques..."
 ## 📊 Conseils de Présentation
 
 ### 1. Soyez Factuel
+
 - Utilisez des données concrètes si possible
 - Évitez l'exagération
 - Restez professionnel
 
 ### 2. Soyez Structuré
+
 - Annoncez le nombre de problèmes que vous allez traiter
 - Utilisez une numérotation claire
 - Faites des transitions explicites
 
 ### 3. Montrez l'Impact
+
 - Reliez chaque problème à ses conséquences
 - Expliquez pourquoi c'était important à résoudre
 - Mentionnez les parties prenantes affectées
 
 ### 4. Gardez le Public Engagé
+
 - Variez le ton
 - Utilisez des exemples concrets
 - Posez des questions rhétoriques
 
 ### 5. Préparez la Transition
+
 - Chaque problème présenté doit avoir sa solution dans votre projet
 - Créez un lien logique problèmes → solution
 - Maintenez la cohérence du discours
