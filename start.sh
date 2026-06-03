@@ -35,17 +35,17 @@ fi
 
 case "$MODE" in
     1|local)
-        echo -e "${BLUE}🚀 Démarrage MODE LOCAL${NC}
+        echo -e "${BLUE} Démarrage MODE LOCAL${NC}
 "
         exec "$SCRIPT_DIR/local/start.sh"
         ;;
     2|deploy|deployed)
-        echo -e "${BLUE}🌐 Démarrage MODE DEPLOYED${NC}
+        echo -e "${BLUE} Démarrage MODE DEPLOYED${NC}
 "
         exec "$SCRIPT_DIR/deployed/start.sh"
         ;;
     *)
-        echo -e "${RED}❌ Mode invalide: $MODE${NC}"
+        echo -e "${RED} Mode invalide: $MODE${NC}"
         echo -e "${YELLOW}Utilisation: ./start.sh [local|deploy]${NC}"
         exit 1
         ;;
