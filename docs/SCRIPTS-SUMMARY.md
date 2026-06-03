@@ -1,19 +1,9 @@
 # 📋 Résumé Organisation des Scripts
 
-## ✅ Nettoyage Complété
-
-### Supprimés de la racine (déjà dans `scripts/`)
-- ❌ `manage-logs.sh` 
-- ❌ `start-with-logs.sh` 
-- ❌ `watch-logs.sh` 
-- ❌ `test-local.sh` 
-
-### Migrés dans `scripts/`
-- ✅ `test-local.sh` → `scripts/utils/test-local.sh`
-
 ## 📁 Structure Finale
 
 ### 🎯 Root Level
+
 ```
 start.sh                    ← Point d'entrée principal (CONSERVÉ)
 ```
@@ -23,23 +13,28 @@ start.sh                    ← Point d'entrée principal (CONSERVÉ)
 **10 scripts + README documenté:**
 
 #### 📋 Logs (`scripts/logs/` - 3 scripts)
+
 - `watch-logs.sh` - Surveiller en temps réel
 - `manage-logs.sh` - Archiver/nettoyer
 - `start-with-logs.sh` - Démarrer + logs
 
 #### 🛠️ Dev (`scripts/dev/` - 2 scripts)
+
 - `setup.sh` - Initialiser env
 - `test.sh` - Tester (unit/ui/coverage/watch)
 
 #### 🏗️ Build (`scripts/build/` - 2 scripts)
+
 - `build-frontend.sh` - Builder production
 - `analyze-build.sh` - Analyser taille
 
 #### 🔧 Utils (`scripts/utils/` - 2 scripts)
+
 - `health-check.sh` - Vérifier services
 - `test-local.sh` - Valider projet
 
 #### 📖 Documentation
+
 - `scripts/README.md` - 300+ lignes
 
 ### 🔧 Mode-Spécifiques (À garder où ils sont)

@@ -118,15 +118,17 @@ scripts/                    # 🎯 Scripts partagés & utilitaires
 ### 📋 Logs (`scripts/logs/`)
 
 #### `watch-logs.sh`
+
 Surveille les fichiers de logs en temps réel avec `tail -f`.
 
 ```bash
-./scripts/logs/watch-logs.sh         # Les deux (backend + frontend)
+./scripts/logs/watch-logs.sh          # Les deux (backend + frontend)
 ./scripts/logs/watch-logs.sh backend  # Seulement backend
 ./scripts/logs/watch-logs.sh frontend # Seulement frontend
 ```
 
 #### `manage-logs.sh`
+
 Gère les fichiers de logs: archivage, nettoyage, statistiques.
 
 ```bash
@@ -142,6 +144,7 @@ Gère les fichiers de logs: archivage, nettoyage, statistiques.
 - Format: `backend_YYYYMMDD_HHMMSS.log`
 
 #### `start-with-logs.sh`
+
 Démarre les services avec redirection des logs.
 
 ```bash
@@ -153,6 +156,7 @@ Démarre les services avec redirection des logs.
 ### 🛠️  Développement (`scripts/dev/`)
 
 #### `setup.sh`
+
 Initialise l'environnement de développement.
 
 **Fait:**
@@ -168,6 +172,7 @@ Initialise l'environnement de développement.
 ```
 
 #### `test.sh`
+
 Lance les tests avec différentes options.
 
 ```bash
@@ -180,6 +185,7 @@ Lance les tests avec différentes options.
 ### 🏗️  Build (`scripts/build/`)
 
 #### `build-frontend.sh`
+
 Build le frontend pour la production.
 
 ```bash
@@ -192,6 +198,7 @@ Build le frontend pour la production.
 - Output: liste des fichiers générés
 
 #### `analyze-build.sh`
+
 Analyse la taille du build.
 
 ```bash
@@ -207,6 +214,7 @@ Analyse la taille du build.
 ### 🔧 Utilitaires (`scripts/utils/`)
 
 #### `health-check.sh`
+
 Vérifie l'état des services et des dépendances.
 
 ```bash
@@ -222,6 +230,7 @@ Vérifie l'état des services et des dépendances.
 - ✅ Node.js et npm
 
 #### `test-local.sh`
+
 Test complet du projet pour validation avant déploiement.
 
 ```bash
@@ -255,9 +264,11 @@ Ces scripts doivent rester dans leurs dossiers respectifs car ils sont spécifiq
 - `backend/start.sh` - Démarre le backend (appel local depuis backend/)
 
 ### `local/` - Mode développement localhost
+
 Reste inchangé avec tous ses scripts spécifiques.
 
 ### `deployed/` - Mode production/réseau
+
 Reste inchangé avec tous ses scripts Docker, installation, etc.
 
 ### Nouveau développeur
