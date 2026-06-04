@@ -3,10 +3,12 @@
 ## 📖 Guides de configuration
 
 ### Configuration Localhost
+
 - **[LOCALHOST_CONFIG.md](./LOCALHOST_CONFIG.md)** - Configuration complète pour mode développement
 - **[LOCALHOST_READY.md](./LOCALHOST_READY.md)** - État de la configuration locale
 
 ### Déploiement Production
+
 - **[Deployment.md](./Deployment.md)** - Guide de déploiement production
 - **[SUMMARY-ARCHITECTURE.md](./SUMMARY-ARCHITECTURE.md)** - Résumé de l'architecture
 
@@ -29,12 +31,14 @@
 ## 🚀 Démarrage rapide
 
 **Mode LOCAL (développement):**
+
 ```bash
 cd local
 ./start.sh
 ```
 
 **Mode DEPLOYED (réseau/serveur):**
+
 ```bash
 cd deployed
 export SERVER_IP=192.168.1.100
@@ -48,9 +52,12 @@ export SERVER_IP=192.168.1.100
 ```
 docs/
 ├── README.md (ce fichier)
-├── LOCALHOST_CONFIG.md
-├── LOCALHOST_READY.md
-├── Deployment.md
+├── deployement
+    ├── local 
+        ├── LOCALHOST_CONFIG.md
+        └── LOCALHOST_READY.md
+    └── network
+        ├── Deployment.md
 ├── ARCHITECTURE.md
 ├── SUMMARY-ARCHITECTURE.md
 ├── MIGRATION.md
