@@ -1,6 +1,6 @@
 # 📋 Scripts & Documentation — Inventaire Complet
 
-**Date :** 8 février 2026 · **Statut :** ✅ Opérationnel
+**Statut :** ✅ Opérationnel
 
 ---
 
@@ -539,4 +539,3 @@ HTTPS avec certificat SSL requis.
 
 ---
 
-**Dernière mise à jour :** 8 février 2026 · **Version :** 1.0
