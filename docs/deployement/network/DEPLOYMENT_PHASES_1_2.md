@@ -102,7 +102,7 @@ npm run seed          # Données de test (optionnel)
 
 ## 🔐 Configuration Sécurité
 
-### Phase 1 - Sécurité Critique
+### Sécurité Critique
 
 #### JWT & HttpOnly Cookies
 
@@ -128,7 +128,7 @@ JWT_EXPIRATION=3600              # 1 heure
 REFRESH_TOKEN_EXPIRATION=604800  # 7 jours
 ```
 
-### Phase 2 - CSRF Protection
+### CSRF Protection
 
 ```env
 SESSION_SECRET=<secret généré>
