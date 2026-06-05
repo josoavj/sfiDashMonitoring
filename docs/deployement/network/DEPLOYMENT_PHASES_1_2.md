@@ -514,7 +514,7 @@ curl http://localhost:3001/health
 
 ## 📚 Documentation Complète
 
-- [PHASES_1_2_GUIDE.md](./PHASES_1_2_GUIDE.md) - Guide complet Phase 1 & 2
+- [PHASES_1_2_GUIDE.md](./PHASES_1_2_GUIDE.md) - Guide complet
 - [SECURITY.md](./SECURITY.md) - Guide sécurité détaillé
 - [CHECKLIST_PRODUCTION.md](./CHECKLIST_PRODUCTION.md) - Checklist avant production
 
@@ -543,6 +543,3 @@ Pour les questions:
 2. Vérifier les [logs](#logs-backend)
 3. Lancer [health-check.sh](../deployed/health-check.sh)
 4. Consulter [Swagger UI](/api/docs)
-
-**Dernière mise à jour:** 8 février 2026  
-**Version:** 1.0 (Phases 1 & 2 Complètes)
