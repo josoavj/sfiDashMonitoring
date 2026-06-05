@@ -1,6 +1,5 @@
-# 📚 Documentation Index - Phases 1 & 2
+# 📚 Documentation Index
 
-**Dernière mise à jour:** 8 février 2026  
 **Status:** ✅ Production Ready
 
 ---
@@ -11,7 +10,7 @@ Vous êtes nouveau? Suivez ces étapes:
 
 1. **[📋 Prérequis](#prérequis)** - Vérifier votre système
 2. **[🚀 Démarrage Rapide](#démarrage-rapide)** - Lancer localement
-3. **[🔐 Sécurité](#sécurité-phases-1--2)** - Comprendre les changements
+3. **[🔐 Sécurité](#sécurité)** - Comprendre les changements
 4. **[📖 Documentation Complète](#documentation-complète)** - Approfondir
 
 ---
@@ -65,8 +64,7 @@ bash setup-env.sh
 
 **Accès:**
 
-- **Frontend:** http://localhost:3000
- - **Frontend:** http://localhost:5173
+- **Frontend:** http://localhost:5173
 - **Backend:** http://localhost:3001
 - **API Docs:** http://localhost:3001/api/docs
 - **Metrics:** http://localhost:3001/metrics
@@ -173,12 +171,10 @@ openssl rand -base64 32
 - [Nginx Configuration](./DEPLOYMENT_PHASES_1_2.md#nginx-configuration-reverse-proxy) - HTTPS
 - [Tests & Validation](./DEPLOYMENT_PHASES_1_2.md#tests--validation) - Vérifier
 
-### 📋 Phases 1 & 2 (Guide Complet)
+### 📋 Guide Complet
 
 **[PHASES_1_2_GUIDE.md](./PHASES_1_2_GUIDE.md)**
 
-- Résumé sécurité Phase 1
-- Résumé observabilité Phase 2
 - Fichiers modifiés détail
 - Tests à exécuter
 - Configuration variables
@@ -410,25 +406,6 @@ bash deployed/verify-deployment.sh       # Rapport complet
 
 ---
 
-
-## 🗓️ Chronologie
-
-**6-7 février 2026:**
-
-- ✅ Audit sécurité complet (6.4/10)
-- ✅ Phase 1: npm audit fix, JWT cookies, refresh tokens, token hashing, tests
-- ✅ Phase 2: CSRF protection, Swagger, Prometheus metrics
-- ✅ Documentation complète
-
-**8 février 2026:**
-
-- ✅ Scripts de configuration (`setup-env.sh`)
-- ✅ Documentation de déploiement
-- ✅ Inventaire scripts
-- ✅ Cet index documentation
-
----
-
 ## 📚 Ressources Supplémentaires
 
 ### Documentation Technique
@@ -482,8 +459,4 @@ Recommandation de lecture par profil:
 
 ---
 
-**Dernière mise à jour:** 8 février 2026  
-**Version:** 1.0 (Phases 1 & 2 Complètes)  
-**Responsable:** System Documentation Agent
-
-[⬆️ Retour en haut](#-documentation-index---phases-1--2)
+[⬆️ Retour en haut](#-documentation-index)
