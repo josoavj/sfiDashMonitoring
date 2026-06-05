@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # ============================================
-# Setup Environment Variables - Phases 1 & 2
+# Setup Environment Variables
 # Génère les secrets et configure .env
 # ============================================
 
@@ -110,7 +110,7 @@ cat > "$ENV_FILE" << EOF
 # ============================================
 
 # ==========================================
-# PHASE 1 - Sécurité Critique
+# Sécurité Critique
 # ==========================================
 JWT_SECRET=$JWT_SECRET
 JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET
@@ -120,7 +120,7 @@ JWT_EXPIRATION=3600
 REFRESH_TOKEN_EXPIRATION=604800
 
 # ==========================================
-# PHASE 2 - Observabilité
+# Observabilité
 # ==========================================
 METRICS_ENABLED=true
 METRICS_PORT=3001

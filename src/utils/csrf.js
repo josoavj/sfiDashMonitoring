@@ -1,8 +1,7 @@
 /**
- * CSRF Token Management - À intégrer dans le frontend
+ * CSRF Token Management - Frontend Integration
  * 
- * Ce fichier montre comment intégrer la protection CSRF dans le frontend
- * après la phase 2.
+ * This file shows how to integrate CSRF protection in the frontend.
  */
 
 /**

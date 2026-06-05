@@ -1,6 +1,6 @@
 # 📋 Scripts & Documentation — Inventaire Complet
 
-**Date :** 8 février 2026 · **Statut :** ✅ Opérationnel
+**Statut :** ✅ Opérationnel
 
 ---
 
@@ -36,7 +36,8 @@ sfiDashMonitoring/
 │   ├── verify.sh
 │   └── SUMMARY.sh
 ├── start.sh
-├── test-local.sh
+├── scripts/
+│   └── utils/test-local.sh
 └── docs/
     ├── PHASES_1_2_GUIDE.md
     └── DEPLOYMENT_PHASES_1_2.md
@@ -131,11 +132,11 @@ bash local/start.sh
 # Ou depuis la racine : ./start.sh
 ```
 
-**Vérifie :** Node.js, npm, bash, ports disponibles (`3000`, `3001`), dépendances npm.
+**Vérifie :** Node.js, npm, bash, ports disponibles (`5173`, `3001`), dépendances npm.
 
 **Démarre :**
 1. Backend → `http://localhost:3001`
-2. Frontend → `http://localhost:3000`
+2. Frontend → `http://localhost:5173`
 
 Logs en temps réel avec couleurs. Arrêt gracieux via `Ctrl+C`.
 
@@ -181,7 +182,7 @@ bash local/start-backend-only.sh
 
 ```bash
 bash local/start-frontend-only.sh
-# Accès : http://localhost:3000 (proxy → localhost:3001)
+# Accès : http://localhost:5173 (proxy → localhost:3001)
 ```
 
 ---
@@ -358,12 +359,12 @@ bash deployed/SUMMARY.sh
 
 ---
 
-### `./test-local.sh`
+### `./scripts/utils/test-local.sh`
 
 **Rôle :** Raccourci vers `local/test.sh`
 
 ```bash
-./test-local.sh
+./scripts/utils/test-local.sh
 ```
 
 ---
@@ -435,7 +436,7 @@ cd backend && bash setup-env.sh
 
 | Service | URL |
 |---------|-----|
-| Frontend | http://localhost:3000 |
+| Frontend | http://localhost:5173 |
 | Backend | http://localhost:3001 |
 | Swagger | http://localhost:3001/api/docs |
 | Prometheus | http://localhost:3001/metrics |
@@ -514,7 +515,7 @@ HTTPS avec certificat SSL requis.
 | Besoin | Commande |
 |--------|----------|
 | Démarrer localement | `./start.sh` |
-| Tester localement | `./test-local.sh` |
+| Tester localement | `./scripts/utils/test-local.sh` |
 | Setup production | `sudo bash deployed/install-production.sh` |
 | Démarrer production | `bash deployed/start.sh` |
 | Vérifier les services | `bash deployed/health-check.sh` |
@@ -538,4 +539,3 @@ HTTPS avec certificat SSL requis.
 
 ---
 
-**Dernière mise à jour :** 8 février 2026 · **Version :** 1.0

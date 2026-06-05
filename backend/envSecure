@@ -1,7 +1,7 @@
-# Configuration pour sécurité PHASES 1 & 2
+# Configuration sécurité
 # À ajouter dans backend/.env
 
-# === NOUVELLES VARIABLES (Phases 1 & 2) ===
+
 
 # Session secret pour CSRF + cookies
 # Générer avec: openssl rand -base64 32

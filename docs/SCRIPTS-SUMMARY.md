@@ -90,4 +90,4 @@ start.sh                    ← Point d'entrée principal (CONSERVÉ)
 ✅ Mode-spécifiques **préservés**
 ✅ Point d'entrée **principal** visible
 
-**Dernière mise à jour:** 4 mai 2026
+

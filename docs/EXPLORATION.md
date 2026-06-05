@@ -254,7 +254,3 @@ Services sur un port spécifique
 - Pensez à auditer les recherches effectuées
 - Protégez les données sensibles selon politique d'entreprise
 
----
-
-**Version**: 1.0  
-**Dernière mise à jour**: November 2025

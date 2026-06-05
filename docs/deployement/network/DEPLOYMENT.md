@@ -1,7 +1,6 @@
 # 🚀 Deployment Guide - SFI Dashboard v2.0
 
 > **Version:** 2.0
-> **Date:** 8 février 2026  
 > **Status:** ✅ Production-ready
 
 ## 📋 Table des matières
@@ -566,5 +565,5 @@ Besoin d'aide?
 
 ---
 
-**Last Updated:** 8 février 2026  
+
 **Version:** 2.0 (Production-ready)
