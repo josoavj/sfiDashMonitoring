@@ -36,7 +36,8 @@ sfiDashMonitoring/
 │   ├── verify.sh
 │   └── SUMMARY.sh
 ├── start.sh
-├── test-local.sh
+├── scripts/
+│   └── utils/test-local.sh
 └── docs/
     ├── PHASES_1_2_GUIDE.md
     └── DEPLOYMENT_PHASES_1_2.md
@@ -358,12 +359,12 @@ bash deployed/SUMMARY.sh
 
 ---
 
-### `./test-local.sh`
+### `./scripts/utils/test-local.sh`
 
 **Rôle :** Raccourci vers `local/test.sh`
 
 ```bash
-./test-local.sh
+./scripts/utils/test-local.sh
 ```
 
 ---
@@ -514,7 +515,7 @@ HTTPS avec certificat SSL requis.
 | Besoin | Commande |
 |--------|----------|
 | Démarrer localement | `./start.sh` |
-| Tester localement | `./test-local.sh` |
+| Tester localement | `./scripts/utils/test-local.sh` |
 | Setup production | `sudo bash deployed/install-production.sh` |
 | Démarrer production | `bash deployed/start.sh` |
 | Vérifier les services | `bash deployed/health-check.sh` |
