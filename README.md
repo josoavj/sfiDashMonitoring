@@ -2,7 +2,7 @@
 
 **Plateforme de monitoring des données Fortigate depuis Elasticsearch**
 
-> ✨ **Mis à jour** : Phases 1 & 2 complétées - Sécurité renforcée, Tests & Monitoring
+> ✨ **Statut** : Production Ready - Sécurité renforcée, Tests & Monitoring
 
 ## 📋 Stack Technique
 
@@ -51,7 +51,7 @@ POST /auth/signout
 
 ---
 
-## 🧪 Tests & Qualité (Phase 2 ✅)
+## 🧪 Tests & Qualité
 
 ### Tests
 
@@ -76,7 +76,7 @@ npm run lint          # ESLint (frontend)
 
 ---
 
-## 📊 Monitoring & Observabilité (Phase 2 ✅)
+## 📊 Monitoring & Observabilité
 
 ### Prometheus Metrics
 
@@ -104,7 +104,7 @@ scrape_configs:
 
 ---
 
-## 📚 API Documentation (Phase 2 ✅)
+## 📚 API Documentation
 
 ### Swagger/OpenAPI
 
@@ -423,9 +423,9 @@ Problème?
 
 ---
 
-## 🔄 Roadmap Phases
+## 🔄 Roadmap
 
-| Phase | Statut | Description |
+| Étape | Statut | Description |
 |-------|--------|-------------|
 | **1** | ✅ FAIT | Sécurité (JWT HttpOnly, refresh tokens) |
 | **2** | ✅ FAIT | Tests, Swagger, Prometheus, CSRF |
