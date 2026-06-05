@@ -19,7 +19,7 @@
 
 ---
 
-## 🔒 Sécurité (Phase 1 ✅)
+## 🔒 Sécurité
 
 ### ✨ Améliorations sécurité
 
