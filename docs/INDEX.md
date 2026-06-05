@@ -353,7 +353,7 @@ deployed/
 ```bash
 # Développement
 ./start.sh                             # Démarrer frontend+backend
-./test-local.sh                        # Tests
+./scripts/utils/test-local.sh          # Tests
 cd backend && bash setup-env.sh        # Configurer secrets
 
 # Production
@@ -445,7 +445,7 @@ bash deployed/verify-deployment.sh       # Rapport complet
 
 - **[README.md](./README.md)** - Racine du projet
 - **[start.sh](../start.sh)** - Script de démarrage
-- **[test-local.sh](../test-local.sh)** - Script de test
+ - **[test-local.sh](../scripts/utils/test-local.sh)** - Script de test
 
 ---
 
