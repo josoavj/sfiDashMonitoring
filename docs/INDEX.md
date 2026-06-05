@@ -66,6 +66,7 @@ bash setup-env.sh
 **Accès:**
 
 - **Frontend:** http://localhost:3000
+ - **Frontend:** http://localhost:5173
 - **Backend:** http://localhost:3001
 - **API Docs:** http://localhost:3001/api/docs
 - **Metrics:** http://localhost:3001/metrics
@@ -373,7 +374,7 @@ bash deployed/verify-deployment.sh       # Rapport complet
 
 - [ ] Node.js 18+ installé
 - [ ] Backend `.env` configuré
-- [ ] Frontend démarre sur port 3000
+ - [ ] Frontend démarre sur port 5173
 - [ ] Backend démarre sur port 3001
 - [ ] Swagger accessible: `/api/docs`
 - [ ] Metrics accessible: `/metrics`
