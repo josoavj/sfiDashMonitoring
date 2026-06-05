@@ -566,5 +566,5 @@ Besoin d'aide?
 
 ---
 
-**Last Updated:** 8 février 2026  
+
 **Version:** 2.0 (Production-ready)
