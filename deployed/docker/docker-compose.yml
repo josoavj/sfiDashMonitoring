@@ -17,6 +17,8 @@ services:
     volumes:
       - ./logs:/app/logs
       - ../backend/.env:/app/backend/.env:ro
+    depends_on:
+      - redis
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/health || exit 1"]
@@ -24,6 +26,21 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  # Redis - Cache de deuxième niveau
+  redis:
+    image: redis:7-alpine
+    container_name: sfi-monitoring-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Frontend - Servie par nginx
   frontend:
@@ -52,4 +69,6 @@ services:
 
 volumes:
   logs:
+    driver: local
+  redis-data:
     driver: local
