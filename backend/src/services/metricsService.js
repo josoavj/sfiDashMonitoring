@@ -28,14 +28,40 @@ const httpRequestTotal = new prometheus.Counter({
 const authAttempts = new prometheus.Counter({
   name: 'sfi_dashboard_auth_attempts_total',
   help: 'Nombre total de tentatives d\'authentification',
-  labelNames: ['type', 'success'] // type: signin, signup; success: true/false
+  labelNames: ['type', 'success']
 });
 
 const elasticsearchRequests = new prometheus.Histogram({
   name: 'sfi_dashboard_elasticsearch_request_duration_ms',
   help: 'Durée des requêtes Elasticsearch',
-  labelNames: ['operation', 'index'],
+  labelNames: ['operation', 'index', 'status'],
   buckets: [10, 50, 100, 500, 1000, 5000, 10000]
+});
+
+// Métriques Circuit Breaker
+const circuitBreakerState = new prometheus.Gauge({
+  name: 'sfi_dashboard_circuit_breaker_state',
+  help: 'État du Circuit Breaker (0: Closed, 1: Half-Open, 2: Open)',
+  labelNames: ['name']
+});
+
+const circuitBreakerFailures = new prometheus.Counter({
+  name: 'sfi_dashboard_circuit_breaker_failures_total',
+  help: 'Nombre total d\'échecs interceptés par le Circuit Breaker',
+  labelNames: ['name', 'type'] // type: error, timeout, fallback
+});
+
+// Métriques Cache
+const cacheHitsTotal = new prometheus.Counter({
+  name: 'sfi_dashboard_cache_hits_total',
+  help: 'Nombre total de hits dans le cache Redis',
+  labelNames: ['cache_name']
+});
+
+const cacheMissesTotal = new prometheus.Counter({
+  name: 'sfi_dashboard_cache_misses_total',
+  help: 'Nombre total de misses dans le cache Redis',
+  labelNames: ['cache_name']
 });
 
 const activeConnections = new prometheus.Gauge({
@@ -46,7 +72,7 @@ const activeConnections = new prometheus.Gauge({
 const databaseConnections = new prometheus.Gauge({
   name: 'sfi_dashboard_database_connections',
   help: 'Nombre de connexions à la base de données',
-  labelNames: ['status'] // status: idle, busy
+  labelNames: ['status']
 });
 
 /**
@@ -59,13 +85,11 @@ function metricsMiddleware(req, res, next) {
     const duration = Date.now() - start;
     const route = req.route?.path || req.path;
     
-    // Enregistrer la durée
     httpRequestDuration.observe(
       { method: req.method, route, status_code: res.statusCode },
       duration
     );
     
-    // Incrémenter le compteur
     httpRequestTotal.inc({
       method: req.method,
       route,
@@ -98,6 +122,10 @@ module.exports = {
   httpRequestTotal,
   authAttempts,
   elasticsearchRequests,
+  circuitBreakerState,
+  circuitBreakerFailures,
+  cacheHitsTotal,
+  cacheMissesTotal,
   activeConnections,
   databaseConnections
 };
