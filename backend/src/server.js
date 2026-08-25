@@ -15,11 +15,12 @@ const logService = require('./services/logService');
 const { mountApiRoutes } = require('./routes/api');
 const { mountAuthRoutes } = require('./routes/auth');
 const errorHandler = require('./middlewares/errorHandler');
-const { createMorganLogger } = require('./utils/logger');
+const { createMorganLogger, logger } = require('./utils/logger');
 const { csrfProtection } = require('./middlewares/csrfMiddleware');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swagger');
 const { metricsMiddleware, setupMetricsEndpoint } = require('./services/metricsService');
+const { initRedis } = require('./services/redisService');
 
 // Import models to register them with Sequelize before sync
 const { User } = require('./models/User');
@@ -261,6 +262,9 @@ startSessionCleanup();
 
 async function init() {
     try {
+    // Initialisation Redis
+    await initRedis();
+
     // Force sync to recreate tables with all columns
     await sequelize.sync({ alter: true });
     server.listen(PORT, HOST, () => {
