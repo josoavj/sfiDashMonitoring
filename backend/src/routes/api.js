@@ -4,6 +4,9 @@ const { authenticate } = require('../middlewares/authMiddleware');
 const { User } = require('../models/User');
 const { Setting } = require('../models/Setting');
 const { validate, validators } = require('../utils/validators');
+const { getCache, setCache } = require('../services/redisService');
+const { logger } = require('../utils/logger');
+const metrics = require('../services/metricsService');
 
 // Fonction helper pour sanitizer les erreurs
 function handleError(err, res, defaultMessage = 'Erreur lors du traitement de la requête') {
@@ -92,7 +95,7 @@ function mountApiRoutes(app, esClient, logService) {
         mustClauses.push({ query_string: { query, default_operator: 'AND' } });
       }
 
-      const result = await esClient.search({
+      const result = await esClient.protectedSearch({
         index: process.env.ES_INDEX || 'filebeat-*',
         from,
         size,
@@ -111,33 +114,85 @@ function mountApiRoutes(app, esClient, logService) {
   app.post('/api/stats', authenticate, apiLimiter, validate(validators.statsParams), async (req, res) => {
     try {
       const { timeRange, fields = ['event.action', 'source.ip'] } = req.body;
+
+      // Cache key based on params
+      const cacheKey = `stats:${JSON.stringify({ timeRange, fields })}`;
+      const cachedData = await getCache(cacheKey);
+      if (cachedData) {
+        metrics.cacheHitsTotal.inc({ cache_name: 'api_stats' });
+        return res.json(cachedData);
+      }
+      metrics.cacheMissesTotal.inc({ cache_name: 'api_stats' });
+
       const aggs = { timeline: { date_histogram: { field: '@timestamp', fixed_interval: '1h' } } };
       fields.forEach(field => { aggs[field.replace(/\./g, '_')] = { terms: { field, size: 10 } }; });
 
-      const result = await esClient.search({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: 0, query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }, aggs } });
+      const result = await esClient.protectedSearch({
+        index: process.env.ES_INDEX || 'filebeat-*',
+        body: {
+          size: 0,
+          query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } },
+          aggs
+        }
+      });
 
-      res.json({ timeline: result.aggregations.timeline.buckets, stats: Object.keys(result.aggregations).filter(k => k !== 'timeline').reduce((acc, key) => { acc[key] = result.aggregations[key].buckets; return acc; }, {}) });
+      const responseData = {
+        timeline: result.aggregations.timeline.buckets,
+        stats: Object.keys(result.aggregations).filter(k => k !== 'timeline').reduce((acc, key) => {
+          acc[key] = result.aggregations[key].buckets;
+          return acc;
+        }, {})
+      };
+
+      await setCache(cacheKey, responseData, 300); // 5 min cache
+      res.json(responseData);
     } catch (err) {
-      console.error('Erreur stats:', err.message);
-      res.status(500).json({ error: err.message });
+      handleError(err, res, 'Erreur lors de la récupération des stats');
     }
   });
 
   app.post('/api/top-sources', authenticate, apiLimiter, validate(validators.topSourcesParams), async (req, res) => {
     try {
       const { timeRange, size = 10, field = 'source.ip' } = req.body;
-      const result = await esClient.search({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: 0, query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }, aggs: { top_sources: { terms: { field, size } } } } });
-      res.json(result.aggregations.top_sources.buckets);
+
+      const cacheKey = `top-sources:${JSON.stringify({ timeRange, size, field })}`;
+      const cachedData = await getCache(cacheKey);
+      if (cachedData) {
+        metrics.cacheHitsTotal.inc({ cache_name: 'top_sources' });
+        return res.json(cachedData);
+      }
+      metrics.cacheMissesTotal.inc({ cache_name: 'top_sources' });
+
+      const result = await esClient.protectedSearch({
+        index: process.env.ES_INDEX || 'filebeat-*',
+        body: {
+          size: 0,
+          query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } },
+          aggs: { top_sources: { terms: { field, size } } }
+        }
+      });
+
+      const responseData = result.aggregations.top_sources.buckets;
+      await setCache(cacheKey, responseData, 300);
+      res.json(responseData);
     } catch (err) {
-      console.error('Erreur top-sources:', err.message);
-      res.status(500).json({ error: err.message });
+      handleError(err, res, 'Erreur top-sources');
     }
   });
 
   app.post('/api/bandwidth', authenticate, apiLimiter, validate(validators.bandwidthParams), async (req, res) => {
     try {
       const { timeRange, interval = '1m' } = req.body;
-      const result = await esClient.search({
+
+      const cacheKey = `bandwidth:${JSON.stringify({ timeRange, interval })}`;
+      const cachedData = await getCache(cacheKey);
+      if (cachedData) {
+        metrics.cacheHitsTotal.inc({ cache_name: 'bandwidth' });
+        return res.json(cachedData);
+      }
+      metrics.cacheMissesTotal.inc({ cache_name: 'bandwidth' });
+
+      const result = await esClient.protectedSearch({
         index: process.env.ES_INDEX || 'filebeat-*',
         body: {
           size: 0,
@@ -150,10 +205,16 @@ function mountApiRoutes(app, esClient, logService) {
         }
       });
 
-      res.json({ timeline: result.aggregations.bandwidth_over_time.buckets, total: result.aggregations.total_traffic.value || 0, average: result.aggregations.avg_packet_size.value || 0 });
+      const responseData = {
+        timeline: result.aggregations.bandwidth_over_time.buckets,
+        total: result.aggregations.total_traffic.value || 0,
+        average: result.aggregations.avg_packet_size.value || 0
+      };
+
+      await setCache(cacheKey, responseData, 300);
+      res.json(responseData);
     } catch (err) {
-      console.error('Erreur bandwidth:', err.message);
-      res.status(500).json({ error: err.message });
+      handleError(err, res, 'Erreur bandwidth');
     }
   });
 
@@ -162,7 +223,7 @@ function mountApiRoutes(app, esClient, logService) {
       const { timeRange, interval = '1m', ip, field = 'source.ip' } = req.body;
       if (!ip) return res.status(400).json({ error: 'ip required' });
 
-      const result = await esClient.search({
+      const result = await esClient.protectedSearch({
         index: process.env.ES_INDEX || 'filebeat-*',
         body: {
           size: 0,
@@ -190,7 +251,7 @@ function mountApiRoutes(app, esClient, logService) {
       const { timeRange, ip, field = 'source.ip' } = req.body;
       if (!ip) return res.status(400).json({ error: 'ip required' });
 
-      const result = await esClient.search({
+      const result = await esClient.protectedSearch({
         index: process.env.ES_INDEX || 'filebeat-*',
         body: {
           size: 0,
@@ -223,7 +284,7 @@ function mountApiRoutes(app, esClient, logService) {
     try {
       const { timeRange, size = 10, type = 'source' } = req.body;
       const field = type === 'source' ? 'source.ip' : 'destination.ip';
-      const result = await esClient.search({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: 0, query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }, aggs: { top_consumers: { terms: { field, size, order: { total_bytes: 'desc' } }, aggs: { total_bytes: { sum: { field: 'network.bytes' } }, connection_count: { value_count: { field } } } } } } });
+      const result = await esClient.protectedSearch({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: 0, query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }, aggs: { top_consumers: { terms: { field, size, order: { total_bytes: 'desc' } }, aggs: { total_bytes: { sum: { field: 'network.bytes' } }, connection_count: { value_count: { field } } } } } } });
       res.json(result.aggregations.top_consumers.buckets);
     } catch (err) {
       console.error('Erreur top-bandwidth:', err.message);
@@ -234,7 +295,7 @@ function mountApiRoutes(app, esClient, logService) {
   app.post('/api/protocols', authenticate, apiLimiter, validate(validators.protocolsParams), async (req, res) => {
     try {
       const { timeRange, size = 10 } = req.body;
-      const result = await esClient.search({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: 0, query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }, aggs: { by_protocol: { terms: { field: 'network.protocol', size } }, by_destination_port: { terms: { field: 'destination.port', size }, aggs: { bytes: { sum: { field: 'network.bytes' } } } }, by_application: { terms: { field: 'network.application', size } } } } });
+      const result = await esClient.protectedSearch({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: 0, query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }, aggs: { by_protocol: { terms: { field: 'network.protocol', size } }, by_destination_port: { terms: { field: 'destination.port', size }, aggs: { bytes: { sum: { field: 'network.bytes' } } } }, by_application: { terms: { field: 'network.application', size } } } } });
       res.json({ protocols: result.aggregations.by_protocol.buckets, ports: result.aggregations.by_destination_port.buckets, applications: result.aggregations.by_application.buckets });
     } catch (err) {
       console.error('Erreur protocols:', err.message);
@@ -245,11 +306,39 @@ function mountApiRoutes(app, esClient, logService) {
   app.post('/api/security-events', authenticate, apiLimiter, validate(validators.securityEventsParams), async (req, res) => {
     try {
       const { timeRange } = req.body;
-      const result = await esClient.search({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: 0, query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }, aggs: { by_action: { terms: { field: 'event.action', size: 20 } }, denied_connections: { filter: { terms: { 'event.action': ['deny', 'block', 'drop'] } }, aggs: { top_denied_ips: { terms: { field: 'source.ip', size: 10 } } } }, allowed_connections: { filter: { terms: { 'event.action': ['allow', 'accept', 'permit'] } } } } } });
-      res.json({ actions: result.aggregations.by_action.buckets, denied: result.aggregations.denied_connections.doc_count, allowed: result.aggregations.allowed_connections.doc_count, top_denied_ips: result.aggregations.denied_connections.top_denied_ips?.buckets || [] });
+
+      const cacheKey = `security-events:${JSON.stringify({ timeRange })}`;
+      const cachedData = await getCache(cacheKey);
+      if (cachedData) {
+        metrics.cacheHitsTotal.inc({ cache_name: 'security_events' });
+        return res.json(cachedData);
+      }
+      metrics.cacheMissesTotal.inc({ cache_name: 'security_events' });
+
+      const result = await esClient.protectedSearch({
+        index: process.env.ES_INDEX || 'filebeat-*',
+        body: {
+          size: 0,
+          query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } },
+          aggs: {
+            by_action: { terms: { field: 'event.action', size: 20 } },
+            denied_connections: { filter: { terms: { 'event.action': ['deny', 'block', 'drop'] } }, aggs: { top_denied_ips: { terms: { field: 'source.ip', size: 10 } } } },
+            allowed_connections: { filter: { terms: { 'event.action': ['allow', 'accept', 'permit'] } } }
+          }
+        }
+      });
+
+      const responseData = {
+        actions: result.aggregations.by_action.buckets,
+        denied: result.aggregations.denied_connections.doc_count,
+        allowed: result.aggregations.allowed_connections.doc_count,
+        top_denied_ips: result.aggregations.denied_connections.top_denied_ips?.buckets || []
+      };
+
+      await setCache(cacheKey, responseData, 300);
+      res.json(responseData);
     } catch (err) {
-      console.error('Erreur security-events:', err.message);
-      res.status(500).json({ error: err.message });
+      handleError(err, res, 'Erreur security-events');
     }
   });
 
@@ -266,7 +355,7 @@ function mountApiRoutes(app, esClient, logService) {
     try {
       const { timeRange, ip, field = 'source.ip', size = 3 } = req.body;
       if (!ip) return res.status(400).json({ error: 'ip required' });
-      const result = await esClient.search({ index: process.env.ES_INDEX || 'filebeat-*', body: { size, sort: [{ '@timestamp': { order: 'desc' } }], query: { bool: { must: [{ term: { [field]: ip } } ], filter: timeRange && timeRange.from && timeRange.to ? [{ range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }] : [] } } } });
+      const result = await esClient.protectedSearch({ index: process.env.ES_INDEX || 'filebeat-*', body: { size, sort: [{ '@timestamp': { order: 'desc' } }], query: { bool: { must: [{ term: { [field]: ip } } ], filter: timeRange && timeRange.from && timeRange.to ? [{ range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }] : [] } } } });
       res.json({ hits: result.hits.hits });
     } catch (err) {
       console.error('Erreur consumer-samples:', err.message);
@@ -428,7 +517,7 @@ function mountApiRoutes(app, esClient, logService) {
       }
 
       // Fetch top IPs by total bytes
-      const topIPsRes = await esClient.search({
+      const topIPsRes = await esClient.protectedSearch({
         index: process.env.ES_INDEX || 'filebeat-*',
         body: {
           size: 0,
@@ -471,7 +560,7 @@ function mountApiRoutes(app, esClient, logService) {
       // Fetch top services if requested
       let topServices = [];
       if (includeServices) {
-        const topServicesRes = await esClient.search({
+        const topServicesRes = await esClient.protectedSearch({
           index: process.env.ES_INDEX || 'filebeat-*',
           body: {
             size: 0,
@@ -556,7 +645,7 @@ function mountApiRoutes(app, esClient, logService) {
         filterClauses.push({ term: { 'source.port': parseInt(sourcePort) } });
       }
 
-      const result = await esClient.search({
+      const result = await esClient.protectedSearch({
         index: process.env.ES_INDEX || 'filebeat-*',
         from: skip,
         size: size,
@@ -623,7 +712,7 @@ function mountApiRoutes(app, esClient, logService) {
         filterClauses.push({ term: { 'source.port': parseInt(sourcePort) } });
       }
 
-      const result = await esClient.search({
+      const result = await esClient.protectedSearch({
         index: process.env.ES_INDEX || 'filebeat-*',
         size: 0,  // No documents needed, just aggregations
         body: {
@@ -699,7 +788,7 @@ function mountApiRoutes(app, esClient, logService) {
       });
 
       // Search documents in IP range
-      const result = await esClient.search({
+      const result = await esClient.protectedSearch({
         index: process.env.ES_INDEX || 'filebeat-*',
         from,
         size,
@@ -764,7 +853,7 @@ function mountApiRoutes(app, esClient, logService) {
         range: { [field]: { gte: startIp, lte: endIp } }
       });
 
-      const result = await esClient.search({
+      const result = await esClient.protectedSearch({
         index: process.env.ES_INDEX || 'filebeat-*',
         size: 0,  // No documents needed, just aggregations
         body: {
@@ -810,7 +899,7 @@ function mountApiRoutes(app, esClient, logService) {
         return res.status(400).json({ error: 'port is required' });
       }
 
-      const result = await esClient.search({
+      const result = await esClient.protectedSearch({
         index: process.env.ES_INDEX || 'filebeat-*',
         body: {
           size: 0,
