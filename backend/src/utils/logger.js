@@ -1,146 +1,104 @@
-const fs = require('fs')
-const path = require('path')
-const morgan = require('morgan')
+const pino = require('pino');
+const pinoHttp = require('pino-http');
+const path = require('path');
+const fs = require('fs');
 
 // Create logs directory if it doesn't exist
-const logsDir = path.join(__dirname, '../../..', 'logs')
+const logsDir = path.join(__dirname, '../../..', 'logs');
 if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true })
+  fs.mkdirSync(logsDir, { recursive: true });
 }
 
-const logFilePath = path.join(logsDir, 'backend.log')
+const isProduction = process.env.NODE_ENV === 'production';
+const logFilePath = path.join(logsDir, 'backend.log');
 
 /**
- * Log levels
+ * Configuration des transports Pino
+ * En production : On écrit en JSON dans un fichier via un stream asynchrone.
+ * En développement : On utilise pino-pretty pour la lisibilité console.
  */
-const LogLevel = {
-  ERROR: 'ERROR',
-  WARN: 'WARN',
-  INFO: 'INFO',
-  DEBUG: 'DEBUG'
-}
+const transport = pino.transport({
+  targets: [
+    {
+      target: 'pino/file',
+      options: { destination: logFilePath, mkdir: true },
+      level: isProduction ? 'info' : 'debug'
+    },
+    ...(isProduction ? [] : [{
+      target: 'pino-pretty',
+      options: { colorize: true },
+      level: 'debug'
+    }])
+  ]
+});
+
+const pinoInstance = pino(
+  {
+    level: process.env.LOG_LEVEL || (isProduction ? 'info' : 'debug'),
+    base: { pid: process.pid, hostname: 'sfi-backend' },
+    timestamp: pino.stdTimeFunctions.isoTime
+  },
+  transport
+);
 
 /**
- * Format timestamp for logs
- */
-function getTimestamp() {
-  return new Date().toISOString()
-}
-
-/**
- * Format log message
- */
-function formatLog(level, message, data = null) {
-  const timestamp = getTimestamp()
-  let logMessage = `[${timestamp}] [${level}] ${message}`
-  
-  if (data) {
-    logMessage += ` ${typeof data === 'string' ? data : JSON.stringify(data)}`
-  }
-  
-  return logMessage
-}
-
-/**
- * Write to log file and console
- */
-function writeLog(level, message, data = null) {
-  const formattedLog = formatLog(level, message, data)
-  
-  // Write to file
-  try {
-    fs.appendFileSync(logFilePath, formattedLog + '\n', 'utf8')
-  } catch (err) {
-    console.error('Failed to write to log file:', err)
-  }
-  
-  // Also output to console for development
-  const logFunction = level === LogLevel.ERROR ? console.error : 
-                     level === LogLevel.WARN ? console.warn : 
-                     console.log
-  logFunction(formattedLog)
-}
-
-/**
- * Logger object with utility methods
+ * Logger asynchrone ultra-performant
  */
 const logger = {
-  error: (message, data) => writeLog(LogLevel.ERROR, message, data),
-  warn: (message, data) => writeLog(LogLevel.WARN, message, data),
-  info: (message, data) => writeLog(LogLevel.INFO, message, data),
-  debug: (message, data) => writeLog(LogLevel.DEBUG, message, data),
-  
-  /**
-   * Log HTTP request
-   */
+  error: (msg, obj) => pinoInstance.error(obj, msg),
+  warn: (msg, obj) => pinoInstance.warn(obj, msg),
+  info: (msg, obj) => pinoInstance.info(obj, msg),
+  debug: (msg, obj) => pinoInstance.debug(obj, msg),
+
   logRequest: (method, path, statusCode, duration) => {
-    const message = `${method} ${path} - ${statusCode} (${duration}ms)`
-    writeLog(LogLevel.INFO, message)
+    pinoInstance.info({ method, path, statusCode, duration }, 'HTTP Request');
   },
-  
-  /**
-   * Log API error
-   */
+
   logApiError: (endpoint, error) => {
-    const message = `API Error on ${endpoint}`
-    writeLog(LogLevel.ERROR, message, {
-      error: error.message,
-      stack: error.stack
-    })
+    pinoInstance.error({ endpoint, error: error.message, stack: error.stack }, `API Error on ${endpoint}`);
   },
-  
-  /**
-   * Log database event
-   */
+
   logDatabase: (action, details) => {
-    const message = `Database - ${action}`
-    writeLog(LogLevel.INFO, message, details)
+    pinoInstance.info({ action, details }, `Database - ${action}`);
   },
-  
-  /**
-   * Log Elasticsearch event
-   */
+
   logElasticsearch: (action, details) => {
-    const message = `Elasticsearch - ${action}`
-    writeLog(LogLevel.INFO, message, details)
+    pinoInstance.info({ action, details }, `Elasticsearch - ${action}`);
   }
-}
+};
 
 /**
- * Configuration Morgan personnalisée
- * Ne logue pas les headers sensibles (Authorization, Cookie, etc)
+ * Middleware de logging HTTP pour Express (remplace Morgan)
  */
 function createMorganLogger() {
-  // Format personnalisé qui exclut les headers sensibles
-  morgan.token('auth', (req) => {
-    // Ne pas logger le header Authorization
-    return req.headers.authorization ? '***REDACTED***' : '-'
-  })
-
-  morgan.token('cookie', (req) => {
-    // Ne pas logger les cookies
-    return req.headers.cookie ? '***REDACTED***' : '-'
-  })
-
-  // Format: IP - METHOD URL STATUS RESPONSE_TIME
-  const customFormat = ':remote-addr - :method :url :status :response-time ms'
-  
-  return morgan(customFormat, {
-    skip: (req) => {
-      // Ne pas logger les health checks
-      return req.path === '/api/health'
-    },
-    // Also log to file
-    stream: {
-      write: (message) => {
-        try {
-          fs.appendFileSync(logFilePath, message, 'utf8')
-        } catch (err) {
-          console.error('Failed to write morgan log:', err)
+  return pinoHttp({
+    logger: pinoInstance,
+    useLevel: 'info',
+    serializers: {
+      req: (req) => ({
+        method: req.method,
+        url: req.url,
+        // On masque les headers sensibles
+        headers: {
+          ...req.headers,
+          authorization: req.headers.authorization ? '***REDACTED***' : undefined,
+          cookie: req.headers.cookie ? '***REDACTED***' : undefined
         }
-      }
+      }),
+      res: (res) => ({
+        statusCode: res.statusCode
+      })
+    },
+    customLogLevel: function (req, res, err) {
+      if (res.statusCode >= 400 && res.statusCode < 500) return 'warn';
+      if (res.statusCode >= 500 || err) return 'error';
+      return 'info';
+    },
+    // Ne pas logger les health checks pour ne pas polluer
+    autoLogging: {
+      ignore: (req) => req.url === '/api/health'
     }
-  })
+  });
 }
 
-module.exports = { createMorganLogger, logger, LogLevel, writeLog, formatLog }
+module.exports = { createMorganLogger, logger, pino: pinoInstance };
