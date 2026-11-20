@@ -545,8 +545,8 @@ const ReportsPage = memo(function ReportsPage() {
                   Formats disponibles
                 </Typography>
                 <Stack spacing={1}>
-                  <Typography variant="body2">📄 CSV - Compatibilité maximale (Excel, Google Sheets)</Typography>
-                  <Typography variant="body2">📋 JSON - Format structuré pour intégration</Typography>
+                  <Typography variant="body2">CSV - Compatibilité maximale (Excel, Google Sheets)</Typography>
+                  <Typography variant="body2">JSON - Format structuré pour intégration</Typography>
                 </Stack>
               </Box>
             </Stack>
