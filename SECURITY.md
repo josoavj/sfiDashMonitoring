@@ -1,8 +1,8 @@
-# 🔒 Guide de Sécurité - SFI Dashboard
+# Guide de Sécurité - SFI Dashboard
 
 
 
-## 📋 Table des matières
+## Table des matières
 
 1. [Authentification JWT](#authentification-jwt)
 2. [Refresh Token Rotation](#refresh-token-rotation)
@@ -215,9 +215,9 @@ app.post('/api/data', verifyCsrfToken, authenticate, handler)
 
 ```javascript
 {
-  httpOnly: true,          // ✅ Non accessible en JS (XSS safe)
-  secure: true,            // ✅ HTTPS seulement (en prod)
-  sameSite: 'Strict',      // ✅ Pas d'envoi cross-site (CSRF safe)
+  httpOnly: true,          // Non accessible en JS (XSS safe)
+  secure: true,            // HTTPS seulement (en prod)
+  sameSite: 'Strict',      // Pas d'envoi cross-site (CSRF safe)
   maxAge: 7 * 24 * 3600 * 1000,  // 7 jours
   path: '/',
   domain: 'app.example.com'  // Production seulement
@@ -311,8 +311,8 @@ openssl rand -base64 32
 ```bash
 # ===== SECURITY =====
 NODE_ENV=production
-JWT_SECRET=<votre_secret_fort_32_chars>       # ✅ Généré ci-dessus
-JWT_REFRESH_SECRET=<votre_autre_secret>       # ✅ Différent du premier
+JWT_SECRET=<votre_secret_fort_32_chars>       # Généré ci-dessus
+JWT_REFRESH_SECRET=<votre_autre_secret>       # Différent du premier
 
 # ===== ELASTICSEARCH =====
 ES_NODE=https://elasticsearch.example.com:9200
@@ -339,17 +339,19 @@ PROMETHEUS_ENABLED=true
 ```
 
 ### Frontend .env (peut être committé, pas de secrets)
+
 ```bash
 VITE_API_URL=https://api.example.com:3001
 VITE_BACKEND_WS_URL=wss://api.example.com:3001
 ```
 
-### ⚠️ Règles importantes
-- ❌ Ne JAMAIS commiter `.env` avec les secrets
-- ❌ Ne JAMAIS partager JWT_SECRET
-- ✅ Générer des nouveaux secrets à chaque déploiement
-- ✅ Stocker en variables d'environnement (pas en config)
-- ✅ Rotationner les secrets mensuellement en production
+###  Règles importantes
+
+- Ne JAMAIS commiter `.env` avec les secrets
+- Ne JAMAIS partager JWT_SECRET
+- Générer des nouveaux secrets à chaque déploiement
+- Stocker en variables d'environnement (pas en config)
+- Rotationner les secrets mensuellement en production
 
 ---
 
@@ -372,7 +374,7 @@ VITE_BACKEND_WS_URL=wss://api.example.com:3001
 ### Docker
 
 ```dockerfile
-# ✅ Ne pas backer les secrets
+# Ne pas backer les secrets
 FROM node:18-alpine
 WORKDIR /app
 COPY package*.json ./
