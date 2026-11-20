@@ -1,10 +1,10 @@
-# 🚀 SFI Dashboard Monitoring
+# SFI Dashboard Monitoring
 
 **Plateforme de monitoring des données Fortigate depuis Elasticsearch**
 
-> ✨ **Statut** : Production Ready - Sécurité renforcée, Tests & Monitoring
+> **Statut** : Production Ready - Sécurité renforcée, Tests & Monitoring
 
-## 📋 Stack Technique
+## Stack Technique
 
 | Composant | Technologie | Version |
 |-----------|-------------|---------|
@@ -19,39 +19,39 @@
 
 ---
 
-## 🔒 Sécurité
+## Sécurité
 
-### ✨ Améliorations sécurité
+###  Améliorations sécurité
 
-- ✅ **JWT HttpOnly Cookies** - Tokens non accessibles via JavaScript
-- ✅ **Refresh Token Rotation** - Nouveau token à chaque refresh
-- ✅ **Token Hashing** - Refresh tokens hachés en BD (pas en clair)
-- ✅ **CORS Strict** - Origins whitelist, SameSite=Strict
-- ✅ **Helmet Security Headers** - Protection contre XSS, Clickjacking
-- ✅ **Rate Limiting** - Auth (5/15min), Refresh (10/min)
-- ✅ **CSRF Protection** - Double submit tokens
-- ✅ **Vulnérabilités npm fixées** - 0 vulnérabilités
+-  **JWT HttpOnly Cookies** - Tokens non accessibles via JavaScript
+-  **Refresh Token Rotation** - Nouveau token à chaque refresh
+-  **Token Hashing** - Refresh tokens hachés en BD (pas en clair)
+-  **CORS Strict** - Origins whitelist, SameSite=Strict
+-  **Helmet Security Headers** - Protection contre XSS, Clickjacking
+-  **Rate Limiting** - Auth (5/15min), Refresh (10/min)
+-  **CSRF Protection** - Double submit tokens
+-  **Vulnérabilités npm fixées** - 0 vulnérabilités
 
-### 🔐 Authentification
+### Authentification
 
 ```javascript
-// ✅ Login → Access Token (JWT 15m) + Refresh Token (HttpOnly cookie)
+// Login → Access Token (JWT 15m) + Refresh Token (HttpOnly cookie)
 POST /auth/signin
 → { accessToken, user }
 + Cookie: refreshToken (HttpOnly, Secure, SameSite=Strict)
 
-// ✅ Refresh automatique avant expiration
+// Refresh automatique avant expiration
 POST /auth/refresh (credentials: 'include')
 → Nouveau Access Token + nouveau Refresh Token
 
-// ✅ Logout révoque toutes les sessions
+// Logout révoque toutes les sessions
 POST /auth/signout
 → Sessions marquées revoked=true, cookie supprimé
 ```
 
 ---
 
-## 🧪 Tests & Qualité
+##  Tests & Qualité
 
 ### Tests
 
@@ -63,10 +63,10 @@ npm run test:coverage # Report couverture
 
 **Couverture:**
 
-- ✅ Auth Security Tests (JWT, hashing, expiration)
-- ✅ AuthContext Tests (login, refresh, logout)
-- ✅ Password hashing & verification
-- ✅ Token expiration & rotation
+-  Auth Security Tests (JWT, hashing, expiration)
+-  AuthContext Tests (login, refresh, logout)
+-  Password hashing & verification
+-  Token expiration & rotation
 
 ### Linting
 
@@ -76,7 +76,7 @@ npm run lint          # ESLint (frontend)
 
 ---
 
-## 📊 Monitoring & Observabilité
+## Monitoring & Observabilité
 
 ### Prometheus Metrics
 
@@ -104,7 +104,7 @@ scrape_configs:
 
 ---
 
-## 📚 API Documentation
+## API Documentation
 
 ### Swagger/OpenAPI
 
@@ -124,15 +124,15 @@ GET http://localhost:3001/api-docs
 
 ---
 
-## 🛡️ Configuration Sécurité (Production)
+##️ Configuration Sécurité (Production)
 
 ### Variables d'environnement essentielles
 
 ```bash
 # Backend .env (à générer avec openssl rand -base64 32)
 NODE_ENV=production
-JWT_SECRET=<secret1>           # ✅ Généré automatiquement
-JWT_REFRESH_SECRET=<secret2>   # ✅ Généré automatiquement
+JWT_SECRET=<secret1>           # Généré automatiquement
+JWT_REFRESH_SECRET=<secret2>   # Généré automatiquement
 
 # Elasticsearch
 ES_NODE=https://es.example.com:9200
@@ -161,7 +161,7 @@ HOST=0.0.0.0
 
 ---
 
-### 1. 🖥️ Mode LOCAL (Développement sur votre machine)
+### 1. Mode LOCAL (Développement sur votre machine)
 
 Accessible uniquement en localhost.
 
@@ -174,11 +174,11 @@ cd local
 
 **Idéal pour:** Développement, débogage, tests locaux
 
-📖 **Documentation:** [`local/README.md`](./local/README.md)
+**Documentation:** [`local/README.md`](./local/README.md)
 
 ---
 
-### 2. 🌐 Mode DEPLOYED (Ubuntu Server + Réseau)
+### 2. Mode DEPLOYED (Ubuntu Server + Réseau)
 
 Frontend accessible depuis autres machines du réseau. Pas d'interface graphique sur le serveur.
 
@@ -192,11 +192,11 @@ export SERVER_IP=192.168.1.100
 
 **Idéal pour:** Production, serveur Ubuntu, accès réseau
 
-📖 **Documentation:** [`deployed/README.md`](./deployed/README.md)
+**Documentation:** [`deployed/README.md`](./deployed/README.md)
 
 ---
 
-## 🚀 Démarrage rapide
+## Démarrage rapide
 
 ### Installation
 
@@ -250,11 +250,11 @@ npm run test:ui        # Interface Vitest
 ./scripts/build/analyze-build.sh
 ```
 
-**📖 Docs complètes:** Voir [scripts/README.md](./scripts/README.md)
+** Docs complètes:** Voir [scripts/README.md](./scripts/README.md)
 
 ---
 
-## 📦 Prérequis
+##  Prérequis
 
 - **Node.js** ≥ 18 (pour HttpOnly cookies natifs)
 - **npm** ≥ 9
@@ -264,7 +264,7 @@ npm run test:ui        # Interface Vitest
 
 ---
 
-## 🔧 Configuration
+##  Configuration
 
 ### Backend `.env`
 
@@ -287,32 +287,32 @@ FRONTEND_URL=http://localhost:5173        # Pour CORS
 
 ---
 
-## 📂 Structure des dossiers
+## Structure des dossiers
 
 ```
 sfiDashMonitoring/
-├── 📁 scripts/                  ← 🎯 Scripts utilitaires
-│   ├── 📁 logs/                 ← Gestion des logs
+├── scripts/                     ← Scripts utilitaires
+│   ├── logs/                    ← Gestion des logs
 │   │   ├── watch-logs.sh        ← Surveiller logs en direct
 │   │   ├── manage-logs.sh       ← Archiver/nettoyer logs
 │   │   └── start-with-logs.sh   ← Démarrer + logs actifs
-│   ├── 📁 dev/                  ← Développement
+│   ├── dev/                     ← Développement
 │   │   ├── setup.sh             ← Initialiser l'env
 │   │   └── test.sh              ← Lancer les tests
-│   ├── 📁 build/                ← Build & analyse
+│   ├── build/                   ← Build & analyse
 │   │   ├── build-frontend.sh    ← Builder le frontend
 │   │   └── analyze-build.sh     ← Analyser la taille
-│   ├── 📁 utils/                ← Utilitaires
+│   ├── utils/                   ← Utilitaires
 │   │   └── health-check.sh      ← Vérifier santé services
-│   └── README.md                ← 📖 Docs scripts
+│   └── README.md                ← Docs scripts
 │
-├── 📁 local/                    ← Mode développement (localhost)
+├── local/                       ← Mode développement (localhost)
 │   ├── start.sh                 ← Démarrer services
 │   ├── test.sh                  ← Tester configuration
 │   ├── configure.sh             ← Initialiser
 │   └── README.md                ← Docs LOCAL
 │
-├── 📁 deployed/                 ← Mode production (réseau)
+├── deployed/                    ← Mode production (réseau)
 │   ├── docker-compose.yml       ← Orchestration Docker
 │   ├── Dockerfile.backend       ← Image backend
 │   ├── Dockerfile.frontend      ← Image frontend
@@ -323,18 +323,18 @@ sfiDashMonitoring/
 │   ├── sfiDashMonitoring-*.service ← Systemd units
 │   └── README.md                ← Docs DEPLOYED
 │
-├── 📁 backend/                  ← Code backend (partagé)
-├── 📁 src/                      ← Code React (partagé)
+├── backend/                     ← Code backend (partagé)
+├── src/                         ← Code React (partagé)
 ├── package.json                 ← Dépendances (partagé)
-├── start.sh                     ← 🎯 Point d'entrée principal
+├── start.sh                     ←  Point d'entrée principal
 └── README.md                    ← Ce fichier
 ```
 
-**📖 Documentation scripts:** Voir [scripts/README.md](./scripts/README.md) pour le détail complet de chaque script et les workflows.
+** Documentation scripts:** Voir [scripts/README.md](./scripts/README.md) pour le détail complet de chaque script et les workflows.
 
 ---
 
-## 🚀 Commandes rapides
+## Commandes rapides
 
 ### Mode LOCAL
 
@@ -356,23 +356,23 @@ export SERVER_IP=192.168.1.100
 
 ---
 
-## 🎨 Fonctionnalités
+## Fonctionnalités
 
-- ✅ Dashboard temps réel avec WebSocket
-- ✅ Monitoring Elasticsearch Fortigate
-- ✅ Alertes haute bande passante
-- ✅ Rapports Top 20 consommateurs
-- ✅ **Authentification JWT sécurisée** (HttpOnly cookies)
-- ✅ **Refresh tokens automatiques**
-- ✅ Responsive Material-UI
-- ✅ Support offline avec fallbacks
-- ✅ **Tests unitaires & sécurité**
-- ✅ **Monitoring Prometheus**
-- ✅ **API Swagger/OpenAPI**
+- Dashboard temps réel avec WebSocket
+- Monitoring Elasticsearch Fortigate
+- Alertes haute bande passante
+- Rapports Top 20 consommateurs
+- **Authentification JWT sécurisée** (HttpOnly cookies)
+- **Refresh tokens automatiques**
+- Responsive Material-UI
+- Support offline avec fallbacks
+- **Tests unitaires & sécurité**
+- **Monitoring Prometheus**
+- **API Swagger/OpenAPI**
 
 ---
 
-## 📚 Documentation complète
+## Documentation complète
 
 | Document | Contenu |
 |----------|---------|
@@ -385,33 +385,28 @@ export SERVER_IP=192.168.1.100
 
 ---
 
-## 👥 Équipe
+## Équipe
 
-**Frontend:**
-
-- Koloina (@koulienathalie)
-
-**Backend:**
-
-- josoavj (@josoavj)
-- haritsimba (@haritsimba)
+- Koloina : [@koulienathalie](https://github.com/koulienathalie)
+- josoavj : [@josoavj](https://github.com/josoavj)
+- haritsimba : [@haritsimba](https://github.com/haritsimba)
 
 ---
 
-## 🔗 Projets liés
+## Projets liés
 
 - [elasticsearch-nodejs-server](https://github.com/josoavj/elasticsearch-nodejs-server) - Tests intégration
 - [elasticsearch-config](https://github.com/josoavj/elasticsearch-config) - Configuration ES
 
 ---
 
-## 📄 License
+## License
 
 MIT
 
 ---
 
-## 🆘 Support
+## Support
 
 Problème?
 
@@ -423,15 +418,15 @@ Problème?
 
 ---
 
-## 🔄 Roadmap
+## Roadmap
 
 | Étape | Statut | Description |
 |-------|--------|-------------|
-| **1** | ✅ FAIT | Sécurité (JWT HttpOnly, refresh tokens) |
-| **2** | ✅ FAIT | Tests, Swagger, Prometheus, CSRF |
-| **3** | ⏳ TODO | TypeScript migration |
-| **4** | ⏳ TODO | Logging centralisé (ELK/Winston) |
-| **5** | ⏳ TODO | Circuit breaker Elasticsearch |
-| **6** | ⏳ TODO | E2E tests (Playwright) |
+| **1** | FAIT | Sécurité (JWT HttpOnly, refresh tokens) |
+| **2** | FAIT | Tests, Swagger, Prometheus, CSRF |
+| **3** | TODO | TypeScript migration |
+| **4** | TODO | Logging centralisé (ELK/Winston) |
+| **5** | TODO | Circuit breaker Elasticsearch |
+| **6** | TODO | E2E tests (Playwright) |
 
 ---
