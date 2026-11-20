@@ -21,12 +21,12 @@ export const WebSocketProvider = ({ children }) => {
 
         if (!token) {
             if (isDev) {
-                console.warn("❌ Aucun token => WebSocket non connectée");
+                console.warn("[WebSocket] Aucun token => WebSocket non connectée");
             }
             return;
         }
 
-        // 🔌 Connexion Socket.IO
+        // Connexion Socket.IO
         const wsUrl = import.meta.env.VITE_BACKEND_WS_URL || import.meta.env.VITE_API_URL || 'http://localhost:3001'
         if (isDev) {
             console.log('[WebSocketContext] Tentative de connexion à:', wsUrl)
@@ -44,20 +44,20 @@ export const WebSocketProvider = ({ children }) => {
 
         socket.on("connect", () => {
             if (isDev) {
-                console.log("✅ WebSocket connectée !", socket.id);
+                console.log("[WebSocket] WebSocket connectée !", socket.id);
             }
             setConnected(true);
         });
 
         socket.on("disconnect", (reason) => {
             if (isDev) {
-                console.warn("⚠️ WebSocket déconnectée:", reason);
+                console.warn("[WebSocket] WebSocket déconnectée:", reason);
             }
             setConnected(false);
         });
 
         socket.on("connect_error", (err) => {
-            console.error("❌ WebSocket erreur de connexion:", err.message);
+            console.error("[WebSocket] WebSocket erreur de connexion:", err.message);
             // Le socket.io va automatiquement réessayer
         });
 
