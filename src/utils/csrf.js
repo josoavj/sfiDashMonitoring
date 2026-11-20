@@ -30,10 +30,10 @@ class CSRFTokenService {
       const data = await response.json();
       this.token = data.csrfToken;
       
-      console.log('[CSRF] ✅ Token récupéré avec succès');
+      console.log('[CSRF] Token récupéré avec succès');
       return this.token;
     } catch (error) {
-      console.error('[CSRF] ❌ Erreur lors de la récupération du token:', error);
+      console.error('[CSRF] Erreur lors de la récupération du token:', error);
       throw error;
     }
   }
