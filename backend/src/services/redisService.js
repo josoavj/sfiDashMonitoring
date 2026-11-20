@@ -17,7 +17,7 @@ const client = createClient({
 });
 
 client.on('error', (err) => logger.error('Redis Client Error', err));
-client.on('connect', () => logger.info('✅ Connected to Redis'));
+client.on('connect', () => logger.info('[REDIS] Connected to Redis'));
 
 /**
  * Initialisation de la connexion Redis
