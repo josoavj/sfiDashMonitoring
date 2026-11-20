@@ -202,12 +202,12 @@ const ExplorationPage = memo(function ExplorationPage() {
       
       // Supporter les deux formats de réponse
       let hitsArray = Array.isArray(data.hits) ? data.hits : [];
-      console.log('📦 Hits array length:', hitsArray.length);
+      console.log('[Exploration] Hits array length:', hitsArray.length);
       let results_data = [];
       
       if (hitsArray.length > 0 && hitsArray[0]._source) {
         // Format Elasticsearch avec _source
-        console.log('✅ Using _source format');
+        console.log('[Exploration] Using _source format');
         try {
           results_data = hitsArray.map((hit, idx) => {
             try {
@@ -221,15 +221,15 @@ const ExplorationPage = memo(function ExplorationPage() {
           console.error('Error in map:', e);
         }
       } else {
-        console.warn('⚠️ No hits or unknown format:', hitsArray.length ? hitsArray[0] : 'empty');
+        console.warn('[Exploration] No hits or unknown format:', hitsArray.length ? hitsArray[0] : 'empty');
       }
       
-      console.log('📋 Normalized results:', results_data.length, results_data.slice(0, 2));
+      console.log('Normalized results:', results_data.length, results_data.slice(0, 2));
       setResults(results_data)
       
       // Afficher les résultats pour debug
       if (results_data.length === 0) {
-        console.warn('⚠️ NO RESULTS TO DISPLAY!');
+        console.warn('[Exploration] NO RESULTS TO DISPLAY!');
       }
 
       // Récupérer les stats agrégées pour TOUS les résultats (pas seulement les 50 paginés)
@@ -246,7 +246,7 @@ const ExplorationPage = memo(function ExplorationPage() {
 
           if (statsResponse.ok) {
             const statsData = await statsResponse.json();
-            console.log('📈 Aggregated stats for all results:', statsData);
+            console.log('[Exploration] Aggregated stats for all results:', statsData);
             setStats(statsData);
           }
         } catch (statsErr) {
@@ -773,7 +773,7 @@ const ExplorationPage = memo(function ExplorationPage() {
         <>
         <Paper elevation={2} sx={{ borderRadius: 2, p: 3, mb: 3 }}>
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-            📊 Résultats ({totalResults} trouvés)
+            Résultats ({totalResults} trouvés)
           </Typography>
           
           <Grid container spacing={2}>
@@ -803,7 +803,7 @@ const ExplorationPage = memo(function ExplorationPage() {
                   {/* IPs */}
                   <Box sx={{ mb: 1.5 }}>
                     <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
-                      🔹 Flot
+                      Flot
                     </Typography>
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
                       <Chip
@@ -825,7 +825,7 @@ const ExplorationPage = memo(function ExplorationPage() {
                   {/* Ports */}
                   <Box sx={{ mb: 1.5 }}>
                     <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
-                      🔌 Ports
+                      Ports
                     </Typography>
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', fontSize: '0.875rem', fontFamily: 'monospace' }}>
                       <Chip
@@ -866,7 +866,7 @@ const ExplorationPage = memo(function ExplorationPage() {
                   {/* Données */}
                   <Box sx={{ pt: 1.5, borderTop: '1px solid rgba(0,0,0,0.1)' }}>
                     <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
-                      📦 Données
+                      Données
                     </Typography>
                     <Chip
                       label={formatBytes(row['network.bytes'] || 0)}
@@ -888,7 +888,7 @@ const ExplorationPage = memo(function ExplorationPage() {
             <Grid sx={{ xs: 12, md: 6}}>
               <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                  📊 Distribution des Protocoles
+                  Distribution des Protocoles
                 </Typography>
                 {chartData.protocolData.length > 0 ? (
                   <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -918,7 +918,7 @@ const ExplorationPage = memo(function ExplorationPage() {
             <Grid sx={{ xs: 12, md: 6}}>
               <Paper elevation={2} sx={{ borderRadius: 2, p: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                  📈 Top Services par Volume
+                  Top Services par Volume
                 </Typography>
                 {chartData.serviceData.length > 0 ? (
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
