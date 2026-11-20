@@ -10,7 +10,7 @@ const metrics = require('../services/metricsService');
 
 // Fonction helper pour sanitizer les erreurs
 function handleError(err, res, defaultMessage = 'Erreur lors du traitement de la requête') {
-  console.error('❌ Erreur API:', {
+  console.error('[API] Erreur API:', {
     message: err.message,
     code: err.code,
     statusCode: err.statusCode
@@ -661,7 +661,7 @@ function mountApiRoutes(app, esClient, logService) {
 
       // Log first document to see structure
       if (result.hits.hits.length > 0) {
-        console.log('📊 Sample document:', JSON.stringify({
+        console.log('[EXPLORATION] Sample document:', JSON.stringify({
           source_ip: result.hits.hits[0]._source.source?.ip,
           source_port: result.hits.hits[0]._source.source?.port,
           dest_ip: result.hits.hits[0]._source.destination?.ip,
@@ -804,7 +804,7 @@ function mountApiRoutes(app, esClient, logService) {
 
       // Log sample document
       if (result.hits.hits.length > 0) {
-        console.log('📊 IP Range Sample document:', JSON.stringify({
+        console.log('[EXPLORATION] IP Range Sample document:', JSON.stringify({
           source_ip: result.hits.hits[0]._source.source?.ip,
           source_port: result.hits.hits[0]._source.source?.port,
           dest_ip: result.hits.hits[0]._source.destination?.ip,

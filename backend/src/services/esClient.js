@@ -39,9 +39,9 @@ function createEsClientFromEnv() {
     try {
       const caCert = fs.readFileSync(path.resolve(process.env.ES_CERT_PATH));
       esConfig.tls = { ca: caCert, rejectUnauthorized: true };
-      logger.info('✅ Certificat SSL chargé depuis:', process.env.ES_CERT_PATH);
+      logger.info('[SSL] Certificat SSL chargé depuis:', process.env.ES_CERT_PATH);
     } catch (err) {
-      logger.error('❌ Impossible de charger ES_CERT_PATH:', err);
+      logger.error('[SSL] Impossible de charger ES_CERT_PATH:', err);
       if (isProduction && process.env.ES_SSL_VERIFY !== 'false') {
         process.exit(1);
       }
@@ -54,7 +54,7 @@ function createEsClientFromEnv() {
   const client = new Client(esConfig);
 
   // Test connection
-  client.ping().catch(err => logger.warn('⚠️ Ping Elasticsearch failed:', err.message));
+  client.ping().catch(err => logger.warn('[ES] Ping Elasticsearch failed:', err.message));
 
   /**
    * Configuration du Circuit Breaker
@@ -71,15 +71,15 @@ function createEsClientFromEnv() {
   metrics.circuitBreakerState.set({ name: 'elasticsearch' }, 0); // 0 = Closed
 
   searchBreaker.on('open', () => {
-    logger.warn('🔥 Circuit Breaker OPEN for Elasticsearch');
+    logger.warn('[CIRCUIT-BREAKER] Circuit Breaker OPEN for Elasticsearch');
     metrics.circuitBreakerState.set({ name: 'elasticsearch' }, 2);
   });
   searchBreaker.on('halfOpen', () => {
-    logger.info('⏳ Circuit Breaker HALF_OPEN for Elasticsearch');
+    logger.info('[CIRCUIT-BREAKER] Circuit Breaker HALF_OPEN for Elasticsearch');
     metrics.circuitBreakerState.set({ name: 'elasticsearch' }, 1);
   });
   searchBreaker.on('close', () => {
-    logger.info('✅ Circuit Breaker CLOSED for Elasticsearch');
+    logger.info('[CIRCUIT-BREAKER] Circuit Breaker CLOSED for Elasticsearch');
     metrics.circuitBreakerState.set({ name: 'elasticsearch' }, 0);
   });
   searchBreaker.on('failure', (err) => {

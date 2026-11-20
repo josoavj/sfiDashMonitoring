@@ -19,19 +19,19 @@ const socket = io(SOCKET_URL, {
 
 socket.on('connect', () => {
 	if (isDev) {
-		console.log('[socketClient] ✅ Connected successfully', socket.id)
+		console.log('[socketClient] Connected successfully', socket.id)
 	}
 })
 
 socket.on('connect_error', (error) => {
 	if (isDev) {
-		console.warn('[socketClient] ❌ Connection error:', error.message)
+		console.warn('[socketClient] Connection error:', error.message)
 	}
 })
 
 socket.on('disconnect', (reason) => {
 	if (isDev) {
-		console.warn('[socketClient] ⚠️ Disconnected:', reason)
+		console.warn('[socketClient] Disconnected:', reason)
 	}
 })
 

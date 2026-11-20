@@ -371,7 +371,7 @@ export default function SettingsPage() {
               {/* Help Card */}
               <Grid size={{ xs: 12, md: 4 }}>
                 <Card elevation={1} variant="outlined" sx={{ p: { xs: 2, sm: 2.5 }, background: 'rgba(2, 100, 126, 0.05)' }}>
-                  <Typography variant="h6" sx={{ mb: 1.5, fontSize: { xs: '0.95rem', sm: '1.05rem' } }}>💡 Aide rapide</Typography>
+                  <Typography variant="h6" sx={{ mb: 1.5, fontSize: { xs: '0.95rem', sm: '1.05rem' } }}>Aide rapide</Typography>
                   <Typography variant="body2" sx={{ fontSize: { xs: '0.8rem', sm: '0.85rem' }, lineHeight: 1.6 }}>
                     Configurez l'URL de l'API, l'intervalle de polling, activez/désactivez les WebSockets et activez le mode développement pour le debug.
                   </Typography>
@@ -426,7 +426,7 @@ export default function SettingsPage() {
 
               <Grid size={{ xs: 12, md: 6 }}>
                 <Card elevation={1} variant="outlined" sx={{ p: { xs: 2, sm: 2.5 }, background: 'rgba(2, 100, 126, 0.05)' }}>
-                  <Typography variant="h6" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.1rem' } }}>📤 Import/Export</Typography>
+                  <Typography variant="h6" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.1rem' } }}>Import/Export</Typography>
                   <Stack spacing={1.5}>
                     <Button 
                       component="label" 
@@ -458,7 +458,7 @@ export default function SettingsPage() {
             <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
               <Grid size={{ xs: 12, md: 6 }}>
                 <Card elevation={1} sx={{ p: { xs: 2, sm: 2.5 } }}>
-                  <Typography variant="h6" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.1rem' } }}>🔐 Tokens & Sécurité</Typography>
+                  <Typography variant="h6" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.1rem' } }}>Tokens & Sécurité</Typography>
                   <Stack spacing={2}>
                     <TextField 
                       label="Access token (ms)" 
@@ -496,7 +496,7 @@ export default function SettingsPage() {
 
               <Grid size={{ xs: 12, md: 6 }}>
                 <Card elevation={1} variant="outlined" sx={{ p: { xs: 2, sm: 2.5 }, background: 'rgba(224, 91, 91, 0.05)' }}>
-                  <Typography variant="h6" sx={{ mb: 1.5, fontSize: { xs: '0.95rem', sm: '1.05rem' } }}>ℹ️ Recommandations</Typography>
+                  <Typography variant="h6" sx={{ mb: 1.5, fontSize: { xs: '0.95rem', sm: '1.05rem' } }}>Recommandations</Typography>
                   <Typography variant="body2" sx={{ fontSize: { xs: '0.8rem', sm: '0.85rem' }, lineHeight: 1.6 }}>
                     Configurez les politiques de mot de passe, rotation des tokens et refresh sécurisé via cookies HttpOnly. Voir <strong>Deployment.md</strong> pour les recommandations.
                   </Typography>
@@ -508,7 +508,7 @@ export default function SettingsPage() {
           {/* TAB 4: Notifications */}
           <TabPanel value={tab} index={3}>
             <Card elevation={1} sx={{ p: { xs: 2, sm: 2.5 }, maxWidth: 600 }}>
-              <Typography variant="h6" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.1rem' } }}>🔔 Notifications</Typography>
+              <Typography variant="h6" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.1rem' } }}>Notifications</Typography>
               <Stack spacing={2}>
                 <FormControlLabel 
                   control={<Switch checked={!!settings.notifications?.email} onChange={(e) => onChange('notifications.email', e.target.checked)} />} 
@@ -541,7 +541,7 @@ export default function SettingsPage() {
             <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
               <Grid size={{ xs: 12, md: 6 }}>
                 <Card elevation={1} sx={{ p: { xs: 2, sm: 2.5 } }}>
-                  <Typography variant="h6" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.1rem' } }}>⚙️ Options avancées</Typography>
+                  <Typography variant="h6" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.1rem' } }}>Options avancées</Typography>
                   <Stack spacing={2}>
                     <Box>
                       <Typography variant="body2" sx={{ mb: 1, fontSize: { xs: '0.8rem', sm: '0.85rem' }, fontWeight: 600 }}>Log Level</Typography>
@@ -574,7 +574,7 @@ export default function SettingsPage() {
 
               <Grid size={{ xs: 12, md: 6 }}>
                 <Card elevation={1} variant="outlined" sx={{ p: { xs: 2, sm: 2.5 }, background: 'rgba(242, 201, 76, 0.05)' }}>
-                  <Typography variant="h6" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.1rem' } }}>🔧 Maintenance</Typography>
+                  <Typography variant="h6" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.1rem' } }}>Maintenance</Typography>
                   <Typography variant="body2" sx={{ mb: 2, fontSize: { xs: '0.8rem', sm: '0.85rem' }, color: 'text.secondary' }}>
                     Actions de maintenance: vider cache, forcer refresh des agrégats, activer le mode débogage.
                   </Typography>
