@@ -31,7 +31,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // Parse FRONTEND_URL(s) - Support multiple URLs separated by spaces
 const parseAllowedOrigins = () => {
   if (!process.env.FRONTEND_URL) {
-    return ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174'];
+    return ['http://localhost:3000', 'http://localhost:5173'];
   }
   const urls = process.env.FRONTEND_URL.split(/\s+/).filter(url => url.trim());
   // Always include localhost fallbacks
@@ -40,7 +40,7 @@ const parseAllowedOrigins = () => {
 };
 
 const allowedOrigins = parseAllowedOrigins();
-console.log('✅ Allowed Origins for CORS:', allowedOrigins.join(', '));
+console.log('[CORS] Allowed Origins for CORS:', allowedOrigins.join(', '));
 
 const app = express();
 
@@ -61,7 +61,7 @@ const corsOptions = {
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.warn(`❌ CORS blocked origin: ${origin} (NODE_ENV: ${NODE_ENV})`);
+      console.warn(`[CORS] Blocked origin: ${origin} (NODE_ENV: ${NODE_ENV})`);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -169,7 +169,7 @@ io.use(async (socket, next) => {
 // WebSocket handling
 io.on('connection', (socket) => {
   logService.clientConnected(io);
-  console.log('🔌 Client connecté via Socket.IO');
+  console.log('[SOCKET.IO] Client connecté');
 
   socket.emit('connected', { message: 'Connecté au serveur de logs', timestamp: new Date().toISOString() });
 
@@ -249,7 +249,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     logService.clientDisconnected();
-    console.log('🔌 Client Socket.IO déconnecté');
+    console.log('[SOCKET.IO] Client déconnecté');
   });
 });
 
@@ -270,17 +270,17 @@ async function init() {
     server.listen(PORT, HOST, () => {
       console.log(`
 ╔════════════════════════════════════════════════════════════╗
-║     🚀 SFI Dash Monitoring Backend Started                 ║
+║     SFI Dash Monitoring Backend Started                    ║
 ╠════════════════════════════════════════════════════════════╣
-║ 📍 Server:      http://${HOST}:${PORT}                     ║
-║ 🔌 WebSocket:   ws://localhost:${PORT}/socket.io/          ║
-║ 📊 Elasticsearch: Connected                                ║
-║ 💾 Database:    Connected (alter: true)                    ║
+║ Server:         http://${HOST}:${PORT}                     ║
+║ WebSocket:      ws://localhost:${PORT}/socket.io/          ║
+║ Elasticsearch:  Connected                                  ║
+║ Database:       Connected (alter: true)                    ║
 ╚════════════════════════════════════════════════════════════╝
       `);
     });
   } catch (err) {
-    console.error('❌ Erreur initialisation base de données:', err);
+    console.error('[DATABASE] Erreur initialisation base de données:', err);
     process.exit(1);
   }
 }
