@@ -1,46 +1,46 @@
-# 📋 Résumé des Changements
+# Résumé des Changements
 
-**Statut:** ✅ Complet
+**Statut:** Complet
 
 ---
 
-## ✅ Sécurité & Authentification
+## Sécurité & Authentification
 
-### 🔐 Authentification JWT Sécurisée
+### Authentification JWT Sécurisée
 
 #### Backend Changes
-- ✅ **authController.js** - Nouveau système HTTP-only cookies + refresh token rotation
+- **authController.js** - Nouveau système HTTP-only cookies + refresh token rotation
   - Fonction `hashToken()` - SHA256 hashing pour refresh tokens
   - Fonction `getCookieOptions()` - Configuration secure cookies
   - Fonction `createRefreshToken()` - Génération et stockage hachés
   - Nouveau endpoint `refresh()` - Rotation automatique tokens
   
-- ✅ **auth.js (routes)** - Ajout endpoint `/auth/refresh`
+- **auth.js (routes)** - Ajout endpoint `/auth/refresh`
   - Rate limiter dédié (10/min, plus permissif)
   - Pas besoin d'authentification préalable
   
-- ✅ **server.js** - Integration cookie-parser
+- **server.js** - Integration cookie-parser
   - Import `cookie-parser` module
   - `app.use(cookieParser())` middleware
 
-- ✅ **Session.js (model)** - Nouveau champ refreshTokenHash
+- **Session.js (model)** - Nouveau champ refreshTokenHash
   - `refreshTokenHash`: STRING(64) - Hash SHA256 du token
   - `refreshToken`: STRING - Déprecated (backward compat)
 
 #### Frontend Changes
-- ✅ **AuthContext.jsx** - Gestion tokens sécurisée
+- **AuthContext.jsx** - Gestion tokens sécurisée
   - Tokens en mémoire React (pas localStorage)
   - `decodeJWT()` - Décode JWT côté client (validation serveur)
   - `scheduleTokenRefresh()` - Auto-refresh 1 min avant expiration
   - `ensureValidToken()` - Vérification token avant requêtes
   - `credentials: 'include'` - Envoie cookies automatiquement
 
-### 🛡️ Sécurité générale
-- ✅ **npm audit fix** - Frontend: 0 vulnérabilités (après fix)
-- ✅ **npm audit fix --force** - Backend: Maj dépendances problématiques
-- ✅ **react-router-dom** - Upgrade 7.8.1 → 7.13.0 (4 CVEs HIGH fixées)
+### Sécurité générale
+- **npm audit fix** - Frontend: 0 vulnérabilités (après fix)
+- **npm audit fix --force** - Backend: Maj dépendances problématiques
+- **react-router-dom** - Upgrade 7.8.1 → 7.13.0 (4 CVEs HIGH fixées)
 
-### 📦 Nouvelles dépendances
+### Nouvelles dépendances
 ```json
 {
   "backend": [
@@ -52,26 +52,26 @@
 
 ---
 
-## ✅ Tests, Monitoring & Documentation
+## Tests, Monitoring & Documentation
 
-### 🧪 Tests Unitaires
+### Tests Unitaires
 
 #### Setup
-- ✅ **vitest.config.js** - Configuration Vitest
+- **vitest.config.js** - Configuration Vitest
   - Environment: jsdom
   - Coverage provider: v8
   
-- ✅ **src/test/setup.js** - Setup globaux
+- **src/test/setup.js** - Setup globaux
   - Mock window.matchMedia
   - Mock import.meta.env
 
 #### Tests
-- ✅ **src/test/AuthContext.test.jsx** - Frontend auth tests
+- **src/test/AuthContext.test.jsx** - Frontend auth tests
   - Login success/failure scenarios
   - Token refresh behavior
   - Logout session cleanup
   
-- ✅ **backend/src/test/auth.security.test.js** - Backend sécurité
+- **backend/src/test/auth.security.test.js** - Backend sécurité
   - Token generation & expiration
   - Password hashing (bcrypt)
   - Token hashing (SHA256)
@@ -85,10 +85,10 @@ npm run test:ui       # Vitest UI interface
 npm run test:coverage # Coverage report
 ```
 
-### 📊 Monitoring Prometheus
+### Monitoring Prometheus
 
 #### Implementation
-- ✅ **server.js** - Prometheus middleware ajouté
+- **server.js** - Prometheus middleware ajouté
   - `http_requests_total` - Compteur requêtes
   - `http_request_duration_ms` - Histogramme latence
   - `http_requests_in_progress` - Jauge requêtes actives
@@ -100,15 +100,15 @@ npm run test:coverage # Coverage report
 GET /metrics → Format Prometheus
 ```
 
-### 📚 Documentation API
+### Documentation API
 
 #### Implementation
-- ✅ **swagger-jsdoc** intégration (optional: installer si besoin)
+- **swagger-jsdoc** intégration (optional: installer si besoin)
   - Endpoint `/api-docs` pour UI
   - Auto-documentation endpoints
 
 #### Docs créées
-- ✅ **SECURITY.md** - Guide complet sécurité & JWT
+- **SECURITY.md** - Guide complet sécurité & JWT
   - Architecture JWT
   - Refresh token rotation
   - CSRF protection
@@ -117,9 +117,9 @@ GET /metrics → Format Prometheus
   - Variables d'environnement
   - Checklist déploiement
 
-### 📝 Mises à jour README
+### Mises à jour README
 
-- ✅ **README.md** - Sections ajoutées/mises à jour
+- **README.md** - Sections ajoutées/mises à jour
   - Stack technique avec versions
   - Section sécurité
   - Section tests & qualité
@@ -131,7 +131,7 @@ GET /metrics → Format Prometheus
 
 ---
 
-## 📁 Fichiers Modifiés
+## Fichiers Modifiés
 
 ### Backend
 ```
@@ -169,19 +169,19 @@ src/
 
 ---
 
-## 🔄 Comportement changé
+## Comportement changé
 
 ### Authentification (CLIENT)
 
 **Avant:**
 ```javascript
-// ❌ Tokens en localStorage (XSS vulnerable)
+// Tokens en localStorage (XSS vulnerable)
 login() → localStorage.accessToken + localStorage.refreshToken
 ```
 
 **Après:**
 ```javascript
-// ✅ Tokens sécurisés
+// Tokens sécurisés
 login() → state.accessToken (mémoire) + Cookie.refreshToken (HttpOnly)
 // Auto-refresh 1 min avant expiration
 // Logout révoque toutes les sessions
@@ -191,13 +191,13 @@ login() → state.accessToken (mémoire) + Cookie.refreshToken (HttpOnly)
 
 **Avant:**
 ```javascript
-// ❌ Tokens stockés en clair
+// Tokens stockés en clair
 Session.refreshToken = "eyJhb..."
 ```
 
 **Après:**
 ```javascript
-// ✅ Tokens hachés
+// Tokens hachés
 Session.refreshTokenHash = "abc123...xyz" (SHA256)
 // Comparaison en BD: hash(incomingToken) === stored hash
 ```
@@ -206,13 +206,13 @@ Session.refreshTokenHash = "abc123...xyz" (SHA256)
 
 **Avant:**
 ```javascript
-// ❌ Pas de HttpOnly cookies
+// Pas de HttpOnly cookies
 res.json({ accessToken, refreshToken })
 ```
 
 **Après:**
 ```javascript
-// ✅ Refresh token sécurisé
+// Refresh token sécurisé
 res.cookie('refreshToken', token, {
   httpOnly: true,      // Non accessible JS
   secure: true,        // HTTPS seulement
@@ -224,10 +224,10 @@ res.json({ accessToken })  // Access token en body
 
 ---
 
-## 🚀 Deployment Impact
+## Deployment Impact
 
 ### Backward Compatibility
-- ⚠️ **BREAKING CHANGE:** Clients doivent être mis à jour
+- **BREAKING CHANGE:** Clients doivent être mis à jour
   - Frontend doit gérer refresh automatique
   - Pas de localStorage.refreshToken
   - Cookies gérés automatiquement par navigateur
@@ -235,7 +235,7 @@ res.json({ accessToken })  // Access token en body
 ### Migration
 ```javascript
 // Ancienne approche
-const token = localStorage.getItem('refreshToken')  // ❌ Plus dispo
+const token = localStorage.getItem('refreshToken')  // Plus dispo
 
 // Nouvelle approche
 // Refresh token en cookie (invisible, géré auto)
@@ -244,14 +244,14 @@ const token = localStorage.getItem('refreshToken')  // ❌ Plus dispo
 
 ### Variables d'environnement
 ```bash
-# ✅ À générer pour CHAQUE déploiement
+# À générer pour CHAQUE déploiement
 JWT_SECRET=$(openssl rand -base64 32)
 JWT_REFRESH_SECRET=$(openssl rand -base64 32)
 ```
 
 ---
 
-## ✨ Prochaines étapes (Phase 3+)
+## Prochaines étapes (Phase 3+)
 
 | Phase | Tâche | Durée estimée |
 |-------|-------|---------------|
@@ -262,7 +262,7 @@ JWT_REFRESH_SECRET=$(openssl rand -base64 32)
 
 ---
 
-## ✅ Checklist Vérification
+## Checklist Vérification
 
 - [ ] Tests lancer sans erreurs: `npm test`
 - [ ] Pas de vulnérabilités: `npm audit` (0 vulnérabilités)
@@ -277,7 +277,7 @@ JWT_REFRESH_SECRET=$(openssl rand -base64 32)
 
 ---
 
-## 📊 Métriques
+## Métriques
 
 | Métrique | Avant | Après |
 |----------|-------|-------|
@@ -290,6 +290,6 @@ JWT_REFRESH_SECRET=$(openssl rand -base64 32)
 
 ---
 
-**Status:** ✅ COMPLET  
+**Status:** COMPLET  
 **Prêt pour:** Production avec tests & monitoring  
 **Limitations:** TypeScript encore en JS, E2E tests à venir
