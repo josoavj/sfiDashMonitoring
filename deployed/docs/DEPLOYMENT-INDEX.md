@@ -1,14 +1,14 @@
-# 📑 Index des Fichiers de Déploiement
+# Index des Fichiers de Déploiement
 
-## 🎯 Configuration Complète pour Ubuntu Server 172.27.28.14
+## Configuration Complète pour Ubuntu Server 172.27.28.14
 
 Déploiement Systemd (sans Docker) - Node.js natif + Nginx
 
 ---
 
-## 📂 Structure des Fichiers
+## Structure des Fichiers
 
-### 1. 🚀 Scripts d'Installation
+### 1. Scripts d'Installation
 
 | Fichier | Description | Usage |
 |---------|-------------|-------|
@@ -17,7 +17,7 @@ Déploiement Systemd (sans Docker) - Node.js natif + Nginx
 | `verify-deployment.sh` | Vérification du déploiement | `sudo bash verify-deployment.sh` |
 | `update-frontend-config.sh` | Mise à jour config frontend | `bash update-frontend-config.sh` |
 
-### 2. 📋 Documentation
+### 2. Documentation
 
 | Fichier | Description |
 |---------|-------------|
@@ -26,14 +26,14 @@ Déploiement Systemd (sans Docker) - Node.js natif + Nginx
 | `POST-INSTALLATION-CHECKLIST.md` | Vérifications post-installation |
 | `DEPLOYMENT-INDEX.md` | Ce fichier (index et résumé) |
 
-### 3. ⚙️ Configuration Systemd
+### 3. Configuration Systemd
 
 | Fichier | Description | Destination |
 |---------|-------------|-------------|
 | `sfiDashMonitoring-backend.service` | Service backend Node.js | `/etc/systemd/system/` |
 | `sfiDashMonitoring-frontend.service` | Service Nginx (optionnel) | `/etc/systemd/system/` |
 
-### 4. 🔧 Configuration Serveur
+### 4. Configuration Serveur
 
 | Fichier | Description | Destination |
 |---------|-------------|-------------|
@@ -41,7 +41,7 @@ Déploiement Systemd (sans Docker) - Node.js natif + Nginx
 
 ---
 
-## 🗂️ Configuration du Projet
+## Configuration du Projet
 
 ### Fichier .env Backend
 
@@ -63,7 +63,7 @@ JWT_REFRESH_SECRET=<GÉNÉRER>
 
 ---
 
-## 📦 Arborescence du Déploiement
+## Arborescence du Déploiement
 
 ```
 /opt/sfiDashMonitoring/
@@ -102,7 +102,7 @@ JWT_REFRESH_SECRET=<GÉNÉRER>
 
 ---
 
-## 🎬 Flux d'Installation Rapide
+## Flux d'Installation Rapide
 
 ### Pour qui a peu de temps :
 
@@ -135,7 +135,7 @@ sudo systemctl status sfiDashMonitoring-backend
 
 ---
 
-## 📊 Vérifications Rapides
+## Vérifications Rapides
 
 ```bash
 # Statut des services
@@ -157,9 +157,9 @@ sudo bash /opt/sfiDashMonitoring/deployed/verify-deployment.sh
 
 ---
 
-## 🔒 Points de Sécurité Critiques
+## Points de Sécurité Critiques
 
-1. **JWT Secrets** - ⚠️ Générer et configurer obligatoirement
+1. **JWT Secrets** - Générer et configurer obligatoirement
    ```bash
    openssl rand -base64 32
    ```
@@ -183,7 +183,7 @@ sudo bash /opt/sfiDashMonitoring/deployed/verify-deployment.sh
 
 ---
 
-## 🔄 Mise à Jour du Code
+## Mise à Jour du Code
 
 ### Option 1: Script automatisé
 
@@ -211,7 +211,7 @@ sudo systemctl start sfiDashMonitoring-backend
 
 ---
 
-## 🐛 Troubleshooting Rapide
+## Troubleshooting Rapide
 
 | Problème | Commande de Diagnostic | Solution |
 |----------|------------------------|----------|
@@ -255,7 +255,7 @@ Pour plus de détails :
 
 ---
 
-## 🛠️ Commandes Essentielles
+## Commandes Essentielles
 
 ```bash
 # Démarrage et arrêt
@@ -316,7 +316,7 @@ sudo nano /etc/nginx/nginx.conf
 
 ---
 
-## ✅ Checklist de Déploiement Final
+## Checklist de Déploiement Final
 
 - [ ] Tous les scripts sont exécutables (`chmod +x`)
 - [ ] `.env` est configuré avec secrets JWT uniques
