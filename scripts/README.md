@@ -1,27 +1,27 @@
-# 📝 Scripts Directory - SFI Dashboard Monitoring
+# Scripts Directory - SFI Dashboard Monitoring
 
 Organisation centralisée de tous les scripts du projet pour une meilleure maintenabilité et découverte.
 
-## 📁 Structure
+## Structure
 
 ### Scripts Partagés (tous les modes)
 
 ```
-scripts/                    # 🎯 Scripts partagés & utilitaires
-├── logs/                   # 📋 Gestion des logs
+scripts/                    # Scripts partagés & utilitaires
+├── logs/                   # Gestion des logs
 │   ├── watch-logs.sh       # Surveiller les logs en temps réel
 │   ├── manage-logs.sh      # Archiver, nettoyer, analyser les logs
 │   └── start-with-logs.sh  # Démarrer backend + frontend avec logs
 │
-├── dev/                    # 🛠️  Développement & tests
+├── dev/                    # Développement & tests
 │   ├── setup.sh            # Initialiser l'environnement de dev
 │   └── test.sh             # Lancer les tests (unit, UI, coverage)
 │
-├── build/                  # 🏗️  Build & analyse
+├── build/                  # Build & analyse
 │   ├── build-frontend.sh   # Builder le frontend
 │   └── analyze-build.sh    # Analyser la taille du build
 │
-├── utils/                  # 🔧 Utilitaires généraux
+├── utils/                  # Utilitaires généraux
 │   ├── health-check.sh     # Vérifier la santé des services
 │   └── test-local.sh       # Test complet du projet
 │
@@ -30,7 +30,7 @@ scripts/                    # 🎯 Scripts partagés & utilitaires
 
 ### Scripts Mode-Spécifiques
 
-⚠️ **À garder dans leurs dossiers respectifs:**
+**À garder dans leurs dossiers respectifs:**
 
 **Backend** (`backend/`):
 
@@ -51,7 +51,7 @@ scripts/                    # 🎯 Scripts partagés & utilitaires
 
 - Multiples scripts pour orchestration Docker, installation, health checks, déploiement, etc.
 
-## 🚀 Scripts rapides
+## Scripts rapides
 
 ### Démarrage
 
@@ -153,7 +153,7 @@ Démarre les services avec redirection des logs.
 ./scripts/logs/start-with-logs.sh frontend-only  # Seulement frontend
 ```
 
-### 🛠️  Développement (`scripts/dev/`)
+### Développement (`scripts/dev/`)
 
 #### `setup.sh`
 
@@ -161,11 +161,11 @@ Initialise l'environnement de développement.
 
 **Fait:**
 
-- ✅ Vérifie Node.js et npm
-- ✅ Installe les dépendances frontend
-- ✅ Installe les dépendances backend
-- ✅ Crée `.env.local` (frontend)
-- ✅ Crée `backend/.env` depuis le template
+- Vérifie Node.js et npm
+- Installe les dépendances frontend
+- Installe les dépendances backend
+- Crée `.env.local` (frontend)
+- Crée `backend/.env` depuis le template
 
 ```bash
 ./scripts/dev/setup.sh
@@ -182,7 +182,7 @@ Lance les tests avec différentes options.
 ./scripts/dev/test.sh watch        # Mode watch
 ```
 
-### 🏗️  Build (`scripts/build/`)
+### Build (`scripts/build/`)
 
 #### `build-frontend.sh`
 
@@ -211,7 +211,7 @@ Analyse la taille du build.
 - Détail des fichiers (top 10)
 - Estimations gzip
 
-### 🔧 Utilitaires (`scripts/utils/`)
+### Utilitaires (`scripts/utils/`)
 
 #### `health-check.sh`
 
@@ -223,11 +223,11 @@ Vérifie l'état des services et des dépendances.
 
 **Vérifie:**
 
-- ✅ Backend (port 3001)
-- ✅ Frontend (port 5173)
-- ✅ Répertoire logs
-- ✅ Fichiers de logs
-- ✅ Node.js et npm
+- Backend (port 3001)
+- Frontend (port 5173)
+- Répertoire logs
+- Fichiers de logs
+- Node.js et npm
 
 #### `test-local.sh`
 
@@ -239,22 +239,22 @@ Test complet du projet pour validation avant déploiement.
 
 **Vérifie:**
 
-- ✅ Frontend config (package.json, vite.config.js, dépendances)
-- ✅ Backend config (package.json, .env, dépendances)
-- ✅ Structur du projet (dossiers, fichiers essentiels)
+- Frontend config (package.json, vite.config.js, dépendances)
+- Backend config (package.json, .env, dépendances)
+- Structur du projet (dossiers, fichiers essentiels)
 
-## 🔄 Nettoyage effectué
+## Nettoyage effectué
 
 Les scripts suivants ont été **supprimés de la racine** (déjà dans `scripts/`):
 
-- ❌ `manage-logs.sh` → maintenant `scripts/logs/manage-logs.sh`
-- ❌ `start-with-logs.sh` → maintenant `scripts/logs/start-with-logs.sh`
-- ❌ `watch-logs.sh` → maintenant `scripts/logs/watch-logs.sh`
-- ❌ `test-local.sh` → maintenant `scripts/utils/test-local.sh`
+- `manage-logs.sh` → maintenant `scripts/logs/manage-logs.sh`
+- `start-with-logs.sh` → maintenant `scripts/logs/start-with-logs.sh`
+- `watch-logs.sh` → maintenant `scripts/logs/watch-logs.sh`
+- `test-local.sh` → maintenant `scripts/utils/test-local.sh`
 
-**Seul `start.sh` reste à la racine** comme point d'entrée principal ✅
+**Seul `start.sh` reste à la racine** comme point d'entrée principal [OK]
 
-## ⚠️ Scripts Mode-Spécifiques (À NE PAS DÉPLACER)
+## Scripts Mode-Spécifiques (À NE PAS DÉPLACER)
 
 Ces scripts doivent rester dans leurs dossiers respectifs car ils sont spécifiques à chaque mode:
 
@@ -345,7 +345,7 @@ npm run lint
 - [ ] Nouveaux scripts ajoutés dans le bon dossier
 - [ ] Mode-spécifiques restent dans local/ ou deployed/
 
-## 🔄 Maintenance
+## Maintenance
 
 Pour ajouter un nouveau script:
 
