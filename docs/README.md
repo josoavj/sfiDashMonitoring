@@ -1,6 +1,6 @@
-# 📚 Documentation - SFI Dashboard Monitoring
+# Documentation - SFI Dashboard Monitoring
 
-## 📖 Guides de configuration
+## Guides de configuration
 
 ### Configuration Localhost
 
@@ -12,23 +12,23 @@
 - **[Deployment.md](./Deployment.md)** - Guide de déploiement production
 - **[SUMMARY-ARCHITECTURE.md](./SUMMARY-ARCHITECTURE.md)** - Résumé de l'architecture
 
-## 🏗️ Architecture et Conception
+## Architecture et Conception
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Architecture technique détaillée
 - **[MIGRATION.md](./MIGRATION.md)** - Migration et évolution du projet
 
-## 📊 Rapports et Synthèses
+## Rapports et Synthèses
 
 - **[COMPLETION-REPORT.md](./COMPLETION-REPORT.md)** - Rapport d'avancement
 - **[FINAL-SUMMARY.md](./FINAL-SUMMARY.md)** - Synthèse finale du projet
 
-## 🎤 Présentation et Soutenance
+## Présentation et Soutenance
 
 - **[GUIDE-PRESENTATION-PROBLEMES.md](./GUIDE-PRESENTATION-PROBLEMES.md)** - Guide pour présenter les problèmes de l'entreprise
 
 ---
 
-## 🚀 Démarrage rapide
+## Démarrage rapide
 
 **Mode LOCAL (développement):**
 
