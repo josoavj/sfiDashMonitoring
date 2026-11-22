@@ -1,21 +1,21 @@
-# 📚 Documentation Index
+# Documentation Index
 
-**Status:** ✅ Production Ready
+**Status:** Production Ready
 
 ---
 
-## 🎯 Commencez ici
+## Commencez ici
 
 Vous êtes nouveau? Suivez ces étapes:
 
-1. **[📋 Prérequis](#prérequis)** - Vérifier votre système
-2. **[🚀 Démarrage Rapide](#démarrage-rapide)** - Lancer localement
-3. **[🔐 Sécurité](#sécurité)** - Comprendre les changements
-4. **[📖 Documentation Complète](#documentation-complète)** - Approfondir
+1. **[Prérequis](#prérequis)** - Vérifier votre système
+2. **[Démarrage Rapide](#démarrage-rapide)** - Lancer localement
+3. **[Sécurité](#sécurité)** - Comprendre les changements
+4. **[Documentation Complète](#documentation-complète)** - Approfondir
 
 ---
 
-## 📋 Prérequis
+## Prérequis
 
 ### Système
 
@@ -34,7 +34,7 @@ docker -v           # (optionnel)
 
 ---
 
-## 🚀 Démarrage Rapide
+## Démarrage Rapide
 
 ### Mode Développement (Local)
 
@@ -98,9 +98,9 @@ bash deployed/health-check.sh
 
 ---
 
-## 🔐 Sécurité
+## Sécurité
 
-### Sécurité Critique ⚠️
+### Sécurité Critique [ATTENTION]
 
 - **JWT → HttpOnly Secure Cookies** - Élimine XSS
 - **Refresh Token Rotation** - Invalide les anciens tokens
@@ -134,9 +134,9 @@ openssl rand -base64 32
 
 ---
 
-## 📖 Documentation Complète
+## Documentation Complète
 
-### 🔐 Sécurité (À LIRE)
+### Sécurité (À LIRE)
 
 **[SECURITY.md](./SECURITY.md)**
 
@@ -152,7 +152,7 @@ openssl rand -base64 32
 - [CSRF Protection](./SECURITY.md#csrf-protection) - Validation tokens
 - [Token Storage](./SECURITY.md#token-storage) - HttpOnly cookies vs localStorage
 
-### 🚀 Déploiement (À LIRE)
+### Déploiement (À LIRE)
 
 **[DEPLOYMENT_PHASES_1_2.md](./DEPLOYMENT_PHASES_1_2.md)**
 
@@ -224,7 +224,7 @@ openssl rand -base64 32
 
 ---
 
-## 🧪 Tests
+## Tests
 
 ### Exécuter les tests
 
@@ -272,17 +272,17 @@ bash deployed/health-check.sh
 
 ---
 
-## 🗂️ Structure Documentation
+## Structure Documentation
 
 ```
 docs/
-├── README.md                          (👈 Vous êtes ici)
-├── SECURITY.md                        ✅ Sécurité détaillée
-├── DEPLOYMENT_PHASES_1_2.md           ✅ Guide déploiement
-├── PHASES_1_2_GUIDE.md                ✅ Vue d'ensemble changements
-├── SCRIPTS_INVENTORY.md               ✅ Tous les scripts
-├── CHECKLIST_PRODUCTION.md            ✅ Points de vérification
-├── AUDIT_PHASES_1_2_SUMMARY.md        ✅ Résumé audit initial
+├── README.md                          (Vous êtes ici)
+├── SECURITY.md                        Sécurité détaillée
+├── DEPLOYMENT_PHASES_1_2.md           Guide déploiement
+├── PHASES_1_2_GUIDE.md                Vue d'ensemble changements
+├── SCRIPTS_INVENTORY.md               Tous les scripts
+├── CHECKLIST_PRODUCTION.md            Points de vérification
+├── AUDIT_PHASES_1_2_SUMMARY.md        Résumé audit initial
 ├── ARCHITECTURE.md
 ├── COMPLETION-REPORT.md
 ├── Deployment.md
@@ -291,9 +291,9 @@ docs/
 └── ...autres docs
 
 backend/
-├── .env.template                      🆕 Template variables
-├── setup-env.sh                       🆕 Script configuration
-├── .env                               ⚠️  NE PAS COMMITTER
+├── .env.template                      Template variables
+├── setup-env.sh                       Script configuration
+├── .env                               NE PAS COMMITTER
 └── ...
 
 local/
@@ -309,7 +309,7 @@ deployed/
 
 ---
 
-## 🎯 Cas d'Usage Courants
+## Cas d'Usage Courants
 
 ### "Je suis nouveau, je veux juste tester localement"
 
@@ -345,7 +345,7 @@ deployed/
 
 ---
 
-## 🔑 Commandes Essentielles
+## Commandes Essentielles
 
 ```bash
 # Développement
@@ -446,12 +446,12 @@ Recommandation de lecture par profil:
 - [SECURITY.md](./SECURITY.md) - Complètement
 - [PHASES_1_2_GUIDE.md](./PHASES_1_2_GUIDE.md#-fichiers-clés---modifications) - Fichiers modifiés
 
-**🔐 Responsable Sécurité:**
+**Responsable Sécurité:**
 
 - [SECURITY.md](./SECURITY.md) - Complètement
 - [DEPLOYMENT_PHASES_1_2.md](./DEPLOYMENT_PHASES_1_2.md#-configuration-sécurité) - Configuration
 
-**🚀 DevOps/SysAdmin:**
+**DevOps/SysAdmin:**
 
 - [SCRIPTS_INVENTORY.md](./SCRIPTS_INVENTORY.md) - Tous les scripts
 - [DEPLOYMENT_PHASES_1_2.md](./DEPLOYMENT_PHASES_1_2.md#-déploiement-production) - Déploiement
@@ -459,4 +459,4 @@ Recommandation de lecture par profil:
 
 ---
 
-[⬆️ Retour en haut](#-documentation-index)
+[Retour en haut](#documentation-index)
