@@ -1,6 +1,6 @@
-# 🚀 Guide de Déploiement Complet - Ubuntu Server 172.27.28.14
+# Guide de Déploiement Complet - Ubuntu Server 172.27.28.14
 
-## 📋 Configuration
+## Configuration
 
 - **OS:** Ubuntu Server 20.04/22.04 LTS
 - **Serveur:** 172.27.28.14
@@ -14,7 +14,7 @@
 
 ---
 
-## ⚡ Installation Rapide (Automatisée)
+## Installation Rapide (Automatisée)
 
 ### Étape 1 : Transfert du projet
 
@@ -217,7 +217,7 @@ sudo nano /opt/sfiDashMonitoring/backend/.env
 
 ---
 
-## 📊 Vérifications et Tests
+## Vérifications et Tests
 
 ### Vérifier que tout fonctionne
 
@@ -262,11 +262,11 @@ curl -k --user stgSFI:Police2405$ https://172.27.28.14:9200
 
 ---
 
-## 🔒 Configuration de Sécurité
+## Configuration de Sécurité
 
 ### Paramètres critiques
 
-1. **JWT Secrets** - ⚠️ À générer
+1. **JWT Secrets** - À générer
    ```bash
    # Générer des secrets forts
    openssl rand -base64 32
@@ -297,7 +297,7 @@ curl -k --user stgSFI:Police2405$ https://172.27.28.14:9200
 
 ---
 
-## 🚀 Gestion des Services
+## Gestion des Services
 
 ### Démarrer/Arrêter/Redémarrer
 
@@ -343,7 +343,7 @@ sudo systemctl reload nginx
 
 ---
 
-## 🐛 Dépannage
+## Dépannage
 
 ### Le backend ne démarre pas
 
@@ -404,7 +404,7 @@ curl -k --cacert /opt/sfiDashMonitoring/backend/certs/http_ca.crt \
 
 ---
 
-## 📈 Monitoring et Maintenance
+## Monitoring et Maintenance
 
 ### Surveillance des ressources
 
