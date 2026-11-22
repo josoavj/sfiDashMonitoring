@@ -1,8 +1,8 @@
-# 🚀 Mode LOCAL - Développement en Localhost
+# Mode LOCAL - Développement en Localhost
 
 Environnement complet de développement pour votre machine. Frontend et Backend en localhost avec Hot Module Replacement (HMR) pour rechargement en direct.
 
-## 📍 Architecture
+## Architecture
 
 ```
 Votre Machine (localhost)
@@ -20,7 +20,7 @@ Votre Machine (localhost)
 	└── File logging (logs/backend.log)
 ```
 
-## ⚡ Démarrage Rapide
+## Démarrage Rapide
 
 ### Option 1: Tout en Un (Recommandé pour simplicité)
 
@@ -29,13 +29,13 @@ Votre Machine (localhost)
 ```
 
 **Fait automatiquement:**
-- ✅ Vérifie Node.js et npm
-- ✅ Crée `backend/.env` depuis template si manquant
-- ✅ Installe les dépendances (npm install)
-- ✅ Crée les répertoires `data/` et `logs/`
-- ✅ Démarre Backend (port 3001) en arrière-plan
-- ✅ Démarre Frontend (port 5173) en avant-plan
-- 🌐 Ouvre automatiquement http://localhost:5173
+- Vérifie Node.js et npm
+- Crée `backend/.env` depuis template si manquant
+- Installe les dépendances (npm install)
+- Crée les répertoires `data/` et `logs/`
+- Démarre Backend (port 3001) en arrière-plan
+- Démarre Frontend (port 5173) en avant-plan
+- Ouvre automatiquement http://localhost:5173
 
 ### Option 2: Backend Seul (Testing/API)
 
@@ -44,8 +44,8 @@ Votre Machine (localhost)
 ```
 
 - Lance Node.js sur **port 3001**
-- ✅ Crée `backend/.env` si manquant
-- ✅ Initialise les répertoires
+- Crée `backend/.env` si manquant
+- Initialise les répertoires
 - Utile pour tester l'API seule
 
 ### Option 3: Frontend Seul (Avec mock backend)
@@ -55,7 +55,7 @@ Votre Machine (localhost)
 ```
 
 - Lance Vite dev server sur **port 5173**
-- ⚠️ Vérifie si backend est actif
+- Vérifie si backend est actif
 - Utile pour développer l'UI indépendamment
 
 ### Option 4: Développement Optimal (Deux terminals)
@@ -83,11 +83,11 @@ Chaque modification est immédiatement visible !
 | **Health Check** | http://localhost:3001/api/health | 3001 |
 | **API Swagger** | http://localhost:3001/api-docs | 3001 |
 
-## 🎯 Scripts Utilitaires (depuis racine)
+## Scripts Utilitaires (depuis racine)
 
 Tous ces scripts sont dans `scripts/` et utilisables depuis n'importe où:
 
-### 📋 Gestion des Logs
+### Gestion des Logs
 
 ```bash
 # Surveiller les logs en temps réel
@@ -101,7 +101,7 @@ Tous ces scripts sont dans `scripts/` et utilisables depuis n'importe où:
 ../scripts/logs/manage-logs.sh clean   # Vider les fichiers
 ```
 
-### 🛠️ Développement & Tests
+### Développement & Tests
 
 ```bash
 # Initialiser l'environnement complet
@@ -114,7 +114,7 @@ Tous ces scripts sont dans `scripts/` et utilisables depuis n'importe où:
 ../scripts/dev/test.sh watch          # Mode watch (redémarre auto)
 ```
 
-### 🏗️ Build & Analyse (avant production)
+### Build & Analyse (avant production)
 
 ```bash
 # Builder le frontend
@@ -124,7 +124,7 @@ Tous ces scripts sont dans `scripts/` et utilisables depuis n'importe où:
 ../scripts/build/analyze-build.sh
 ```
 
-### 🔧 Utilitaires & Validation
+### Utilitaires & Validation
 
 ```bash
 # Vérifier la santé des services
@@ -137,7 +137,7 @@ Tous ces scripts sont dans `scripts/` et utilisables depuis n'importe où:
 ../scripts/logs/start-with-logs.sh
 ```
 
-## ✨ Optimisations Modernes
+## Optimisations Modernes
 
 ### Frontend Performance
 
@@ -166,7 +166,7 @@ Tous ces scripts sont dans `scripts/` et utilisables depuis n'importe où:
 | **CSRF Protection** | Double submit tokens |
 | **Rate Limiting** | Auth (5/15min), Refresh (10/min) |
 
-## 🔧 Configuration
+## Configuration
 
 ### Frontend (`.env.local`)
 
@@ -190,19 +190,19 @@ JWT_SECRET=generated_automatically
 JWT_REFRESH_SECRET=generated_automatically
 ```
 
-## 📊 Initialisation Automatique
+## Initialisation Automatique
 
 Chaque démarrage crée automatiquement:
 
 | Item | Location | Details |
 |------|----------|---------|
-| 📁 Data Directory | `data/` | SQLite database |
-| 📁 Logs Directory | `logs/` | backend.log, frontend.log |
-| 🔐 Backend Config | `backend/.env` | Copié de template |
-| 📦 Dependencies | `node_modules/` | npm install |
-| 🗄️ Database | `data/database.sqlite` | Sequelize sync |
+| Data Directory | `data/` | SQLite database |
+| Logs Directory | `logs/` | backend.log, frontend.log |
+| Backend Config | `backend/.env` | Copié de template |
+| Dependencies | `node_modules/` | npm install |
+| Database | `data/database.sqlite` | Sequelize sync |
 
-## 🧪 Tests & Validation
+## Tests & Validation
 
 ### Avant de committer
 
@@ -232,14 +232,14 @@ npm run lint
 
 ## 📋 Workflow Recommandé
 
-### 1️⃣ Setup Initial (une fois)
+### Setup Initial (une fois)
 
 ```bash
 cd local
 ./setup.sh              # OU ../scripts/dev/setup.sh
 ```
 
-### 2️⃣ Démarrage Quotidien
+### Démarrage Quotidien
 
 **Pour commencer:**
 ```bash
@@ -258,7 +258,7 @@ cd backend && npm run dev
 npm run dev
 ```
 
-### 3️⃣ Développement
+### Développement
 
 ```bash
 # Terminal 3: Surveiller les logs (optionnel)
@@ -268,7 +268,7 @@ npm run dev
 ../scripts/dev/test.sh watch
 ```
 
-### 4️⃣ Avant Production
+### Avant Production
 
 ```bash
 # Builder
@@ -340,15 +340,15 @@ Voir aussi:
 - [SECURITY.md](../SECURITY.md) - Détails sécurité & JWT
 - [Backend README](../backend/README.md) - API documentation
 
-## 🚀 Prochaines Étapes
+## Prochaines Étapes
 
 Après avoir démarré:
 
-1. 👤 Créer un compte utilisateur
-2. 📊 Explorer le dashboard
-3. 🧪 Modifier du code (hot reload)
-4. ✅ Lancer les tests
-5. 📦 Builder pour production (voir `deployed/`)
+1. Créer un compte utilisateur
+2. Explorer le dashboard
+3. Modifier du code (hot reload)
+4. Lancer les tests
+5. Builder pour production (voir `deployed/`)
 
 ---
 
