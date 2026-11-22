@@ -1,6 +1,6 @@
-# 📋 Post-Installation Checklist
+# Post-Installation Checklist
 
-## ✅ Après l'Installation
+## Après l'Installation
 
 Suivez cette checklist pour vérifier que tout est correctement configuré.
 
@@ -340,7 +340,7 @@ sudo systemctl restart sfiDashMonitoring-backend
 
 ---
 
-## ✅ Résumé de la Checklist
+## Résumé de la Checklist
 
 - [ ] Services actifs (backend, Nginx)
 - [ ] Frontend accessible sur http://localhost
@@ -354,4 +354,4 @@ sudo systemctl restart sfiDashMonitoring-backend
 - [ ] Accès externe fonctionnel (http://172.27.28.14)
 - [ ] Vérification complète réussie
 
-**Déploiement prêt pour la production! ✅**
+**Déploiement prêt pour la production!**

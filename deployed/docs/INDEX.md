@@ -1,10 +1,10 @@
-# 🚀 Guide Déploiement - SFI Dashboard
+# Guide Déploiement - SFI Dashboard
 
 **Configuration Systemd pour Ubuntu Server 20.04/22.04 LTS**
 
 ---
 
-## 📌 Vue d'Ensemble
+## Vue d'Ensemble
 
 Ce dossier contient tous les outils et guides pour déployer **SFI Dashboard** sur un serveur Ubuntu avec :
 
@@ -16,7 +16,7 @@ Ce dossier contient tous les outils et guides pour déployer **SFI Dashboard** s
 
 ---
 
-## 📁 Fichiers
+## Fichiers
 
 | Fichier | Type | Description |
 |---------|------|-------------|
@@ -30,9 +30,9 @@ Ce dossier contient tous les outils et guides pour déployer **SFI Dashboard** s
 
 ---
 
-## ⚡ Démarrage Rapide (5 min)
+## Démarrage Rapide (5 min)
 
-### 1️⃣ Sur votre machine locale
+### 1. Sur votre machine locale
 
 ```bash
 cd /home/shadowcraft/Projets/sfiDashMonitoring/deployed
@@ -41,7 +41,7 @@ cd /home/shadowcraft/Projets/sfiDashMonitoring/deployed
 scp install.sh user@172.27.28.14:/tmp/
 ```
 
-### 2️⃣ Sur le serveur (SSH)
+### 2. Sur le serveur (SSH)
 
 ```bash
 ssh user@172.27.28.14
@@ -53,7 +53,7 @@ sudo bash /tmp/install.sh
 # Répondre: /home/shadowcraft/Projets/sfiDashMonitoring
 ```
 
-### 3️⃣ Vérifier l'installation
+### 3. Vérifier l'installation
 
 ```bash
 # Sur le serveur
@@ -65,23 +65,23 @@ http://172.27.28.14
 
 ---
 
-## 📖 Guides
+## Guides
 
-### Pour les Impatients 🏃
+### Pour les Impatients
 → Lire: **SETUP-QUICK.md** (sections "Démarrage Rapide")
 
-### Pour l'Installation Complète 🔧
+### Pour l'Installation Complète
 → Lire: **DEPLOYMENT-SYSTEMD.md** (sections 1-8)
 
-### Pour Vérifier le Déploiement ✅
+### Pour Vérifier le Déploiement
 → Lancer: `bash /opt/sfiDashMonitoring/deployed/verify.sh`
 
-### Avant le Déploiement 📋
+### Avant le Déploiement
 → Utiliser: **CHECKLIST.md** pour vérifier tous les points
 
 ---
 
-## 🎯 Configuration
+## Configuration
 
 | Paramètre | Valeur |
 |-----------|--------|
@@ -96,35 +96,35 @@ http://172.27.28.14
 
 ---
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
 ### Installation Automatisée (install.sh)
-- ✅ Installe toutes les dépendances
-- ✅ Configure les variables d'environnement
-- ✅ Build le frontend
-- ✅ Crée les services Systemd
-- ✅ Configure Nginx
-- ✅ Configure le Firewall
-- ✅ Lance les services
+- Installe toutes les dépendances
+- Configure les variables d'environnement
+- Build le frontend
+- Crée les services Systemd
+- Configure Nginx
+- Configure le Firewall
+- Lance les services
 
 ### Vérification (verify.sh)
-- ✅ État des services
-- ✅ Connectivité réseau
-- ✅ Fichiers et permissions
-- ✅ Logs et erreurs
-- ✅ Performance
-- ✅ Santé Elasticsearch
+- État des services
+- Connectivité réseau
+- Fichiers et permissions
+- Logs et erreurs
+- Performance
+- Santé Elasticsearch
 
 ### Mise à Jour (update.sh)
-- ✅ Git pull
-- ✅ Réinstall dépendances
-- ✅ Rebuild frontend
-- ✅ Redémarre services
-- ✅ Vérifie la santé
+- Git pull
+- Réinstall dépendances
+- Rebuild frontend
+- Redémarre services
+- Vérifie la santé
 
 ---
 
-## 📋 Étapes de Déploiement
+## Étapes de Déploiement
 
 ```
 1. Préparer la machine de dev
@@ -155,7 +155,7 @@ http://172.27.28.14
 
 ---
 
-## 🧪 Tests
+## Tests
 
 ### Test Automatisé
 ```bash
@@ -177,7 +177,7 @@ http://172.27.28.14
 
 ---
 
-## 🔄 Opérations Courantes
+## Opérations Courantes
 
 ### Voir le statut des services
 ```bash
@@ -206,7 +206,7 @@ sudo systemctl stop sfi-monitoring-backend
 
 ---
 
-## 🚨 Troubleshooting Rapide
+## Troubleshooting Rapide
 
 | Problème | Solution |
 |----------|----------|
@@ -252,7 +252,7 @@ sudo systemctl stop sfi-monitoring-backend
 
 ---
 
-## 🔐 Sécurité
+## Sécurité
 
 ### Conseils Importants
 
@@ -281,27 +281,27 @@ sudo systemctl stop sfi-monitoring-backend
 
 ---
 
-## 🎬 Next Steps
+## Next Steps
 
-✅ **Installation OK?**
+**Installation OK?**
 - Vérifier: `bash verify.sh`
 - Tester: `http://172.27.28.14`
 - Lire: **SETUP-QUICK.md** section "Gestion des Services"
 
-🔄 **Mettre à jour le code?**
+**Mettre à jour le code?**
 - Lancer: `sudo bash update.sh update`
 - Vérifier: `bash verify.sh`
 
-📊 **Monitoring?**
+**Monitoring?**
 - Logs: `sudo journalctl -u sfi-monitoring-backend -f`
 - Services: `sudo systemctl status sfi-monitoring-backend nginx`
 
-🔐 **Ajouter SSL/HTTPS?**
+**Ajouter SSL/HTTPS?**
 - Consulter: **DEPLOYMENT-SYSTEMD.md** (section future)
 
 ---
 
-## 📝 Log Fichier
+## Log Fichier
 
 | Service | Logs |
 |---------|------|
@@ -321,7 +321,7 @@ sudo systemctl stop sfi-monitoring-backend
 
 ---
 
-## 📊 Architecture
+## Architecture
 
 ```
 172.27.28.14 (Ubuntu Server)
@@ -340,7 +340,7 @@ sudo systemctl stop sfi-monitoring-backend
 
 ---
 
-## ✅ Checklist Rapide
+## Checklist Rapide
 
 - [ ] Ubuntu 20.04/22.04 LTS
 - [ ] SSH access
@@ -349,7 +349,7 @@ sudo systemctl stop sfi-monitoring-backend
 - [ ] Exécuter `install.sh`
 - [ ] Exécuter `verify.sh`
 - [ ] Tester `http://172.27.28.14`
-- [ ] OK? Déploiement terminé! 🎉
+- [ ] OK? Déploiement terminé!
 
 ---
 

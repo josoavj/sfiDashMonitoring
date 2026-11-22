@@ -1,4 +1,4 @@
-# 🚀 Déploiement Systemd sur Ubuntu Server
+# Déploiement Systemd sur Ubuntu Server
 
 **Configuration:** Systemd + Node.js natif + Elasticsearch local
 **IP Serveur:** 172.27.28.14
@@ -6,7 +6,7 @@
 
 ---
 
-## 📋 Prérequis
+## Prérequis
 
 ```bash
 # Ubuntu Server 20.04/22.04 LTS
@@ -27,7 +27,7 @@ nginx -v          # nginx/1.x.x
 
 ---
 
-## 🔧 Étape 1 : Préparer le Serveur
+## Étape 1 : Préparer le Serveur
 
 ### 1.1 Créer l'utilisateur d'application
 
@@ -68,7 +68,7 @@ sudo chown -R sfiapp:sfiapp /opt/sfiDashMonitoring/{logs,data}
 
 ---
 
-## 🏗️ Étape 2 : Installer les Dépendances
+## Étape 2 : Installer les Dépendances
 
 ```bash
 cd /opt/sfiDashMonitoring
@@ -88,7 +88,7 @@ EOF
 
 ---
 
-## ⚙️ Étape 3 : Configurer l'Environnement
+## Étape 3 : Configurer l'Environnement
 
 ### 3.1 Configuration Backend (.env)
 
@@ -130,7 +130,7 @@ sudo chmod 600 /opt/sfiDashMonitoring/backend/.env
 
 ---
 
-## 🌐 Étape 4 : Configurer Nginx (Reverse Proxy)
+## Étape 4 : Configurer Nginx (Reverse Proxy)
 
 ```bash
 sudo nano /etc/nginx/sites-available/sfi-monitoring
@@ -201,7 +201,7 @@ sudo systemctl reload nginx
 
 ---
 
-## 🛠️ Étape 5 : Créer les Services Systemd
+## Étape 5 : Créer les Services Systemd
 
 ### 5.1 Service Backend
 
@@ -279,7 +279,7 @@ sudo systemctl enable nginx
 
 ---
 
-## 🚀 Étape 6 : Démarrer les Services
+## Étape 6 : Démarrer les Services
 
 ```bash
 # Démarrer le backend
@@ -297,7 +297,7 @@ sudo systemctl restart nginx
 
 ---
 
-## 🧪 Étape 7 : Tests
+## Étape 7 : Tests
 
 ### 7.1 Test Backend
 ```bash
@@ -332,7 +332,7 @@ sudo journalctl -u nginx -n 50
 
 ---
 
-## 📊 Gestion des Services
+## Gestion des Services
 
 ### Arrêter/Redémarrer
 ```bash
@@ -373,7 +373,7 @@ sudo systemctl is-enabled sfi-monitoring-backend
 
 ---
 
-## 🔄 Mise à Jour du Code
+## Mise à Jour du Code
 
 ### Mettre à jour le backend
 ```bash
@@ -415,7 +415,7 @@ sudo systemctl status nginx
 
 ---
 
-## 🔐 Sécurité - Points Importants
+## Sécurité - Points Importants
 
 1. **Firewall (UFW)**
    ```bash
@@ -445,7 +445,7 @@ sudo systemctl status nginx
 
 ---
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Backend ne démarre pas
 ```bash
@@ -482,7 +482,7 @@ sudo chown -R sfiapp:sfiapp /opt/sfiDashMonitoring
 
 ---
 
-## 📝 Vérifier le Déploiement
+## Vérifier le Déploiement
 
 ```bash
 #!/bin/bash

@@ -1,4 +1,4 @@
-# 📁 Architecture et Structure des Dossiers
+# Architecture et Structure des Dossiers
 
 ## Vue d'ensemble
 
@@ -85,32 +85,32 @@ sfiDashMonitoring/
 
 ---
 
-## 🔄 Flux de développement
+## Flux de développement
 
 ### Workflow LOCAL (Jour à jour)
 
 ```
-📝 Faire des modifications
+Faire des modifications
     ↓
-🧪 Tester localement: local/start.sh
+Tester localement: local/start.sh
     ↓
-✅ Valider: local/test.sh
+Valider: local/test.sh
     ↓
-📦 Git commit (Racine)
+Git commit (Racine)
     ↓
-🚀 Déployer: deployed/start.sh
+Déployer: deployed/start.sh
 ```
 
 ### Workflow DEPLOYED (Mise en production)
 
 ```
-🏗 Build Docker: docker-compose build
+Build Docker: docker-compose build
     ↓
-🚀 Lancer: docker-compose up -d
+Lancer: docker-compose up -d
     ↓
-🧪 Vérifier: ./health-check.sh
+Vérifier: ./health-check.sh
     ↓
-📡 Accessible réseau: http://IP:80
+Accessible réseau: http://IP:80
 ```
 
 ---
@@ -157,15 +157,15 @@ sfiDashMonitoring/
 
 ---
 
-## 📊 Comparaison LOCAL vs DEPLOYED
+## Comparaison LOCAL vs DEPLOYED
 
 | Aspect | LOCAL | DEPLOYED |
 |--------|-------|----------|
 | **Frontend** | Vite Dev Server | Nginx (optimisé) |
 | **Backend** | Node direct | Docker container |
-| **HMR** | ✅ Activé | ❌ Non-pertinent |
+| **HMR** | Activé | Non-pertinent |
 | **Réseau** | localhost uniquement | Accessible réseau |
-| **SSL/TLS** | Non | ✅ Supporté (nginx) |
+| **SSL/TLS** | Non | Supporté (nginx) |
 | **Performance** | Développement | Production-ready |
 | **Démarrage** | `local/start.sh` | `deployed/start.sh` |
 | **Logs** | stdout/fichiers | Docker logs |
@@ -173,7 +173,7 @@ sfiDashMonitoring/
 
 ---
 
-## 🔑 Variables d'environnement
+## Variables d'environnement
 
 ### Frontend
 
@@ -201,7 +201,7 @@ NODE_ENV=development|production
 
 ---
 
-## 🛠 Outils & Commandes
+## Outils & Commandes
 
 ### Setup initial
 
@@ -248,7 +248,7 @@ docker-compose logs -f
 
 ---
 
-## ♻️ Fichiers Partagés vs Spécifiques
+## Fichiers Partagés vs Spécifiques
 
 ### Partagés (Modifiables depuis racine)
 
@@ -276,25 +276,25 @@ docker-compose logs -f
 
 ---
 
-## 🔐 Sécurité
+## Sécurité
 
 ### LOCAL
 
-- ✅ Localhost uniquement (secure par défaut)
-- ❌ Pas de SSL (non-nécessaire)
-- ✅ CORS restreint à localhost
+- Localhost uniquement (secure par défaut)
+- Pas de SSL (non-nécessaire)
+- CORS restreint à localhost
 
 ### DEPLOYED
 
-- ✅ Nginx reverse proxy
-- ✅ SSL/TLS support (commenté)
-- ✅ Rate limiting (nginx)
-- ✅ CORS configurable
-- ✅ Isolé par réseau
+- Nginx reverse proxy
+- SSL/TLS support (commenté)
+- Rate limiting (nginx)
+- CORS configurable
+- Isolé par réseau
 
 ---
 
-## 📈 Scalabilité
+## Scalabilité
 
 ### LOCAL (Single machine)
 

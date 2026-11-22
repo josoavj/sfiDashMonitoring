@@ -1,4 +1,4 @@
-# 🚀 Déploiement Systemd - Guide Complet
+# Déploiement Systemd - Guide Complet
 
 **Configuration:** Systemd + Node.js + Nginx + Elasticsearch  
 **Serveur:** Ubuntu 20.04/22.04 LTS  
@@ -7,18 +7,18 @@
 
 ---
 
-## 📋 Table des Matières
+## Table des Matières
 
-1. [Démarrage Rapide](#-démarrage-rapide)
-2. [Installation Manuelle](#-installation-manuelle)
-3. [Vérification](#-vérification)
-4. [Gestion des Services](#-gestion-des-services)
-5. [Mise à Jour](#-mise-à-jour)
-6. [Troubleshooting](#-troubleshooting)
+1. [Démarrage Rapide](#démarrage-rapide)
+2. [Installation Manuelle](#installation-manuelle)
+3. [Vérification](#vérification)
+4. [Gestion des Services](#gestion-des-services)
+5. [Mise à Jour](#mise-à-jour)
+6. [Troubleshooting](#troubleshooting)
 
 ---
 
-## ⚡ Démarrage Rapide
+## Démarrage Rapide
 
 ### Option 1 : Installation Automatisée (Recommandé)
 
@@ -49,7 +49,7 @@ Voir le fichier [DEPLOYMENT-SYSTEMD.md](./DEPLOYMENT-SYSTEMD.md)
 
 ---
 
-## 🔧 Installation Manuelle
+## Installation Manuelle
 
 ### Prérequis
 
@@ -133,7 +133,7 @@ nginx -v          # nginx/1.x.x
 
 ---
 
-## 🧪 Vérification
+## Vérification
 
 ### Script de Vérification Automatisé
 
@@ -174,7 +174,7 @@ curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" \
 
 ---
 
-## 🛠️ Gestion des Services
+## Gestion des Services
 
 ### Statut
 
@@ -247,7 +247,7 @@ journalctl -f
 
 ---
 
-## 🔄 Mise à Jour
+## Mise à Jour
 
 ### Script de Mise à Jour Automatisé
 
@@ -292,7 +292,7 @@ sudo systemctl reload nginx
 
 ---
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Backend ne démarre pas
 
@@ -383,7 +383,7 @@ curl -v -H "Upgrade: websocket" -H "Connection: Upgrade" \
 
 ---
 
-## 📊 Monitoring
+## Monitoring
 
 ### Vérification rapide quotidienne
 
@@ -432,7 +432,7 @@ journalctl -u sfi-monitoring-backend -f --tail=0 | wc -l
 
 ---
 
-## 🔐 Sécurité - Configuration Firewall
+## Sécurité - Configuration Firewall
 
 ```bash
 # Enable UFW
@@ -459,7 +459,7 @@ sudo ufw status
 
 ---
 
-## 📝 Structure Fichiers
+## Structure Fichiers
 
 ```
 /opt/sfiDashMonitoring/

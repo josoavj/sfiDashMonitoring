@@ -1,10 +1,10 @@
-# 📋 Scripts & Documentation — Inventaire Complet
+# Scripts & Documentation — Inventaire Complet
 
-**Statut :** ✅ Opérationnel
+**Statut :** Opérationnel
 
 ---
 
-## 📂 Structure des Scripts
+## Structure des Scripts
 
 ```
 sfiDashMonitoring/
@@ -45,7 +45,7 @@ sfiDashMonitoring/
 
 ---
 
-## 🔧 Scripts Backend
+## Scripts Backend
 
 ### `backend/setup-env.sh`
 
@@ -211,7 +211,7 @@ bash local/test.sh
 
 ---
 
-## 🚀 Scripts Déploiement Production
+## Scripts Déploiement Production
 
 ### `deployed/start.sh`
 
@@ -347,7 +347,7 @@ bash deployed/SUMMARY.sh
 
 ---
 
-## 📄 Scripts Racine
+## Scripts Racine
 
 ### `./start.sh`
 
@@ -417,7 +417,7 @@ bash deployed/SUMMARY.sh
 
 ---
 
-## 🎯 Guide de Démarrage Rapide
+## Guide de Démarrage Rapide
 
 ### Développement
 
@@ -472,17 +472,17 @@ bash deployed/health-check.sh
 
 ---
 
-## 🔒 Sécurité — Points Importants
+## Sécurité — Points Importants
 
 ### Variables d'environnement
 
-✅ **À faire :**
+**À faire :**
 
 - Générer avec `openssl rand -base64 32`
 - Stocker dans `.env` (permissions `600`)
 - Ne **jamais** committer `.env` dans git
 
-❌ **À ne pas faire :**
+**À ne pas faire :**
 
 - Utiliser des valeurs par défaut
 - Partager les secrets
@@ -527,7 +527,7 @@ HTTPS avec certificat SSL requis.
 
 ---
 
-## ✅ Checklist
+## Checklist
 
 - [x] Script `setup-env.sh` créé et rendu exécutable
 - [x] `.env.template` complété

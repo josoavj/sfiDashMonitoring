@@ -1,21 +1,21 @@
-# 🚀 Mode DEPLOYED - Production sur Ubuntu Server
+# Mode DEPLOYED - Production sur Ubuntu Server
 
 Déploiement en production sur serveur Ubuntu avec Docker Compose ou Systemd. Frontend accessible depuis le réseau, **sans interface graphique sur le serveur**.
 
-## 📍 Architecture Production
+## Architecture Production
 
 ```
 Ubuntu Server (192.168.1.100)
 │
 ├── Option 1: Docker (Recommandé)
-│   ├── 🐳 Container: Backend API (port 3001)
+│   ├── Container: Backend API (port 3001)
 │   │   ├── Node.js Express
 │   │   ├── Morgan HTTP Logging
 │   │   ├── JWT Authentication
 │   │   ├── Socket.io WebSocket
 │   │   └── logs/backend.log (dans container)
 │   │
-│   └── 🐳 Container: Frontend + Nginx (port 80)
+│   └── Container: Frontend + Nginx (port 80)
 │       ├── Vite Build (optimisé)
 │       ├── Nginx Reverse Proxy
 │       ├── Static compression
@@ -32,9 +32,9 @@ Ubuntu Server (192.168.1.100)
 └── WebSocket: ws://SERVER_IP:3001/socket.io
 ```
 
-## ⚡ Démarrage Rapide
+## Démarrage Rapide
 
-### Option 1: Docker Compose (Recommandé ✅)
+### Option 1: Docker Compose (Recommandé [OK])
 
 ```bash
 cd deployed
@@ -89,7 +89,7 @@ sudo systemctl status sfiDashMonitoring-frontend
 | **API Docs** | http://192.168.1.100:3001/api-docs | Swagger documentation |
 | **Metrics** | http://192.168.1.100:3001/metrics | Prometheus metrics |
 
-## 🔧 Configuration Production
+## Configuration Production
 
 ### Variables d'Environnement
 
@@ -155,7 +155,7 @@ deployed/
 └── README.md                 ← Ce fichier
 ```
 
-## 🎯 Scripts de Déploiement
+## Scripts de Déploiement
 
 ### Démarrage & Arrêt
 
@@ -181,7 +181,7 @@ docker-compose logs -f        # Logs en direct
 ./update-frontend-config.sh   # Mettre à jour frontend config
 ```
 
-## 📊 Optimisations Production
+## Optimisations Production
 
 ### Frontend (Vite Build)
 
@@ -238,7 +238,7 @@ journalctl -u sfiDashMonitoring-frontend -f
 ../scripts/logs/manage-logs.sh clean    # Nettoyer
 ```
 
-## 🔒 Sécurité Production
+## Sécurité Production
 
 ### Checklist Sécurité
 
@@ -354,7 +354,7 @@ Consulter les guides détaillés:
 - [Main README](../README.md) - Vue d'ensemble du projet
 - [SECURITY.md](../SECURITY.md) - Sécurité détaillée
 
-## 🚀 Workflow Déploiement
+## Workflow Déploiement
 
 ### 1️⃣ Préparation
 

@@ -1,10 +1,10 @@
-# 🚀 Configuration Localhost - SFI Dashboard Monitoring
+# Configuration Localhost - SFI Dashboard Monitoring
 
 ## Vue d'ensemble
 
 Ce projet est configuré pour fonctionner en **mode local** sur votre machine. Tous les services (Frontend et Backend) sont accessibles via `localhost` avec des **fallbacks automatiques** intégrés.
 
-## 📍 URLs d'accès
+## URLs d'accès
 
 | Service | URL | Port |
 |---------|-----|------|
@@ -12,7 +12,7 @@ Ce projet est configuré pour fonctionner en **mode local** sur votre machine. T
 | **Backend API** | http://localhost:3001 | 3001 |
 | **WebSocket** | ws://localhost:3001/socket.io | 3001 |
 
-## ⚡ Démarrage rapide
+## Démarrage rapide
 
 ### Option 1: Utiliser le script `start.sh` (Recommandé)
 
@@ -22,12 +22,12 @@ Ce projet est configuré pour fonctionner en **mode local** sur votre machine. T
 
 Le script :
 
-- ✅ Vérifie les dépendances (Node.js, npm)
-- ✅ Installe les packages manquants
-- ✅ Lance le backend sur localhost:3001
-- ✅ Lance le frontend sur localhost:5173
-- ✅ Configure automatiquement les URLs pour localhost
-- ✅ Affiche les logs en temps réel
+- Vérifie les dépendances (Node.js, npm)
+- Installe les packages manquants
+- Lance le backend sur localhost:3001
+- Lance le frontend sur localhost:5173
+- Configure automatiquement les URLs pour localhost
+- Affiche les logs en temps réel
 
 **Arrêter les services:** Appuyez sur `Ctrl+C`
 
@@ -44,7 +44,7 @@ npm run frontend
 npm run start:all
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Frontend (`.env.local`)
 
@@ -190,7 +190,7 @@ npm run setup
 
 3. Vérifier les logs du navigateur (F12 → Console)
 
-## 📦 Variables d'environnement
+## Variables d'environnement
 
 ### Surcharger les ports
 
@@ -215,7 +215,7 @@ NODE_ENV=production npm run backend
 NODE_ENV=production npm run dev
 ```
 
-## 🎯 Cas d'usage courants
+## Cas d'usage courants
 
 ### Démarrage simple (tous les services)
 
@@ -246,14 +246,14 @@ npm run frontend
 # (fallback à localhost:3001 si backend indisponible)
 ```
 
-## 🔐 Notes de sécurité
+## Notes de sécurité
 
 - **Développement local uniquement** : Cette configuration est pour le développement
 - **Pas de HTTPS en local** : Les certificats SSL ne sont pas nécessaires pour localhost
 - **CORS permissif** : localhost:3000 et localhost:5173 sont autorisés
 - **Credentials activés** : WebSocket inclut les cookies/tokens
 
-## 📚 Fichiers clés
+## Fichiers clés
 
 | Fichier | Rôle | Fallback |
 |---------|------|----------|
@@ -263,7 +263,7 @@ npm run frontend
 | `start.sh` | Script de démarrage | npm scripts en fallback |
 | `package.json` | Scripts npm | fallback pour démarrage manuel |
 
-## ✅ Checklist avant déploiement
+## Checklist avant déploiement
 
 - [ ] Frontend accessible sur http://localhost:5173
 - [ ] Backend accessible sur http://localhost:3001

@@ -1,9 +1,9 @@
-# 🚀 Deployment Guide - SFI Dashboard v2.0
+# Deployment Guide - SFI Dashboard v2.0
 
 > **Version:** 2.0
-> **Status:** ✅ Production-ready
+> **Status:** Production-ready
 
-## 📋 Table des matières
+## Table des matières
 
 1. [Pre-deployment Checks](#pre-deployment-checks)
 2. [Environment Setup](#environment-setup)

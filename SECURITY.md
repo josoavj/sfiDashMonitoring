@@ -493,4 +493,4 @@ curl -H "Origin: http://attacker.com" http://localhost:3001/api/me
 
 ---
 
-**Statut:** ✅ Complété
+**Statut:** Complété

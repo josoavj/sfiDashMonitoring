@@ -1,10 +1,10 @@
-# 🚀 Guide de Déploiement
+# Guide de Déploiement
 
-**Status:** ✅ Production Ready
+**Status:** Production Ready
 
 ---
 
-## 📋 Contenu
+## Contenu
 
 - [Prérequis](#prérequis)
 - [Installation Locale](#installation-locale)
@@ -15,7 +15,7 @@
 
 ---
 
-## 🔧 Prérequis
+## Prérequis
 
 ### Système
 
@@ -41,16 +41,16 @@ openssl version  # >= 1.1.1
 
 ---
 
-## 📦 Installation Locale
+## Installation Locale
 
-### 1️⃣ Cloner le projet
+### Cloner le projet
 
 ```bash
 git clone <repo-url> sfiDashMonitoring
 cd sfiDashMonitoring
 ```
 
-### 2️⃣ Installer les dépendances
+### Installer les dépendances
 
 **Frontend:**
 
@@ -68,7 +68,7 @@ npm install
 npm audit       # Vérifier l'état
 ```
 
-### 3️⃣ Configurer l'environnement
+### Configurer l'environnement
 
 ```bash
 cd backend
@@ -90,7 +90,7 @@ nano .env
 # Éditer les valeurs
 ```
 
-### 4️⃣ Initialiser la base de données
+### Initialiser la base de données
 
 ```bash
 cd backend
@@ -100,7 +100,7 @@ npm run seed          # Données de test (optionnel)
 
 ---
 
-## 🔐 Configuration Sécurité
+## Configuration Sécurité
 
 ### Sécurité Critique
 
@@ -155,7 +155,7 @@ curl -u elastic:password https://ELASTICSEARCH_HOST:9200/_ssl/certificates > htt
 
 ---
 
-## 🚀 Déploiement Production
+## Déploiement Production
 
 ### Pre-deployment Checklist
 
@@ -313,7 +313,7 @@ sudo systemctl reload nginx
 
 ---
 
-## 🧪 Tests & Validation
+## Tests & Validation
 
 ### Tests Frontend
 
@@ -385,7 +385,7 @@ Vérifie:
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### "Token validation failed"
 
@@ -466,7 +466,7 @@ cd backend && npm start
 
 ---
 
-## 📊 Monitoring & Logs
+## Monitoring & Logs
 
 ### Logs Backend
 
@@ -520,7 +520,7 @@ curl http://localhost:3001/health
 
 ---
 
-## ✅ Étapes de validation
+## Étapes de validation
 
 - [ ] Variables d'env configurées (.env)
 - [ ] Secrets générés (JWT, Session)

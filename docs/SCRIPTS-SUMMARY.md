@@ -1,43 +1,43 @@
-# 📋 Résumé Organisation des Scripts
+# Résumé Organisation des Scripts
 
-## 📁 Structure Finale
+## Structure Finale
 
-### 🎯 Root Level
+### Root Level
 
 ```
 start.sh                    ← Point d'entrée principal (CONSERVÉ)
 ```
 
-### 📊 Scripts Partagés (`scripts/`)
+### Scripts Partagés (`scripts/`)
 
 **10 scripts + README documenté:**
 
-#### 📋 Logs (`scripts/logs/` - 3 scripts)
+#### Logs (`scripts/logs/` - 3 scripts)
 
 - `watch-logs.sh` - Surveiller en temps réel
 - `manage-logs.sh` - Archiver/nettoyer
 - `start-with-logs.sh` - Démarrer + logs
 
-#### 🛠️ Dev (`scripts/dev/` - 2 scripts)
+#### Dev (`scripts/dev/` - 2 scripts)
 
 - `setup.sh` - Initialiser env
 - `test.sh` - Tester (unit/ui/coverage/watch)
 
-#### 🏗️ Build (`scripts/build/` - 2 scripts)
+#### Build (`scripts/build/` - 2 scripts)
 
 - `build-frontend.sh` - Builder production
 - `analyze-build.sh` - Analyser taille
 
-#### 🔧 Utils (`scripts/utils/` - 2 scripts)
+#### Utils (`scripts/utils/` - 2 scripts)
 
 - `health-check.sh` - Vérifier services
 - `test-local.sh` - Valider projet
 
-#### 📖 Documentation
+#### Documentation
 
 - `scripts/README.md` - 300+ lignes
 
-### 🔧 Mode-Spécifiques (À garder où ils sont)
+### Mode-Spécifiques (À garder où ils sont)
 
 **Backend** (`backend/` - 2 scripts):
 - `setup-env.sh` - Générer secrets
@@ -49,15 +49,15 @@ start.sh                    ← Point d'entrée principal (CONSERVÉ)
 **Deployed** (`deployed/` - 12+ scripts):
 - Scripts pour mode production/Docker (inchangé)
 
-## 📊 Statistiques
+## Statistiques
 
-- **Scripts root:** 1 ✅
-- **Scripts partagés:** 10 ✅
+- **Scripts root:** 1 [OK]
+- **Scripts partagés:** 10 [OK]
 - **Scripts mode-spécifiques:** 21 (à garder)
 - **Total scripts:** 32
 - **Documentation:** 2 README (main + scripts)
 
-## 🚀 Commandes de Base
+## Commandes de Base
 
 ```bash
 # Démarrage
@@ -81,13 +81,13 @@ start.sh                    ← Point d'entrée principal (CONSERVÉ)
 ./scripts/logs/manage-logs.sh archive
 ```
 
-## ✨ Bénéfices
+## Bénéfices
 
-✅ Structure **clean** et **organisée**
-✅ Scripts partagés **centralisés**
-✅ Documentation **complète**
-✅ Pas de **doublons**
-✅ Mode-spécifiques **préservés**
-✅ Point d'entrée **principal** visible
+- Structure clean et organisée
+- Scripts partagés centralisés
+- Documentation complète
+- Pas de doublons
+- Mode-spécifiques préservés
+- Point d'entrée principal visible
 
 
