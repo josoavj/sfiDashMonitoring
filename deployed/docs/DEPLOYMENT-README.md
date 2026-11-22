@@ -1,16 +1,16 @@
-# 📦 Déploiement Production - SFI Dashboard Monitoring
+# Déploiement Production - SFI Dashboard Monitoring
 
-## 🎯 Résumé
+## Résumé
 
 Configuration de déploiement pour **Ubuntu Server 172.27.28.14** en utilisant :
-- ✅ **Systemd** (pas Docker)
-- ✅ **Node.js** natif
-- ✅ **Nginx** comme reverse proxy
-- ✅ **Elasticsearch** externe
+- **Systemd** (pas Docker)
+- **Node.js** natif
+- **Nginx** comme reverse proxy
+- **Elasticsearch** externe
 
 ---
 
-## 📋 Fichiers de Déploiement
+## Fichiers de Déploiement
 
 | Fichier | Objectif |
 |---------|----------|
@@ -25,7 +25,7 @@ Configuration de déploiement pour **Ubuntu Server 172.27.28.14** en utilisant :
 
 ---
 
-## ⚡ Démarrage Rapide
+## Démarrage Rapide
 
 ### Étape 1 : Préparation du serveur
 
@@ -106,7 +106,7 @@ Ouvrir : `http://172.27.28.14`
 
 ---
 
-## 📝 Configuration Backend (.env)
+## Configuration Backend (.env)
 
 ```properties
 # Production Configuration
@@ -130,7 +130,7 @@ JWT_REFRESH_SECRET=<votre_refresh_secret_fort_ici>
 
 ---
 
-## 🔧 Services Systemd
+## Services Systemd
 
 ### Démarrage
 
@@ -167,7 +167,7 @@ sudo systemctl restart nginx
 
 ---
 
-## 🔐 Sécurité
+## Sécurité
 
 ### Secrets JWT (OBLIGATOIRE)
 
@@ -200,7 +200,7 @@ Déjà configurés dans `nginx.conf`:
 
 ---
 
-## 📊 Monitoring
+## Monitoring
 
 ### Vérifier le déploiement
 
@@ -237,7 +237,7 @@ sudo netstat -antp | grep 3001
 
 ---
 
-## 🚀 Mise à Jour en Production
+## Mise à Jour en Production
 
 ### Script automatisé
 
@@ -273,7 +273,7 @@ sudo systemctl restart sfiDashMonitoring-backend
 
 ---
 
-## 🐛 Dépannage
+## Dépannage
 
 ### Le backend ne démarre pas
 
@@ -345,7 +345,7 @@ Pour plus de détails, consultez **UBUNTU-DEPLOYMENT-GUIDE.md**
 
 ---
 
-## ✅ Checklist Final
+## Checklist Final
 
 - [ ] Script `install-production.sh` exécuté avec succès
 - [ ] `.env` configuré avec les secrets JWT
