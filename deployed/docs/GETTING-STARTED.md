@@ -1,11 +1,11 @@
-# 🎯 Premiers Pas - Guide de Déploiement
+# Premiers Pas - Guide de Déploiement
 
 **Vous venez de recevoir les fichiers de déploiement?**  
-Commencez ici! 👈
+Commencez ici!
 
 ---
 
-## ⏰ Temps Estimé
+## Temps Estimé
 
 - **Lecture complète:** 5-10 minutes
 - **Installation:** 5-10 minutes (automatisée)
@@ -14,20 +14,20 @@ Commencez ici! 👈
 
 ---
 
-## 📋 Avant de Commencer
+## Avant de Commencer
 
 Assurez-vous que vous avez :
 
-- ✅ Accès SSH au serveur Ubuntu
-- ✅ Droits `sudo` sur le serveur
-- ✅ Ubuntu 20.04 LTS ou 22.04 LTS installé
-- ✅ Elasticsearch installé et fonctionnel
-- ✅ Au moins 5GB d'espace disque libre
-- ✅ Au moins 4GB de mémoire RAM disponible
+- Accès SSH au serveur Ubuntu
+- Droits `sudo` sur le serveur
+- Ubuntu 20.04 LTS ou 22.04 LTS installé
+- Elasticsearch installé et fonctionnel
+- Au moins 5GB d'espace disque libre
+- Au moins 4GB de mémoire RAM disponible
 
 ---
 
-## 🚀 En 4 Étapes
+## En 4 Étapes
 
 ### Étape 1 : Copier les fichiers (2 min)
 
@@ -325,9 +325,9 @@ SSL/TLS:           Non (à ajouter)
 
 ---
 
-## 🚀 Status Actuel
+## Status Actuel
 
-✅ **Installation Systemd complète**
+- **Installation Systemd complète**
 - Node.js + Express
 - React + Vite
 - Nginx (reverse proxy)
@@ -335,7 +335,7 @@ SSL/TLS:           Non (à ajouter)
 - Systemd services
 - Firewall UFW (optionnel)
 
-❌ **Non inclus dans cette version**
+- **Non inclus dans cette version**
 - SSL/TLS (HTTPS)
 - Base de données externe
 - Load balancer
@@ -343,7 +343,7 @@ SSL/TLS:           Non (à ajouter)
 
 ---
 
-## 📝 Notes Personnelles
+## Notes Personnelles
 
 ```
 Date du déploiement: _______________
@@ -354,7 +354,7 @@ Notes: _________________________
 
 ---
 
-## 🔗 Liens Utiles
+## Liens Utiles
 
 | Lien | Destination |
 |------|------------|
@@ -364,7 +364,7 @@ Notes: _________________________
 
 ---
 
-## ❓ Questions Fréquemment Posées
+## Questions Fréquemment Posées
 
 **Q: Comment redémarrer l'application?**  
 A: `sudo systemctl restart sfi-monitoring-backend`
@@ -392,12 +392,12 @@ A: Toute personne sur le réseau: http://172.27.28.14
 
 ---
 
-### 🎯 Prêt à Déployer?
+### Prêt à Déployer?
 
-1. Lire ce document (✓ fait!)
+1. Lire ce document (fait!)
 2. Lancer `install.sh`
 3. Lancer `verify.sh`
 4. Tester http://172.27.28.14
 
-**C'est tout! 🚀**
+**C'est tout!**
 
