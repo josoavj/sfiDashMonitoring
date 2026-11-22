@@ -1,10 +1,10 @@
-# ✅ Checklist Déploiement Systemd
+# Checklist Déploiement Systemd
 
 Utilise cette checklist pour vérifier que tout est prêt avant le déploiement.
 
 ---
 
-## 📋 Avant le Déploiement
+## Avant le Déploiement
 
 ### Préparation Machine de Développement
 
@@ -44,7 +44,7 @@ Utilise cette checklist pour vérifier que tout est prêt avant le déploiement.
 
 ---
 
-## 🚀 Pendant le Déploiement
+## Pendant le Déploiement
 
 ### Étape 1 : Préparation
 
@@ -81,7 +81,7 @@ Utilise cette checklist pour vérifier que tout est prêt avant le déploiement.
 
 ---
 
-## ✅ Après le Déploiement
+## Après le Déploiement
 
 ### Vérifications Système
 
@@ -121,7 +121,7 @@ Utilise cette checklist pour vérifier que tout est prêt avant le déploiement.
 
 ---
 
-## 🔄 Maintenance Quotidienne
+## Maintenance Quotidienne
 
 ### Vérifications Quotidiennes
 
@@ -147,7 +147,7 @@ Utilise cette checklist pour vérifier que tout est prêt avant le déploiement.
 
 ---
 
-## 📊 Checklist de Troubleshooting
+## Checklist de Troubleshooting
 
 Si quelque chose ne fonctionne pas :
 
@@ -161,7 +161,7 @@ Si quelque chose ne fonctionne pas :
 
 ---
 
-## 📝 Notes Post-Déploiement
+## Notes Post-Déploiement
 
 **Date du déploiement:** _______________________
 
@@ -187,7 +187,7 @@ _________________________________________________________________
 
 ---
 
-## 🔐 Accès et Credentials
+## Accès et Credentials
 
 **Ne pas oublier de configurer:**
 
