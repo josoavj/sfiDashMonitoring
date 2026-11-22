@@ -21,11 +21,11 @@
 
 ## Sécurité
 
-###  Améliorations sécurité
+### Améliorations sécurité
 
--  **JWT HttpOnly Cookies** - Tokens non accessibles via JavaScript
--  **Refresh Token Rotation** - Nouveau token à chaque refresh
--  **Token Hashing** - Refresh tokens hachés en BD (pas en clair)
+- **JWT HttpOnly Cookies** - Tokens non accessibles via JavaScript
+- **Refresh Token Rotation** - Nouveau token à chaque refresh
+- **Token Hashing** - Refresh tokens hachés en BD (pas en clair)
 -  **CORS Strict** - Origins whitelist, SameSite=Strict
 -  **Helmet Security Headers** - Protection contre XSS, Clickjacking
 -  **Rate Limiting** - Auth (5/15min), Refresh (10/min)
@@ -51,7 +51,7 @@ POST /auth/signout
 
 ---
 
-##  Tests & Qualité
+## Tests & Qualité
 
 ### Tests
 
@@ -124,7 +124,7 @@ GET http://localhost:3001/api-docs
 
 ---
 
-##️ Configuration Sécurité (Production)
+## Configuration Sécurité (Production)
 
 ### Variables d'environnement essentielles
 
@@ -254,7 +254,7 @@ npm run test:ui        # Interface Vitest
 
 ---
 
-##  Prérequis
+## Prérequis
 
 - **Node.js** ≥ 18 (pour HttpOnly cookies natifs)
 - **npm** ≥ 9
@@ -264,7 +264,7 @@ npm run test:ui        # Interface Vitest
 
 ---
 
-##  Configuration
+## Configuration
 
 ### Backend `.env`
 
@@ -326,11 +326,11 @@ sfiDashMonitoring/
 ├── backend/                     ← Code backend (partagé)
 ├── src/                         ← Code React (partagé)
 ├── package.json                 ← Dépendances (partagé)
-├── start.sh                     ←  Point d'entrée principal
+├── start.sh                     ← Point d'entrée principal
 └── README.md                    ← Ce fichier
 ```
 
-** Documentation scripts:** Voir [scripts/README.md](./scripts/README.md) pour le détail complet de chaque script et les workflows.
+**Documentation scripts:** Voir [scripts/README.md](./scripts/README.md) pour le détail complet de chaque script et les workflows.
 
 ---
 
