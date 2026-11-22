@@ -269,14 +269,14 @@ async function init() {
     await sequelize.sync({ alter: true });
     server.listen(PORT, HOST, () => {
       console.log(`
-╔════════════════════════════════════════════════════════════╗
-║     SFI Dash Monitoring Backend Started                    ║
-╠════════════════════════════════════════════════════════════╣
-║ Server:         http://${HOST}:${PORT}                     ║
-║ WebSocket:      ws://localhost:${PORT}/socket.io/          ║
-║ Elasticsearch:  Connected                                  ║
-║ Database:       Connected (alter: true)                    ║
-╚════════════════════════════════════════════════════════════╝
+            ╔════════════════════════════════════════════════════════════╗
+            ║     SFI Dash Monitoring Backend Started                    ║
+            ╠════════════════════════════════════════════════════════════╣
+            ║ Server:         http://${HOST}:${PORT}                     ║
+            ║ WebSocket:      ws://localhost:${PORT}/socket.io/          ║
+            ║ Elasticsearch:  Connected                                  ║
+            ║ Database:       Connected (alter: true)                    ║
+            ╚════════════════════════════════════════════════════════════╝
       `);
     });
   } catch (err) {
