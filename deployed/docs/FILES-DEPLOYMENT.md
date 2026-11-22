@@ -1,10 +1,10 @@
-# 📚 Fichiers de Déploiement Créés
+# Fichiers de Déploiement Créés
 
 Résumé des fichiers de déploiement pour Systemd sur Ubuntu Server.
 
 ---
 
-## 📁 Fichiers Disponibles
+## Fichiers Disponibles
 
 ### 1. **SETUP-QUICK.md** (Ce fichier)
 **Description:** Guide rapide de déploiement  
@@ -32,7 +32,7 @@ Résumé des fichiers de déploiement pour Systemd sur Ubuntu Server.
 - Sécurité & Firewall
 - Troubleshooting avancé
 
-### 3. **install.sh** ⚙️ (Exécutable)
+### 3. **install.sh** (Exécutable)
 **Description:** Script d'installation automatisée  
 **Fonction:** Automatise complètement le déploiement  
 **Utilisation:**
@@ -54,7 +54,7 @@ sudo bash /tmp/install.sh
 - ✓ Démarre les services
 - ✓ Lance des tests
 
-### 4. **verify.sh** ✓ (Exécutable)
+### 4. **verify.sh** (Exécutable)
 **Description:** Script de vérification du déploiement  
 **Fonction:** Teste tous les composants après déploiement  
 **Utilisation:**
@@ -73,7 +73,7 @@ bash /opt/sfiDashMonitoring/deployed/verify.sh
 - ✓ Configuration Nginx
 - ✓ Uptime et performance
 
-### 5. **update.sh** 🔄 (Exécutable)
+### 5. **update.sh** (Exécutable)
 **Description:** Script de mise à jour du code  
 **Fonction:** Met à jour le code et redémarre les services  
 **Utilisation:**
@@ -91,7 +91,7 @@ sudo bash /opt/sfiDashMonitoring/deployed/update.sh update
 
 ---
 
-## 🚀 Utilisation Rapide
+## Utilisation Rapide
 
 ### Scenario 1 : Installation depuis zéro
 
@@ -134,7 +134,7 @@ sudo bash /opt/sfiDashMonitoring/deployed/update.sh update
 
 ---
 
-## 📋 Configuration Fournie
+## Configuration Fournie
 
 ### IP Serveur
 - **172.27.28.14**
@@ -155,7 +155,7 @@ sudo bash /opt/sfiDashMonitoring/deployed/update.sh update
 
 ---
 
-## ✅ Points Clés
+## Points Clés
 
 1. **Automatisé**: Le script `install.sh` fait tout
 2. **Sécurisé**: Backend non accessible directement (via Nginx)
@@ -165,7 +165,7 @@ sudo bash /opt/sfiDashMonitoring/deployed/update.sh update
 
 ---
 
-## 📞 Support
+## Support
 
 Pour des questions :
 
