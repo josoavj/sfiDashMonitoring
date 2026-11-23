@@ -60,11 +60,11 @@ VITE_BACKEND_WS_URL=ws://localhost:3001
 - Si `VITE_API_URL` n'est pas accessible → utilise `http://localhost:3001`
 - Si `VITE_BACKEND_WS_URL` n'est pas accessible → utilise `ws://localhost:3001`
 - Code avec fallbacks intégré dans :
-  - `src/context/AuthContext.jsx`
-  - `src/context/WebsocketContext.jsx`
-  - `src/components/ProfilePage.jsx`
-  - `src/components/AlertesPage.jsx`
-  - `src/components/ReportsPage.jsx`
+  - `frontend/src/context/AuthContext.jsx`
+  - `frontend/src/context/WebsocketContext.jsx`
+  - `frontend/src/components/ProfilePage.jsx`
+  - `frontend/src/components/AlertesPage.jsx`
+  - `frontend/src/components/ReportsPage.jsx`
 
 ### Backend (`backend/.env`)
 

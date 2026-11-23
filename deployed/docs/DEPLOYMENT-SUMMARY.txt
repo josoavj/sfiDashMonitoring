@@ -132,8 +132,7 @@ RÉPERTOIRE APPLICATION:
   │   ├── src/
   │   ├── certs/http_ca.crt (certificat Elasticsearch)
   │   └── node_modules/
-  ├── src/ (frontend source)
-  ├── dist/ (frontend compilé → Nginx)
+  ├── frontend/ (frontend React/Vite source et dist/)
   ├── deployed/ (ce dossier - scripts & config)
   └── logs/ (logs applicatifs)
 

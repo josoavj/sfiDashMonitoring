@@ -64,11 +64,11 @@ fi
 echo -e "${GREEN}  ✓ Dossier backend trouvé${NC}"
 
 # Check frontend
-if [ ! -f "package.json" ] || [ ! -d "src" ]; then
-  echo -e "${RED}❌ Frontend non détecté${NC}"
+if [ ! -d "frontend" ] || [ ! -d "frontend/src" ]; then
+  echo -e "${RED}❌ Frontend non détecté (dossier frontend/src introuvable)${NC}"
   exit 1
 fi
-echo -e "${GREEN}  ✓ Frontend trouvé${NC}\n"
+echo -e "${GREEN}  ✓ Frontend trouvé dans frontend/${NC}\n"
 
 # Create necessary directories
 echo -e "${BLUE}📁 Création des répertoires...${NC}"
@@ -94,7 +94,7 @@ fi
 echo -e "${GREEN}  ✓ Dépendances backend OK${NC}"
 
 # Install frontend dependencies if missing
-if [ ! -d "node_modules" ]; then
+if [ ! -d "frontend/node_modules" ] && [ ! -d "node_modules" ]; then
   echo -e "${YELLOW}  ⚠ Dépendances frontend manquantes${NC}"
   echo -e "${BLUE}  📦 Installation en cours...${NC}"
   npm install
@@ -156,7 +156,7 @@ echo -e "${CYAN}  Configuration:${NC}"
 echo -e "    VITE_API_URL: $VITE_API_URL"
 echo -e "    VITE_BACKEND_WS_URL: $VITE_BACKEND_WS_URL"
 
-npm run dev -- --port $FRONTEND_PORT > "logs/frontend.log" 2>&1 &
+npm run dev --workspace=frontend -- --port $FRONTEND_PORT > "logs/frontend.log" 2>&1 &
 FRONTEND_PID=$!
 
 echo -e "${YELLOW}  ⏳ Attente du démarrage du frontend...${NC}"

@@ -47,7 +47,7 @@ export SERVER_IP=192.168.1.100
 
 ---
 
-## 📚 Structure de la documentation
+## Structure de la documentation
 
 ```
 docs/
@@ -68,4 +68,4 @@ docs/
 
 ---
 
-**👉 [Retour au README principal](../README.md)**
+** [Retour au README principal](../README.md)**

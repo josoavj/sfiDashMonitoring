@@ -36,7 +36,7 @@ if ! nc -z localhost 3001 2>/dev/null; then
 fi
 
 # Install dependencies if missing
-if [ ! -d "node_modules" ]; then
+if [ ! -d "frontend/node_modules" ] && [ ! -d "node_modules" ]; then
   echo -e "${BLUE}📦 Installation des dépendances frontend...${NC}"
   npm install
   echo -e "${GREEN}✓ Dépendances installées${NC}\n"
@@ -57,4 +57,4 @@ echo -e "  🔌 WebSocket:    $VITE_BACKEND_WS_URL\n"
 
 echo -e "${YELLOW}⏳ Lancement du serveur Vite...${NC}\n"
 
-npm run dev -- --port 5173
+npm run dev --workspace=frontend -- --port 5173

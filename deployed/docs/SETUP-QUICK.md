@@ -463,7 +463,7 @@ sudo ufw status
 
 ```
 /opt/sfiDashMonitoring/
-├── backend/
+├── backend/                 # Backend Node.js
 │   ├── .env                 # Configuration (credentials)
 │   ├── server.js
 │   ├── src/
@@ -472,13 +472,15 @@ sudo ufw status
 │   │   ├── services/
 │   │   └── models/
 │   └── package.json
-├── src/                     # Frontend React
-│   ├── components/
-│   ├── pages/
-│   └── App.jsx
-├── dist/                    # Frontend build
-│   ├── index.html
-│   ├── assets/
+├── frontend/                # Frontend React 19 / Vite
+│   ├── src/
+│   │   ├── components/
+│   │   └── App.jsx
+│   ├── dist/                # Frontend build
+│   │   ├── index.html
+│   │   └── assets/
+│   ├── vite.config.js
+│   └── package.json
 │   └── ...
 ├── package.json
 ├── vite.config.js

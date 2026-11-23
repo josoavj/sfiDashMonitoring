@@ -33,7 +33,7 @@ echo ""
 
 # Build
 echo -e "${BLUE}🔨 Building...${NC}"
-npm run build
+npm run build --workspace=frontend
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}❌ Build failed${NC}"
@@ -44,7 +44,7 @@ echo ""
 echo -e "${GREEN}✅ Build completed successfully!${NC}"
 echo ""
 echo -e "${YELLOW}📁 Output:${NC}"
-ls -lh dist/
+ls -lh frontend/dist/ 2>/dev/null || ls -lh dist/ 2>/dev/null || true
 echo ""
 echo -e "${BLUE}💡 To preview the build:${NC}"
-echo "   npm run preview"
+echo "   npm run preview --workspace=frontend"

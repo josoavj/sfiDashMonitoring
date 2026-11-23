@@ -171,9 +171,11 @@ fi
 
 echo ""
 print_info "Frontend Build (dist):"
-if [ -d "$APP_DIR/dist" ]; then
+if [ -d "$APP_DIR/frontend/dist" ] || [ -d "$APP_DIR/dist" ]; then
     print_ok "Build frontend existe"
-    FILE_COUNT=$(find $APP_DIR/dist -type f | wc -l)
+    DIST_DIR="$APP_DIR/frontend/dist"
+    [ ! -d "$DIST_DIR" ] && DIST_DIR="$APP_DIR/dist"
+    FILE_COUNT=$(find $DIST_DIR -type f | wc -l)
     print_info "  Fichiers: $FILE_COUNT"
     ((PASSED++))
 else
