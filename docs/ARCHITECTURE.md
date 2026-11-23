@@ -9,12 +9,12 @@ Le projet utilise une **architecture à deux modes** pour permettre flexibilité
 
 ---
 
-## 📂 Structure complète
+## Structure complète
 
 ```
 sfiDashMonitoring/
 │
-├── 📁 local/                              ← MODE LOCAL (Développement)
+├── local/                              ← MODE LOCAL (Développement)
 │   ├── .env.local                         Configuration frontend localhost
 │   ├── start.sh                           ← Démarrer services locaux
 │   ├── test.sh                            Tester configuration
@@ -22,7 +22,7 @@ sfiDashMonitoring/
 │   ├── test-websocket.sh                  Tester WebSocket
 │   └── README.md                          Documentation LOCAL
 │
-├── 📁 deployed/                           ← MODE DEPLOYED (Production)
+├── deployed/                           ← MODE DEPLOYED (Production)
 │   ├── .env.example                       Template env réseau
 │   ├── .env.production                    Variables de production
 │   ├── docker-compose.yml                 Orchestration Docker
@@ -35,7 +35,7 @@ sfiDashMonitoring/
 │   ├── sfiDashMonitoring-frontend.service  ← Systemd (alternative Docker)
 │   └── README.md                          Documentation DEPLOYED
 │
-├── 📁 backend/                            ← CODE BACKEND (Partagé)
+├── backend/                            ← CODE BACKEND (Isolé)
 │   ├── src/
 │   │   ├── server.js                      Point d'entrée
 │   │   ├── controllers/
@@ -45,41 +45,40 @@ sfiDashMonitoring/
 │   │   └── databases/
 │   ├── .env                               Configuration production
 │   ├── envDefault                         Template env
-│   └── package.json
+│   └── package.json                       Dépendances backend uniquement
 │
-├── 📁 src/                                ← CODE FRONTEND (Partagé)
-│   ├── components/
-│   │   ├── AlertesPage.jsx
-│   │   ├── ReportsPage.jsx
-│   │   ├── ProfilePage.jsx
-│   │   ├── SettingsPage.jsx
-│   │   ├── DataVisualization.jsx
-│   │   └── dashboard-elements/
-│   ├── context/
-│   │   ├── AuthContext.jsx
-│   │   ├── WebsocketContext.jsx
-│   │   └── NavContext.jsx
-│   ├── App.jsx
-│   └── main.jsx
+├── frontend/                           ← CODE FRONTEND (Isolé)
+│   ├── src/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── hooks/
+│   │   ├── utils/
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── public/                            Assets statiques
+│   ├── index.html                         Point d'entrée HTML
+│   ├── vite.config.js                     Configuration Vite
+│   ├── vitest.config.js                   Configuration Vitest
+│   ├── eslint.config.js                   Configuration ESLint
+│   └── package.json                       Dépendances frontend uniquement
 │
-├── 📁 public/                             ← Assets statiques (Partagé)
-├── 📁 logs/                               ← Dossier logs (local)
+├── logs/                               ← Dossier logs (local)
 │
-├── 📄 README.md                           ← Guide principal (ce fichier)
-├── 📄 LOCALHOST_CONFIG.md                 Configuration localhost détaillée
-├── 📄 README-LOCAL.md                     Quick start LOCAL
-├── 📄 ARCHITECTURE.md                     Ce fichier
+├── package.json                        ← Monorepo Root (NPM Workspaces)
+├── LOCALHOST_CONFIG.md                 Configuration localhost détaillée
+├── README-LOCAL.md                     Quick start LOCAL
+├── ARCHITECTURE.md                     Ce fichier
 │
-├── 📄 package.json                        Dépendances frontend (Partagé)
-├── 📄 vite.config.js                      Config Vite (Partagé)
-├── 📄 eslint.config.js                    Config ESLint
-├── 📄 index.html                          Entry HTML
+├── package.json                        Dépendances frontend (Partagé)
+├── vite.config.js                      Config Vite (Partagé)
+├── eslint.config.js                    Config ESLint
+├── index.html                          Entry HTML
 │
-└── 📄 .env.local                          ← AUTO-GÉNÉRÉS (ne pas commiter)
-    📄 .env.example
-    📄 .git
-    📄 node_modules/
-    📄 dist/
+└── .env.local                          ← AUTO-GÉNÉRÉS (ne pas commiter)
+    .env.example
+    .git
+    node_modules/
+    dist/
 
 ```
 
@@ -248,15 +247,13 @@ docker-compose logs -f
 
 ---
 
-## Fichiers Partagés vs Spécifiques
+## Architecture Monorepo
 
-### Partagés (Modifiables depuis racine)
+### Workspaces NPM (`package.json` racine)
 
-- `backend/` - Code backend complet
-- `src/` - Code React complet
-- `public/` - Assets
-- `package.json` - Dépendances
-- `vite.config.js` - Config Vite
+- `backend/` - Code backend Node.js / Express (isoler dans son workspace)
+- `frontend/` - Code frontend React 19 / Vite / MUI (isoler dans son workspace, incluant `src/`, `public/`, `vite.config.js`, `index.html`)
+- `package.json` - Orchestrateur racine des workspaces NPM
 
 ### Spécifiques LOCAL
 
@@ -319,7 +316,7 @@ Future: Ajouter Redis cache, multiple backend instances avec load balancer.
 
 ---
 
-## 📚 Références
+## Références
 
 - `README.md` - Guide principal
 - `LOCALHOST_CONFIG.md` - Config localhost détaillée
