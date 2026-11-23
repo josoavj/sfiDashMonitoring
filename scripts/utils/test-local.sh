@@ -92,14 +92,14 @@ fi
 echo ""
 echo -e "${YELLOW}[SOURCE CODE]${NC}"
 
-test -d "$PROJECT_DIR/src"
-test_result $? "Répertoire src/ existe"
+test -d "$PROJECT_DIR/frontend/src"
+test_result $? "Répertoire frontend/src/ existe"
 
 test -d "$PROJECT_DIR/backend/src"
 test_result $? "Répertoire backend/src/ existe"
 
-test -f "$PROJECT_DIR/src/App.jsx"
-test_result $? "App.jsx existe"
+test -f "$PROJECT_DIR/frontend/src/App.jsx"
+test_result $? "App.jsx existe dans frontend/src/"
 
 # ======== RÉSUMÉ ========
 echo ""
