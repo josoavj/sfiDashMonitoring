@@ -1,4 +1,4 @@
-# 🔍 Guide de la Page Exploration
+# Guide de la Page Exploration
 
 ## Vue d'ensemble
 
