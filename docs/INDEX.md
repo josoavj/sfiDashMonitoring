@@ -171,7 +171,7 @@ openssl rand -base64 32
 - [Nginx Configuration](./DEPLOYMENT_PHASES_1_2.md#nginx-configuration-reverse-proxy) - HTTPS
 - [Tests & Validation](./DEPLOYMENT_PHASES_1_2.md#tests--validation) - Vérifier
 
-### 📋 Guide Complet
+### Guide Complet
 
 **[PHASES_1_2_GUIDE.md](./PHASES_1_2_GUIDE.md)**
 
@@ -188,7 +188,7 @@ openssl rand -base64 32
 - [API Documentation](./PHASES_1_2_GUIDE.md#-api-documentation) - Swagger + Prometheus
 - [Configuration](./PHASES_1_2_GUIDE.md#-configuration) - Variables .env
 
-### 📋 Scripts & Inventaire
+### Scripts & Inventaire
 
 **[SCRIPTS_INVENTORY.md](./SCRIPTS_INVENTORY.md)**
 
@@ -213,7 +213,7 @@ openssl rand -base64 32
 - Commands de vérification
 - Sécurité validation
 
-### 📋 Audit Initial (Référence)
+### Audit Initial (Référence)
 
 **[AUDIT_PHASES_1_2_SUMMARY.md](./AUDIT_PHASES_1_2_SUMMARY.md)**
 
@@ -406,7 +406,7 @@ bash deployed/verify-deployment.sh       # Rapport complet
 
 ---
 
-## 📚 Ressources Supplémentaires
+## Ressources Supplémentaires
 
 ### Documentation Technique
 
@@ -427,21 +427,21 @@ bash deployed/verify-deployment.sh       # Rapport complet
 
 ---
 
-## 🎓 Apprentissage
+## Apprentissage
 
 Recommandation de lecture par profil:
 
-**👨‍💼 Manager/PO:**
+** Manager/PO:**
 
 - [PHASES_1_2_GUIDE.md](./PHASES_1_2_GUIDE.md) - Vue d'ensemble
 - [CHECKLIST_PRODUCTION.md](./CHECKLIST_PRODUCTION.md) - Points critiques
 
-**👨‍💻 Développeur Frontend:**
+** Développeur Frontend:**
 
 - [DEPLOYMENT_PHASES_1_2.md](./DEPLOYMENT_PHASES_1_2.md) - Setup
 - [SECURITY.md](./SECURITY.md#token-storage) - JWT handling
 
-**👨‍💻 Développeur Backend:**
+** Développeur Backend:**
 
 - [SECURITY.md](./SECURITY.md) - Complètement
 - [PHASES_1_2_GUIDE.md](./PHASES_1_2_GUIDE.md#-fichiers-clés---modifications) - Fichiers modifiés
