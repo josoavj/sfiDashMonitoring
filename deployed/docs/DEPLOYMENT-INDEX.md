@@ -75,11 +75,13 @@ JWT_REFRESH_SECRET=<GÉNÉRER>
 │   │   └── http_ca.crt      (Certificat Elasticsearch)
 │   ├── node_modules/        (Dépendances)
 │   └── package.json
-├── src/
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── ...
-├── dist/                    (Frontend compilé → Nginx)
+├── frontend/
+│   ├── src/
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── ...
+│   ├── dist/                (Frontend compilé → Nginx)
+│   └── package.json
 ├── deployed/
 │   ├── *.sh                 (Scripts)
 │   ├── *.service            (Systemd)
