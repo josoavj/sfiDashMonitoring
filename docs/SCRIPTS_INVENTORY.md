@@ -121,7 +121,7 @@ node backend/testDataFortigate.js
 
 ---
 
-## 🏠 Scripts Local (Développement)
+## Scripts Local (Développement)
 
 ### `local/start.sh` ⭐ Principal
 
@@ -247,7 +247,7 @@ sudo bash deployed/install-production.sh
 
 ---
 
-### `deployed/health-check.sh` ✨ Important
+### `deployed/health-check.sh` Important
 
 **Rôle :** Vérifier l'état de tous les services
 
@@ -369,7 +369,7 @@ bash deployed/SUMMARY.sh
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 ### `docs/PHASES_1_2_GUIDE.md`
 
@@ -510,7 +510,7 @@ HTTPS avec certificat SSL requis.
 
 ---
 
-## 📞 Référence Rapide
+## Référence Rapide
 
 | Besoin | Commande |
 |--------|----------|
