@@ -323,9 +323,9 @@ sfiDashMonitoring/
 │   ├── sfiDashMonitoring-*.service ← Systemd units
 │   └── README.md                ← Docs DEPLOYED
 │
-├── backend/                     ← Code backend (partagé)
-├── src/                         ← Code React (partagé)
-├── package.json                 ← Dépendances (partagé)
+├── backend/                     ← Code backend Node.js (Isolé)
+├── frontend/                    ← Code frontend React/Vite (Isolé)
+├── package.json                 ← Orchestrateur Monorepo (NPM Workspaces)
 ├── start.sh                     ← Point d'entrée principal
 └── README.md                    ← Ce fichier
 ```
