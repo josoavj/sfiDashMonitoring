@@ -114,7 +114,7 @@ Accessible réseau: http://IP:80
 
 ---
 
-## 🔌 Communication
+## Communication
 
 ### Mode LOCAL
 
