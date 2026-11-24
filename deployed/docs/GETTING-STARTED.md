@@ -66,7 +66,7 @@ Sur **le serveur** :
 # Exécuter la vérification automatisée
 bash /opt/sfiDashMonitoring/deployed/verify.sh
 
-# Vous devez voir: ✅ tests réussis
+# Vous devez voir: [OK] tests réussis
 ```
 
 ### Étape 4 : Accéder à l'application (1 min)
@@ -77,11 +77,11 @@ Dans **votre navigateur** :
 http://172.27.28.14
 ```
 
-✅ **Prêt!** L'application est maintenant en ligne.
+**Prêt!** L'application est maintenant en ligne.
 
 ---
 
-## 📖 Après l'Installation
+## Après l'Installation
 
 ### Je veux comprendre ce qui a été installé
 → Lire: **INDEX.md**
@@ -100,7 +100,7 @@ http://172.27.28.14
 
 ---
 
-## 🔄 Opérations Courantes
+## Opérations Courantes
 
 ### Voir le statut
 ```bash
@@ -124,7 +124,7 @@ sudo bash /opt/sfiDashMonitoring/deployed/update.sh update
 
 ---
 
-## 🚨 Quelque Chose ne Fonctionne Pas?
+## Quelque Chose ne Fonctionne Pas?
 
 ### Le déploiement a échoué
 ```bash
@@ -155,7 +155,7 @@ sudo systemctl restart sfi-monitoring-backend nginx
 
 ---
 
-## 📊 Architecture Déployée
+## Architecture Déployée
 
 Voici ce qui a été installé sur le serveur 172.27.28.14 :
 
@@ -176,7 +176,7 @@ Backend API (port 3001, local)
 
 ---
 
-## 📱 Accès
+## Accès
 
 - **Frontend (app):** http://172.27.28.14
 - **API:** http://172.27.28.14/api
@@ -184,7 +184,7 @@ Backend API (port 3001, local)
 
 ---
 
-## 🛠️ Structure des Fichiers
+## Structure des Fichiers
 
 ### Scripts (exécutables)
 ```bash
@@ -213,7 +213,7 @@ GETTING-STARTED.md       # Ce fichier
 
 ---
 
-## 📞 Besoin d'Aide?
+## Besoin d'Aide?
 
 1. **Vérification rapide:**
    ```bash
@@ -238,19 +238,19 @@ GETTING-STARTED.md       # Ce fichier
 
 ---
 
-## ✅ Checklist Post-Installation
+## Checklist Post-Installation
 
 Vérifiez que :
 
-- [ ] `verify.sh` a tous les tests en vert ✅
-- [ ] Frontend charge: http://172.27.28.14 ✅
-- [ ] API répond: `/api/health` ✅
-- [ ] Pas d'erreurs dans les logs ✅
-- [ ] Services actifs: `systemctl status sfi-monitoring-backend` ✅
+- [ ] `verify.sh` a tous les tests en vert [OK]
+- [ ] Frontend charge: http://172.27.28.14 [OK]
+- [ ] API répond: `/api/health` [OK]
+- [ ] Pas d'erreurs dans les logs [OK]
+- [ ] Services actifs: `systemctl status sfi-monitoring-backend` [OK]
 
 ---
 
-## 🎉 Félicitations!
+## Félicitations!
 
 Vous venez de déployer SFI Dashboard sur Ubuntu Server!
 
@@ -273,7 +273,7 @@ Vous venez de déployer SFI Dashboard sur Ubuntu Server!
 
 ---
 
-## 📚 Documentation Complète
+## Documentation Complète
 
 | Document | Pour | Quand |
 |----------|------|-------|
@@ -285,7 +285,7 @@ Vous venez de déployer SFI Dashboard sur Ubuntu Server!
 
 ---
 
-## 🌐 Configuration par Défaut
+## Configuration par Défaut
 
 ```
 IP Serveur:        172.27.28.14
@@ -300,7 +300,7 @@ SSL/TLS:           Non (à ajouter)
 
 ---
 
-## 💡 Astuces
+## Astuces
 
 1. **Accès direct sans port HTTP:**
    - http://172.27.28.14 (via Nginx)
