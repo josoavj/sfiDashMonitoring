@@ -1,0 +1,35 @@
+[Unit]
+Description=SFI Dashboard Monitoring Backend Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=sfi
+Group=sfi
+WorkingDirectory=/opt/sfiDashMonitoring/backend
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=sfi-backend
+
+# Environment variables
+Environment="NODE_ENV=production"
+Environment="PORT=3001"
+Environment="HOST=0.0.0.0"
+
+# Resource limits
+MemoryMax=1G
+CPUQuota=80%
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/sfiDashMonitoring/logs
+
+[Install]
+WantedBy=multi-user.target
