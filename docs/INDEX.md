@@ -416,8 +416,8 @@ bash deployed/verify-deployment.sh       # Rapport complet
 
 ### Déploiement
 
-- **[deployed/docs/DEPLOYMENT-README.md](../deployed/docs/DEPLOYMENT-README.md)** - Guide déploiement avancé
-- **[deployed/docs/UBUNTU-DEPLOYMENT-GUIDE.md](../deployed/docs/UBUNTU-DEPLOYMENT-GUIDE.md)** - Ubuntu spécifique
+- **[deployed/docs/DEPLOYMENT-README.md](../deploy/production/docs/DEPLOYMENT-README.md)** - Guide déploiement avancé
+- **[deployed/docs/UBUNTU-DEPLOYMENT-GUIDE.md](../deploy/production/docs/UBUNTU-DEPLOYMENT-GUIDE.md)** - Ubuntu spécifique
 
 ### Autre
 
@@ -455,7 +455,7 @@ Recommandation de lecture par profil:
 
 - [SCRIPTS_INVENTORY.md](./SCRIPTS_INVENTORY.md) - Tous les scripts
 - [DEPLOYMENT_PHASES_1_2.md](./DEPLOYMENT_PHASES_1_2.md#-déploiement-production) - Déploiement
-- [deployed/docs/](../deployed/docs/) - Docs avancées
+- [deployed/docs/](../deploy/production/docs/) - Docs avancées
 
 ---
 
