@@ -123,7 +123,7 @@ node backend/testDataFortigate.js
 
 ## Scripts Local (Développement)
 
-### `local/start.sh` ⭐ Principal
+### `local/start.sh` (Principal)
 
 **Rôle :** Démarrer frontend + backend ensemble localement
 
@@ -257,7 +257,7 @@ bash deployed/health-check.sh
 
 **Contrôle :** Backend API (`GET /health`), accessibilité frontend, connexion Elasticsearch, connexion base de données, WebSocket, endpoint Metrics.
 
-Retourne un rapport détaillé avec statuts `✓` / `✗`.
+Retourne un rapport détaillé avec statuts `OK` / `FAIL`.
 
 ---
 
