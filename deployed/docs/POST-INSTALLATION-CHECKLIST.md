@@ -188,10 +188,10 @@ http://172.27.28.14
 ```
 
 Devrait afficher:
-- ✅ Logo SFI Dashboard
-- ✅ Page de connexion ou dashboard
-- ✅ Pas d'erreurs console (F12)
-- ✅ WebSocket connecté (vert dans le coin)
+- [OK] Logo SFI Dashboard
+- [OK] Page de connexion ou dashboard
+- [OK] Pas d'erreurs console (F12)
+- [OK] WebSocket connecté (vert dans le coin)
 
 ### Si erreur 502/503:
 
@@ -251,7 +251,7 @@ sudo chown sfiapp:sfiapp /opt/sfiDashMonitoring/OPERATIONS.md
 # Vérification complète du déploiement
 sudo bash /opt/sfiDashMonitoring/deployed/verify-deployment.sh
 
-# Tous les tests doivent passer (✓)
+# Tous les tests doivent passer
 ```
 
 ### Tester l'URL externe
@@ -269,7 +269,7 @@ sudo bash /opt/sfiDashMonitoring/deployed/verify-deployment.sh
 
 ---
 
-## 🆘 Problèmes Courants
+## Problèmes Courants
 
 ### "Cannot GET /"
 
@@ -331,7 +331,7 @@ sudo systemctl restart sfiDashMonitoring-backend
 
 ---
 
-## 📞 Contacts et Support
+## Contacts et Support
 
 - **Logs:** `sudo journalctl -u sfiDashMonitoring-backend -f`
 - **Configuration:** `/opt/sfiDashMonitoring/backend/.env`
