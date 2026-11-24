@@ -68,7 +68,7 @@ Utilise cette checklist pour vérifier que tout est prêt avant le déploiement.
 ### Étape 4 : Vérification
 
 - [ ] Lancer: `bash /opt/sfiDashMonitoring/deployed/verify.sh`
-- [ ] Tous les tests doivent passer (vert ✓)
+- [ ] Tous les tests doivent passer (vert)
 - [ ] Vérifier les logs: `sudo journalctl -u sfi-monitoring-backend -f`
 
 ### Étape 5 : Tests Manuels
@@ -199,7 +199,7 @@ _________________________________________________________________
 
 ---
 
-## 📞 Contacts
+## Contacts
 
 En cas de problème:
 
