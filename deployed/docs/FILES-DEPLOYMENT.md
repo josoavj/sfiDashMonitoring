@@ -41,18 +41,18 @@ sudo bash /tmp/install.sh
 ```
 
 **Ce que fait le script:**
-- ✓ Met à jour le système
-- ✓ Installe Node.js, Nginx, Git
-- ✓ Crée l'utilisateur sfiapp
-- ✓ Copie/clone le projet
-- ✓ Installe les dépendances
-- ✓ Build le frontend
-- ✓ Configure les variables d'environnement
-- ✓ Configure Nginx
-- ✓ Crée les services Systemd
-- ✓ Configure le Firewall (UFW)
-- ✓ Démarre les services
-- ✓ Lance des tests
+- [OK] Met à jour le système
+- [OK] Installe Node.js, Nginx, Git
+- [OK] Crée l'utilisateur sfiapp
+- [OK] Copie/clone le projet
+- [OK] Installe les dépendances
+- [OK] Build le frontend
+- [OK] Configure les variables d'environnement
+- [OK] Configure Nginx
+- [OK] Crée les services Systemd
+- [OK] Configure le Firewall (UFW)
+- [OK] Démarre les services
+- [OK] Lance des tests
 
 ### 4. **verify.sh** (Exécutable)
 **Description:** Script de vérification du déploiement  
@@ -63,15 +63,15 @@ bash /opt/sfiDashMonitoring/deployed/verify.sh
 ```
 
 **Ce que vérifie le script:**
-- ✓ État des services (Backend, Nginx, Elasticsearch)
-- ✓ Ports ouverts
-- ✓ Connectivité Backend/Frontend/WebSocket
-- ✓ Fichiers et permissions
-- ✓ Variables d'environnement
-- ✓ Logs (erreurs)
-- ✓ Santé Elasticsearch
-- ✓ Configuration Nginx
-- ✓ Uptime et performance
+- [OK] État des services (Backend, Nginx, Elasticsearch)
+- [OK] Ports ouverts
+- [OK] Connectivité Backend/Frontend/WebSocket
+- [OK] Fichiers et permissions
+- [OK] Variables d'environnement
+- [OK] Logs (erreurs)
+- [OK] Santé Elasticsearch
+- [OK] Configuration Nginx
+- [OK] Uptime et performance
 
 ### 5. **update.sh** (Exécutable)
 **Description:** Script de mise à jour du code  
@@ -82,12 +82,12 @@ sudo bash /opt/sfiDashMonitoring/deployed/update.sh update
 ```
 
 **Ce que fait le script:**
-- ✓ Arrête le backend
-- ✓ Git pull les changements
-- ✓ Installe les dépendances
-- ✓ Build le frontend
-- ✓ Redémarre les services
-- ✓ Vérifie la santé
+- [OK] Arrête le backend
+- [OK] Git pull les changements
+- [OK] Installe les dépendances
+- [OK] Build le frontend
+- [OK] Redémarre les services
+- [OK] Vérifie la santé
 
 ---
 
