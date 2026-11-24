@@ -166,7 +166,7 @@ Accessible réseau: http://IP:80
 | **Réseau** | localhost uniquement | Accessible réseau |
 | **SSL/TLS** | Non | Supporté (nginx) |
 | **Performance** | Développement | Production-ready |
-| **Démarrage** | `local/start.sh` | `deployed/start.sh` |
+| **Démarrage** | `../deploy/local` | `../deploy/production` |
 | **Logs** | stdout/fichiers | Docker logs |
 | **Redémarrage** | `Ctrl+C` + relancer | `docker-compose restart` |
 
@@ -182,7 +182,7 @@ VITE_API_URL=http://localhost:3001
 VITE_BACKEND_WS_URL=ws://localhost:3001
 ```
 
-**DEPLOYED** (`deployed/.env.production`):
+**DEPLOYED** (`../deploy/production`):
 ```
 VITE_API_URL=http://192.168.1.100:3001
 VITE_BACKEND_WS_URL=ws://192.168.1.100:3001
@@ -257,19 +257,19 @@ docker-compose logs -f
 
 ### Spécifiques LOCAL
 
-- `local/.env.local` - Variables localhost
-- `local/start.sh` - Script démarrage localhost
-- `local/test.sh` - Tests localhost
+- `../deploy/local` - Variables localhost
+- `../deploy/local` - Script démarrage localhost
+- `../deploy/local` - Tests localhost
 
 ### Spécifiques DEPLOYED
 
-- `deployed/.env.production` - Variables réseau
-- `deployed/docker-compose.yml` - Orchestration
-- `deployed/Dockerfile.backend` - Image backend
-- `deployed/Dockerfile.frontend` - Image frontend
-- `deployed/nginx.conf` - Configuration proxy
-- `deployed/start.sh` - Script démarrage Docker
-- `deployed/*.service` - Systemd units
+- `../deploy/production` - Variables réseau
+- `../deploy/production` - Orchestration
+- `../deploy/production` - Image backend
+- `../deploy/production` - Image frontend
+- `../deploy/production` - Configuration proxy
+- `../deploy/production` - Script démarrage Docker
+- `../deploy/production` - Systemd units
 
 ---
 
@@ -321,8 +321,8 @@ Future: Ajouter Redis cache, multiple backend instances avec load balancer.
 - `README.md` - Guide principal
 - `LOCALHOST_CONFIG.md` - Config localhost détaillée
 - `Deployment.md` - Guide avancé
-- `local/README.md` - Quick start LOCAL
-- `deployed/README.md` - Quick start DEPLOYED
+- `../deploy/local` - Quick start LOCAL
+- `../deploy/production` - Quick start DEPLOYED
 
 ---
 
