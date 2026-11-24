@@ -37,7 +37,7 @@ scripts/                    # Scripts partagés & utilitaires
 - `setup-env.sh` - Générer les secrets JWT et configurer .env
 - `start.sh` - Démarrer le backend (peut être appelé depuis backend/)
 
-**Local** (`local/`):
+**Local** (`../deploy/local`):
 
 - `start.sh` - Démarrer en mode localhost
 - `configure.sh` - Configuration initiale
@@ -47,7 +47,7 @@ scripts/                    # Scripts partagés & utilitaires
 - `test.sh` - Tests du mode local
 - `test-websocket.sh` - Tester WebSocket
 
-**Deployed** (`deployed/`):
+**Deployed** (`../deploy/production`):
 
 - Multiples scripts pour orchestration Docker, installation, health checks, déploiement, etc.
 
@@ -263,11 +263,11 @@ Ces scripts doivent rester dans leurs dossiers respectifs car ils sont spécifiq
 - `backend/setup-env.sh` - Génère secrets JWT, configure .env
 - `backend/start.sh` - Démarre le backend (appel local depuis backend/)
 
-### `local/` - Mode développement localhost
+### `../deploy/local` - Mode développement localhost
 
 Reste inchangé avec tous ses scripts spécifiques.
 
-### `deployed/` - Mode production/réseau
+### `../deploy/production` - Mode production/réseau
 
 Reste inchangé avec tous ses scripts Docker, installation, etc.
 
