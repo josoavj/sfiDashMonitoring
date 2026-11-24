@@ -78,7 +78,7 @@ sudo systemctl status sfiDashMonitoring-backend
 sudo systemctl status sfiDashMonitoring-frontend
 ```
 
-## 📍 Accès Services
+## Accès Services
 
 | Service | URL | Utilisation |
 |---------|-----|-------------|
@@ -132,7 +132,7 @@ VITE_BACKEND_WS_URL=ws://192.168.1.100:3001
 VITE_ENV=production
 ```
 
-## 📂 Structure Déploiement
+## Structure Déploiement
 
 ```
 deployed/
@@ -212,7 +212,7 @@ docker-compose logs -f        # Logs en direct
 | **Health Probes** | Liveness + readiness |
 | **Volume Mounts** | Data persistence |
 
-## 📋 Logs & Monitoring
+## Logs & Monitoring
 
 ### Voir les Logs
 
@@ -281,7 +281,7 @@ sudo certbot certonly --standalone -d yourdomain.com
 # Renouvellement automatique (cron job)
 ```
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### Services ne démarrent pas?
 
@@ -344,19 +344,19 @@ docker-compose build --no-cache
 docker-compose up -d
 ```
 
-## 📚 Documentation Complète
+## Documentation Complète
 
 Consulter les guides détaillés:
 
 - [UBUNTU-DEPLOYMENT-GUIDE.md](docs/UBUNTU-DEPLOYMENT-GUIDE.md) - Installation complète
 - [DEPLOYMENT-CHECKLIST.md](docs/DEPLOYMENT-CHECKLIST.md) - Checklist pré-production
 - [docs/INDEX.md](docs/INDEX.md) - Index de toute la documentation
-- [Main README](../README.md) - Vue d'ensemble du projet
-- [SECURITY.md](../SECURITY.md) - Sécurité détaillée
+- [Main README](../../README.md) - Vue d'ensemble du projet
+- [SECURITY.md](../../SECURITY.md) - Sécurité détaillée
 
 ## Workflow Déploiement
 
-### 1️⃣ Préparation
+### 1. Préparation
 
 ```bash
 # Builder le frontend
@@ -369,7 +369,7 @@ Consulter les guides détaillés:
 ../scripts/dev/test.sh coverage
 ```
 
-### 2️⃣ Configuration
+### 2. Configuration
 
 ```bash
 # Définir les variables
@@ -381,7 +381,7 @@ nano backend/.env       # Backend secrets
 nano deployed/conf/nginx.conf  # Nginx config
 ```
 
-### 3️⃣ Déploiement
+### 3. Déploiement
 
 ```bash
 cd deployed
@@ -394,7 +394,7 @@ docker-compose up -d
 ./verify-deployment.sh
 ```
 
-### 4️⃣ Post-Déploiement
+### 4. Post-Déploiement
 
 ```bash
 # Archiver les logs anciens
@@ -410,4 +410,4 @@ docker-compose up -d
 ---
 
 **Mode DEPLOYED:** Production sur serveur avec haute disponibilité
-**Mode LOCAL:** Développement rapide sur votre machine (voir `local/README.md`)
+**Mode LOCAL:** Développement rapide sur votre machine (voir `../local`)

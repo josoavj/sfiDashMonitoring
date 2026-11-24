@@ -43,10 +43,10 @@ start.sh                    ← Point d'entrée principal (CONSERVÉ)
 - `setup-env.sh` - Générer secrets
 - `start.sh` - Démarrer backend
 
-**Local** (`local/` - 7 scripts):
+**Local** (`../deploy/local` - 7 scripts):
 - Scripts pour mode localhost (inchangé)
 
-**Deployed** (`deployed/` - 12+ scripts):
+**Deployed** (`../deploy/production` - 12+ scripts):
 - Scripts pour mode production/Docker (inchangé)
 
 ## Statistiques

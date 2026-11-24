@@ -32,7 +32,7 @@ Votre Machine (localhost)
 - Vérifie Node.js et npm
 - Crée `backend/.env` depuis template si manquant
 - Installe les dépendances (npm install)
-- Crée les répertoires `data/` et `logs/`
+- Crée les répertoires `../../data` et `logs/`
 - Démarre Backend (port 3001) en arrière-plan
 - Démarre Frontend (port 5173) en avant-plan
 - Ouvre automatiquement http://localhost:5173
@@ -73,7 +73,7 @@ npm run dev
 
 Chaque modification est immédiatement visible !
 
-## 📍 URLs d'Accès
+## URLs d'Accès
 
 | Service | URL | Port |
 |---------|-----|------|
@@ -85,7 +85,7 @@ Chaque modification est immédiatement visible !
 
 ## Scripts Utilitaires (depuis racine)
 
-Tous ces scripts sont dans `scripts/` et utilisables depuis n'importe où:
+Tous ces scripts sont dans `../../scripts` et utilisables depuis n'importe où:
 
 ### Gestion des Logs
 
@@ -179,7 +179,7 @@ VITE_BACKEND_WS_URL=http://localhost:3001
 
 ### Backend (`backend/.env`)
 
-Copié de `backend/envDefault` au premier démarrage:
+Copié de `../../backend/envDefault` au premier démarrage:
 
 ```env
 NODE_ENV=development
@@ -196,10 +196,10 @@ Chaque démarrage crée automatiquement:
 
 | Item | Location | Details |
 |------|----------|---------|
-| Data Directory | `data/` | SQLite database |
-| Logs Directory | `logs/` | backend.log, frontend.log |
+| Data Directory | `../../data` | SQLite database |
+| Logs Directory | `../../logs` | backend.log, frontend.log |
 | Backend Config | `backend/.env` | Copié de template |
-| Dependencies | `node_modules/` | npm install |
+| Dependencies | `../../node_modules` | npm install |
 | Database | `data/database.sqlite` | Sequelize sync |
 
 ## Tests & Validation
@@ -230,7 +230,7 @@ npm run lint
 ./test-websocket.sh
 ```
 
-## 📋 Workflow Recommandé
+## Workflow Recommandé
 
 ### Setup Initial (une fois)
 
@@ -284,7 +284,7 @@ npm run dev
 ../scripts/logs/manage-logs.sh archive
 ```
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### Ports déjà utilisés?
 
@@ -331,14 +331,14 @@ rm backend/.env
 ./start.sh
 ```
 
-## 📚 Documentation Complète
+## Documentation Complète
 
 Voir aussi:
-- [Main README](../README.md) - Vue d'ensemble
-- [Scripts Documentation](../scripts/README.md) - Tous les scripts disponibles
+- [Main README](../../README.md) - Vue d'ensemble
+- [Scripts Documentation](../../scripts/README.md) - Tous les scripts disponibles
 - [LOCALHOST_CONFIG.md](../LOCALHOST_CONFIG.md) - Configuration détaillée
-- [SECURITY.md](../SECURITY.md) - Détails sécurité & JWT
-- [Backend README](../backend/README.md) - API documentation
+- [SECURITY.md](../../SECURITY.md) - Détails sécurité & JWT
+- [Backend README](../../backend/README.md) - API documentation
 
 ## Prochaines Étapes
 
@@ -348,9 +348,9 @@ Après avoir démarré:
 2. Explorer le dashboard
 3. Modifier du code (hot reload)
 4. Lancer les tests
-5. Builder pour production (voir `deployed/`)
+5. Builder pour production (voir `../production`)
 
 ---
 
 **Mode LOCAL:** Développement rapide et itératif sur votre machine
-**Mode DEPLOYED:** Production sur Ubuntu Server (voir `deployed/README.md`)
+**Mode DEPLOYED:** Production sur Ubuntu Server (voir `../production`)

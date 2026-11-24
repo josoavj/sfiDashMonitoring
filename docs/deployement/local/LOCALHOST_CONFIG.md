@@ -94,7 +94,7 @@ Le serveur Vite est configuré avec :
 - **HMR** : WebSocket sur `localhost:5173`
 - **Proxy** : Redirection vers backend pour `/api` et `/socket.io`
 
-## 🌍 Accès via IPv4
+## Accès via IPv4
 
 Les services sont aussi accessibles via l'IPv4 `127.0.0.1` :
 
@@ -102,7 +102,7 @@ Les services sont aussi accessibles via l'IPv4 `127.0.0.1` :
 - Backend: http://127.0.0.1:3001
 - WebSocket: ws://127.0.0.1:3001/socket.io
 
-## 📋 Logs
+## Logs
 
 Les logs sont enregistrés dans le dossier `logs/` :
 
@@ -116,7 +116,7 @@ tail -f logs/*.log         # Tous les logs
 rm logs/*.log
 ```
 
-## 🔌 Vérifier la connectivité
+## Vérifier la connectivité
 
 ### Tester le Backend
 
@@ -140,7 +140,7 @@ socket.on('connect', () => console.log('Connected!'));
 socket.on('error', (err) => console.error(err));
 ```
 
-## 🆘 Dépannage
+## Dépannage
 
 ### Le backend ne démarre pas
 

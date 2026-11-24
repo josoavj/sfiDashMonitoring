@@ -267,8 +267,8 @@ JWT_REFRESH_SECRET=$(openssl rand -base64 32)
 - [ ] Tests lancer sans erreurs: `npm test`
 - [ ] Pas de vulnérabilités: `npm audit` (0 vulnérabilités)
 - [ ] Build prod réussit: `npm run build`
-- [ ] README mis à jour ✓
-- [ ] SECURITY.md créé ✓
+- [ ] README mis à jour
+- [ ] SECURITY.md créé
 - [ ] Branches feature mergées dans `ui`
 - [ ] Pull request vers `main` créée
 - [ ] Code review complétée

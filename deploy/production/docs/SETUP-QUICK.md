@@ -33,19 +33,19 @@ ssh user@172.27.28.14
 sudo bash /tmp/install.sh
 
 # Le script va:
-# ✓ Installer Node.js, Nginx, Git
-# ✓ Créer l'utilisateur 'sfiapp'
-# ✓ Cloner/copier le projet
-# ✓ Installer les dépendances
-# ✓ Build le frontend
-# ✓ Configurer Nginx
-# ✓ Créer les services Systemd
-# ✓ Démarrer les services
+# [OK] Installer Node.js, Nginx, Git
+# [OK] Créer l'utilisateur 'sfiapp'
+# [OK] Cloner/copier le projet
+# [OK] Installer les dépendances
+# [OK] Build le frontend
+# [OK] Configurer Nginx
+# [OK] Créer les services Systemd
+# [OK] Démarrer les services
 ```
 
 ### Option 2 : Installation Manuelle
 
-Voir le fichier [DEPLOYMENT-SYSTEMD.md](./DEPLOYMENT-SYSTEMD.md)
+Voir le fichier [DEPLOYMENT-SYSTEMD.md](DEPLOYMENT-SYSTEMD.md)
 
 ---
 
@@ -118,11 +118,11 @@ nginx -v          # nginx/1.x.x
    sudo nano /etc/nginx/sites-available/sfi-monitoring
    ```
    
-   Voir [DEPLOYMENT-SYSTEMD.md](./DEPLOYMENT-SYSTEMD.md) pour la config complète
+   Voir [DEPLOYMENT-SYSTEMD.md](DEPLOYMENT-SYSTEMD.md) pour la config complète
 
 7. **Créer les services Systemd**
    
-   Voir [DEPLOYMENT-SYSTEMD.md](./DEPLOYMENT-SYSTEMD.md)
+   Voir [DEPLOYMENT-SYSTEMD.md](DEPLOYMENT-SYSTEMD.md)
 
 8. **Démarrer les services**
    ```bash
@@ -146,13 +146,13 @@ ssh user@172.27.28.14 'bash /opt/sfiDashMonitoring/deployed/verify.sh'
 ```
 
 Le script vérifie :
-- ✓ État des services
-- ✓ Ports ouverts
-- ✓ Connectivité Backend/Frontend
-- ✓ Fichiers et permissions
-- ✓ Logs
-- ✓ Elasticsearch
-- ✓ Nginx
+- [OK] État des services
+- [OK] Ports ouverts
+- [OK] Connectivité Backend/Frontend
+- [OK] Fichiers et permissions
+- [OK] Logs
+- [OK] Elasticsearch
+- [OK] Nginx
 
 ### Tests Manuels
 
@@ -260,12 +260,12 @@ sudo bash /opt/sfiDashMonitoring/deployed/update.sh update
 sudo bash /opt/sfiDashMonitoring/deployed/update.sh main
 
 # Le script:
-# ✓ Arrête les services
-# ✓ Git pull la branche
-# ✓ Installe les dépendances
-# ✓ Build le frontend
-# ✓ Redémarre les services
-# ✓ Vérifie la santé
+# [OK] Arrête les services
+# [OK] Git pull la branche
+# [OK] Installe les dépendances
+# [OK] Build le frontend
+# [OK] Redémarre les services
+# [OK] Vérifie la santé
 ```
 
 ### Mise à Jour Manuelle
@@ -417,7 +417,7 @@ journalctl -u sfi-monitoring-backend -f --tail=0 | wc -l
 
 ---
 
-## 📱 Accès
+## Accès
 
 **Depuis votre réseau:**
 
@@ -506,7 +506,7 @@ sudo ufw status
 
 ---
 
-## 🤝 Support et Aide
+## Support et Aide
 
 Pour toute question ou problème :
 
@@ -521,7 +521,7 @@ Pour toute question ou problème :
    ```
 
 3. **Consulter la documentation:**
-   - [DEPLOYMENT-SYSTEMD.md](./DEPLOYMENT-SYSTEMD.md) - Guide détaillé
+   - [DEPLOYMENT-SYSTEMD.md](DEPLOYMENT-SYSTEMD.md) - Guide détaillé
    - README.md - Cette page
 
 ---

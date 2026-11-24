@@ -225,7 +225,7 @@ sudo systemctl start sfiDashMonitoring-backend
 
 ---
 
-## 📱 Accès à l'Application
+## Accès à l'Application
 
 ### URL Production
 
@@ -247,7 +247,7 @@ http://172.27.28.14
 
 ---
 
-## 📚 Documentation Externe
+## Documentation Externe
 
 Pour plus de détails :
 
@@ -286,7 +286,7 @@ sudo nano /etc/nginx/nginx.conf
 
 ---
 
-## 📞 Support et Questions
+## Support et Questions
 
 ### Vérifications à faire en cas de problème :
 
@@ -333,7 +333,7 @@ sudo nano /etc/nginx/nginx.conf
 
 ---
 
-## 📅 Version et Historique
+## Version et Historique
 
 **Version:** 1.0.0  
 **Date:** 17 novembre 2025  

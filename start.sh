@@ -26,7 +26,7 @@ if [ -z "$MODE" ]; then
     echo -e "${CYAN}Choisissez le mode de démarrage:${NC}
 "
     echo -e "  ${GREEN}1${NC}) local   - Développement (localhost seulement)"
-    echo -e "  ${GREEN}2${NC}) deploy  - Réseau/Serveur Ubuntu
+    echo -e "  ${GREEN}2${NC}) Production  - Réseau/Serveur Ubuntu
 "
     
     read -p "Entrez votre choix (1 ou 2): " MODE
@@ -37,12 +37,12 @@ case "$MODE" in
     1|local)
         echo -e "${BLUE} Démarrage MODE LOCAL${NC}
 "
-        exec "$SCRIPT_DIR/local/start.sh"
+        exec "$SCRIPT_DIR/deploy/local/start.sh"
         ;;
     2|deploy|deployed)
         echo -e "${BLUE} Démarrage MODE DEPLOYED${NC}
 "
-        exec "$SCRIPT_DIR/deployed/start.sh"
+        exec "$SCRIPT_DIR/deploy/production/start.sh"
         ;;
     *)
         echo -e "${RED} Mode invalide: $MODE${NC}"

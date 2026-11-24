@@ -74,7 +74,7 @@ Ouvrir : `http://172.27.28.14`
 
 ---
 
-## 🔍 Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -328,13 +328,13 @@ cat /opt/sfiDashMonitoring/backend/.env | grep ES_
 
 ---
 
-## 📚 Documentation Complète
+## Documentation Complète
 
 Pour plus de détails, consultez **UBUNTU-DEPLOYMENT-GUIDE.md**
 
 ---
 
-## 📞 Support
+## Support
 
 **En cas de problème :**
 

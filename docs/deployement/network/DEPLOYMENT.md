@@ -21,15 +21,15 @@
 
 ```bash
 # Root directory
-npm run build          # ✅ Doit réussir
-npm test              # ✅ Tous les tests passent
-npm run lint          # ✅ Pas d'erreurs ESLint
-npm audit             # ✅ 0 vulnérabilités
+npm run build          # [OK] Doit réussir
+npm test              # [OK] Tous les tests passent
+npm run lint          # [OK] Pas d'erreurs ESLint
+npm audit             # [OK] 0 vulnérabilités
 
 # Backend
 cd backend
-npm audit             # ✅ 0 vulnérabilités (warnings acceptées)
-npm test              # ✅ Security tests passent
+npm audit             # [OK] 0 vulnérabilités (warnings acceptées)
+npm test              # [OK] Security tests passent
 ```
 
 ### 2. Security Review

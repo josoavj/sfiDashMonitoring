@@ -174,7 +174,7 @@ cd local
 
 **Idéal pour:** Développement, débogage, tests locaux
 
-**Documentation:** [`local/README.md`](./local/README.md)
+**Documentation:** [`deploy/local`](deploy/local/README.md)
 
 ---
 
@@ -192,7 +192,7 @@ export SERVER_IP=192.168.1.100
 
 **Idéal pour:** Production, serveur Ubuntu, accès réseau
 
-**Documentation:** [`deployed/README.md`](./deployed/README.md)
+**Documentation:** [`production`](deploy/production/README.md)
 
 ---
 
@@ -282,8 +282,8 @@ FRONTEND_URL=http://localhost:5173        # Pour CORS
 
 ### Frontend `.env` (auto-générés)
 
-- **LOCAL:** `local/.env.local` avec `localhost:3001`
-- **DEPLOYED:** `deployed/.env.production` avec IP du serveur
+- **LOCAL:** `deploy/local` avec `localhost:3001`
+- **DEPLOYED:** `production` avec IP du serveur
 
 ---
 
@@ -378,8 +378,8 @@ export SERVER_IP=192.168.1.100
 |----------|---------|
 | `LOCALHOST_CONFIG.md` | Configuration localhost détaillée |
 | `Deployment.md` | Guide déploiement avancé |
-| `local/README.md` | Mode développement |
-| `deployed/README.md` | Mode production |
+| `deploy/local` | Mode développement |
+| `production` | Mode production |
 | `SECURITY.md` | Détails sécurité & JWT |
 | `API.md` | Référence API complète |
 

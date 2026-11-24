@@ -218,7 +218,7 @@ sudo systemctl stop sfi-monitoring-backend
 
 ---
 
-## 📞 Support
+## Support
 
 ### Je veux déployer
 1. Lire: **SETUP-QUICK.md**
@@ -241,7 +241,7 @@ sudo systemctl stop sfi-monitoring-backend
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 | Document | Pour Qui | Contenu |
 |----------|----------|---------|
@@ -312,7 +312,7 @@ sudo systemctl stop sfi-monitoring-backend
 
 ---
 
-## 🤝 Contacts & Support
+## Contacts & Support
 
 - **Documentation Complète:** Voir `DEPLOYMENT-SYSTEMD.md`
 - **Vérification Automatisée:** `verify.sh`

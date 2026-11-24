@@ -37,13 +37,13 @@ Sur le serveur Ubuntu :
 sudo bash /tmp/install-production.sh
 
 # Le script va:
-# ✓ Installer Node.js 18+, Nginx, Git
-# ✓ Créer l'utilisateur 'sfiapp'
-# ✓ Préparer les répertoires (/opt/sfiDashMonitoring)
-# ✓ Installer les dépendances NPM (backend + frontend)
-# ✓ Compiler le frontend (npm run build)
-# ✓ Configurer Nginx
-# ✓ Mettre en place les services Systemd
+# [OK] Installer Node.js 18+, Nginx, Git
+# [OK] Créer l'utilisateur 'sfiapp'
+# [OK] Préparer les répertoires (/opt/sfiDashMonitoring)
+# [OK] Installer les dépendances NPM (backend + frontend)
+# [OK] Compiler le frontend (npm run build)
+# [OK] Configurer Nginx
+# [OK] Mettre en place les services Systemd
 ```
 
 ### Étape 3 : Configuration finale
@@ -82,11 +82,11 @@ http://172.27.28.14
 
 ---
 
-## 🔧 Installation Manuelle (Détaillée)
+## Installation Manuelle (Détaillée)
 
 Si vous préférez configurer manuellement ou s'il y a des erreurs :
 
-### 1️⃣ Prérequis
+### 1. Prérequis
 
 ```bash
 # Mise à jour système
@@ -447,7 +447,7 @@ tar -czf backup-config-$(date +%Y%m%d).tar.gz \
 
 ---
 
-## 📞 Support et Questions
+## Support et Questions
 
 Pour les issues :
 1. Consultez les logs : `journalctl -u sfiDashMonitoring-backend -f`

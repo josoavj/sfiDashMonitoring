@@ -490,28 +490,28 @@ sudo chown -R sfiapp:sfiapp /opt/sfiDashMonitoring
 
 echo "=== Vérification du Déploiement ==="
 
-echo -e "\n1️⃣ Vérifier les services..."
+echo -e "\n1. Vérifier les services..."
 sudo systemctl status sfi-monitoring-backend --no-pager | head -5
 sudo systemctl status nginx --no-pager | head -5
 
-echo -e "\n2️⃣ Vérifier les ports..."
+echo -e "\n2. Vérifier les ports..."
 sudo netstat -tlnp | grep -E '3001|80|:9200'
 
-echo -e "\n3️⃣ Tester le backend..."
+echo -e "\n3. Tester le backend..."
 curl -s http://127.0.0.1:3001/api/health | head -c 100
 
-echo -e "\n4️⃣ Tester le frontend..."
+echo -e "\n4. Tester le frontend..."
 curl -s -o /dev/null -w "%{http_code}" http://172.27.28.14
 
-echo -e "\n5️⃣ Vérifier les logs backend..."
+echo -e "\n5. Vérifier les logs backend..."
 sudo journalctl -u sfi-monitoring-backend -n 5 --no-pager
 
-echo -e "\n✅ Déploiement vérifié!"
+echo -e "\n[OK] Déploiement vérifié!"
 ```
 
 ---
 
-## 📞 Support
+## Support
 
 Pour des questions ou problèmes, consulte les logs :
 
