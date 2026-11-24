@@ -123,7 +123,7 @@ node backend/testDataFortigate.js
 
 ## Scripts Local (Développement)
 
-### `local/start.sh` (Principal)
+### `../deploy/local` (Principal)
 
 **Rôle :** Démarrer frontend + backend ensemble localement
 
@@ -142,7 +142,7 @@ Logs en temps réel avec couleurs. Arrêt gracieux via `Ctrl+C`.
 
 ---
 
-### `local/setup.sh`
+### `../deploy/local`
 
 **Rôle :** Configuration initiale du projet
 
@@ -154,7 +154,7 @@ bash local/setup.sh
 
 ---
 
-### `local/configure.sh`
+### `../deploy/local`
 
 **Rôle :** Configuration interactive détaillée
 
@@ -164,7 +164,7 @@ bash local/configure.sh
 
 ---
 
-### `local/start-backend-only.sh`
+### `../deploy/local`
 
 **Rôle :** Démarrer le backend seul (test API)
 
@@ -176,7 +176,7 @@ bash local/start-backend-only.sh
 
 ---
 
-### `local/start-frontend-only.sh`
+### `../deploy/local`
 
 **Rôle :** Démarrer le frontend seul avec proxy vers le backend
 
@@ -187,7 +187,7 @@ bash local/start-frontend-only.sh
 
 ---
 
-### `local/test-websocket.sh`
+### `../deploy/local`
 
 **Rôle :** Tester la connexion WebSocket
 
@@ -199,7 +199,7 @@ Se connecte à `ws://localhost:3001` et envoie des messages de test.
 
 ---
 
-### `local/test.sh`
+### `../deploy/local`
 
 **Rôle :** Lancer tous les tests
 
@@ -213,7 +213,7 @@ bash local/test.sh
 
 ## Scripts Déploiement Production
 
-### `deployed/start.sh`
+### `../deploy/production`
 
 **Rôle :** Démarrer en production
 
@@ -225,7 +225,7 @@ Détecte automatiquement l'environnement : Docker Compose s'il est disponible, s
 
 ---
 
-### `deployed/install.sh`
+### `../deploy/production`
 
 **Rôle :** Installation initiale en production
 
@@ -237,7 +237,7 @@ Installe Docker & Docker Compose (optionnel), Node.js 18+, Nginx, les services S
 
 ---
 
-### `deployed/install-production.sh`
+### `../deploy/production`
 
 **Rôle :** Installation optimisée production avec sécurité renforcée
 
@@ -247,7 +247,7 @@ sudo bash deployed/install-production.sh
 
 ---
 
-### `deployed/health-check.sh` Important
+### `../deploy/production` Important
 
 **Rôle :** Vérifier l'état de tous les services
 
@@ -261,7 +261,7 @@ Retourne un rapport détaillé avec statuts `OK` / `FAIL`.
 
 ---
 
-### `deployed/verify-deployment.sh`
+### `../deploy/production`
 
 **Rôle :** Vérifier le déploiement après installation
 
@@ -273,7 +273,7 @@ bash deployed/verify-deployment.sh
 
 ---
 
-### `deployed/verify.sh`
+### `../deploy/production`
 
 **Rôle :** Vérification rapide (alias de `verify-deployment.sh`)
 
@@ -283,7 +283,7 @@ bash deployed/verify.sh
 
 ---
 
-### `deployed/check.sh`
+### `../deploy/production`
 
 **Rôle :** Vérification complète du système
 
@@ -293,7 +293,7 @@ bash deployed/check.sh
 
 ---
 
-### `deployed/start-deploy.sh`
+### `../deploy/production`
 
 **Rôle :** Démarrage sécurisé avec vérifications préalables
 
@@ -303,7 +303,7 @@ bash deployed/start-deploy.sh
 
 ---
 
-### `deployed/update.sh`
+### `../deploy/production`
 
 **Rôle :** Mettre à jour le code depuis git
 
@@ -315,7 +315,7 @@ Pull git → `npm install` → restart services → health check.
 
 ---
 
-### `deployed/update-production.sh`
+### `../deploy/production`
 
 **Rôle :** Mise à jour production avec backup
 
@@ -327,7 +327,7 @@ Inclut backup de la base de données et de la configuration, déploiement sans i
 
 ---
 
-### `deployed/update-frontend-config.sh`
+### `../deploy/production`
 
 **Rôle :** Mettre à jour la configuration frontend uniquement
 
@@ -337,7 +337,7 @@ bash deployed/update-frontend-config.sh
 
 ---
 
-### `deployed/SUMMARY.sh`
+### `../deploy/production`
 
 **Rôle :** Afficher un résumé du déploiement
 
@@ -351,7 +351,7 @@ bash deployed/SUMMARY.sh
 
 ### `./start.sh`
 
-**Rôle :** Raccourci vers `local/start.sh`
+**Rôle :** Raccourci vers `../deploy/local`
 
 ```bash
 ./start.sh
@@ -361,7 +361,7 @@ bash deployed/SUMMARY.sh
 
 ### `./scripts/utils/test-local.sh`
 
-**Rôle :** Raccourci vers `local/test.sh`
+**Rôle :** Raccourci vers `../deploy/local`
 
 ```bash
 ./scripts/utils/test-local.sh
@@ -399,7 +399,7 @@ bash deployed/SUMMARY.sh
 - Protection CSRF
 - Options de sécurité des cookies
 
-### `deployed/docs/`
+### `../deploy/production`
 
 | Fichier | Description |
 |---------|-------------|
