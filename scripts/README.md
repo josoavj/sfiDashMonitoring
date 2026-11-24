@@ -113,9 +113,9 @@ scripts/                    # Scripts partagés & utilitaires
 ./scripts/utils/health-check.sh
 ```
 
-## 📖 Détails des Scripts
+## Détails des Scripts
 
-### 📋 Logs (`scripts/logs/`)
+### Logs (`scripts/logs/`)
 
 #### `watch-logs.sh`
 
@@ -335,7 +335,7 @@ npm run lint
 ./scripts/logs/manage-logs.sh archive
 ```
 
-## 📋 Checklist d'utilisation
+## Checklist d'utilisation
 
 - [ ] Tous les scripts sont exécutables (`chmod +x`)
 - [ ] Scripts testés en local avant commit
