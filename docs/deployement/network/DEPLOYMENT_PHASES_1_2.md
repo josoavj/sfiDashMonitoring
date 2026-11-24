@@ -162,21 +162,21 @@ curl -u elastic:password https://ELASTICSEARCH_HOST:9200/_ssl/certificates > htt
 Avant de déployer en production:
 
 ```bash
-# ✓ Vérifier les secrets
+# [OK] Vérifier les secrets
 echo "Vérifier JWT_SECRET, JWT_REFRESH_SECRET, SESSION_SECRET dans .env"
 
-# ✓ Vérifier les vulnérabilités
+# [OK] Vérifier les vulnérabilités
 npm audit
 cd backend && npm audit
 
-# ✓ Tester les endpoints
+# [OK] Tester les endpoints
 npm test
 cd backend && npm test:security
 
-# ✓ Vérifier HTTPS
+# [OK] Vérifier HTTPS
 openssl s_client -connect elasticsearch:9200
 
-# ✓ Tester en local d'abord
+# [OK] Tester en local d'abord
 NODE_ENV=development npm start
 # Puis: NODE_ENV=production npm start
 ```
@@ -512,7 +512,7 @@ curl http://localhost:3001/health
 
 ---
 
-## 📚 Documentation Complète
+## Documentation Complète
 
 - [PHASES_1_2_GUIDE.md](./PHASES_1_2_GUIDE.md) - Guide complet
 - [SECURITY.md](./SECURITY.md) - Guide sécurité détaillé
@@ -535,7 +535,7 @@ curl http://localhost:3001/health
 
 ---
 
-## 📞 Support
+## Support
 
 Pour les questions:
 
