@@ -73,7 +73,7 @@ npm run dev
 
 Chaque modification est immédiatement visible !
 
-## 📍 URLs d'Accès
+## URLs d'Accès
 
 | Service | URL | Port |
 |---------|-----|------|
@@ -230,7 +230,7 @@ npm run lint
 ./test-websocket.sh
 ```
 
-## 📋 Workflow Recommandé
+## Workflow Recommandé
 
 ### Setup Initial (une fois)
 
@@ -284,7 +284,7 @@ npm run dev
 ../scripts/logs/manage-logs.sh archive
 ```
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### Ports déjà utilisés?
 
@@ -331,7 +331,7 @@ rm backend/.env
 ./start.sh
 ```
 
-## 📚 Documentation Complète
+## Documentation Complète
 
 Voir aussi:
 - [Main README](../README.md) - Vue d'ensemble
