@@ -379,7 +379,7 @@ bash deployed/verify-deployment.sh       # Rapport complet
 
 ---
 
-## 📞 Besoin d'Aide?
+## Besoin d'Aide?
 
 ### Problème local?
 
