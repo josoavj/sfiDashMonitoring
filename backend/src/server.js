@@ -40,7 +40,7 @@ const parseAllowedOrigins = () => {
 };
 
 const allowedOrigins = parseAllowedOrigins();
-console.log('[CORS] Allowed Origins for CORS:', allowedOrigins.join(', '));
+logger.info('[CORS] Allowed Origins for CORS:', { allowedOrigins: allowedOrigins.join(', ') });
 
 const app = express();
 
@@ -61,7 +61,7 @@ const corsOptions = {
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.warn(`[CORS] Blocked origin: ${origin} (NODE_ENV: ${NODE_ENV})`);
+      logger.warn(`[CORS] Blocked origin: ${origin} (NODE_ENV: ${NODE_ENV})`);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -169,7 +169,7 @@ io.use(async (socket, next) => {
 // WebSocket handling
 io.on('connection', (socket) => {
   logService.clientConnected(io);
-  console.log('[SOCKET.IO] Client connecté');
+  logger.info('[SOCKET.IO] Client connecté');
 
   socket.emit('connected', { message: 'Connecté au serveur de logs', timestamp: new Date().toISOString() });
 
@@ -191,7 +191,8 @@ io.on('connection', (socket) => {
       }
 
       const now = new Date();
-      const result = await esClient.search({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: sizeNum, query: { range: { '@timestamp': { gte: new Date(now - validRanges[timeRange]).toISOString(), lte: now.toISOString() } } }, sort: [{ '@timestamp': { order: 'desc' } }] } });
+      const searchFn = esClient.protectedSearch ? esClient.protectedSearch.bind(esClient) : esClient.search.bind(esClient);
+      const result = await searchFn({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: sizeNum, query: { range: { '@timestamp': { gte: new Date(now - validRanges[timeRange]).toISOString(), lte: now.toISOString() } } }, sort: [{ '@timestamp': { order: 'desc' } }] } });
       socket.emit('initial-logs', { logs: result.hits.hits, total: result.hits.total?.value || 0 });
     } catch (err) {
       socket.emit('error', { message: 'Erreur lors du chargement des logs' });
@@ -223,7 +224,7 @@ io.on('connection', (socket) => {
       
       const room = `ip:${ip}`;
       socket.join(room);
-      console.log(`Socket ${socket.id} joined ${room}`);
+      logger.debug(`Socket ${socket.id} joined ${room}`);
     } catch (e) {
       socket.emit('error', { message: 'Erreur subscribe-ip' });
     }
@@ -241,7 +242,7 @@ io.on('connection', (socket) => {
       
       const room = `ip:${ip}`;
       socket.leave(room);
-      console.log(`Socket ${socket.id} left ${room}`);
+      logger.debug(`Socket ${socket.id} left ${room}`);
     } catch (e) {
       socket.emit('error', { message: 'Erreur unsubscribe-ip' });
     }
@@ -249,7 +250,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     logService.clientDisconnected();
-    console.log('[SOCKET.IO] Client déconnecté');
+    logger.info('[SOCKET.IO] Client déconnecté');
   });
 });
 
@@ -267,20 +268,9 @@ async function init() {
 
     // Force sync to recreate tables with all columns
     await sequelize.sync({ alter: true });
-    server.listen(PORT, HOST, () => {
-      console.log(`
-            ╔════════════════════════════════════════════════════════════╗
-            ║     SFI Dash Monitoring Backend Started                    ║
-            ╠════════════════════════════════════════════════════════════╣
-            ║ Server:         http://${HOST}:${PORT}                     ║
-            ║ WebSocket:      ws://localhost:${PORT}/socket.io/          ║
-            ║ Elasticsearch:  Connected                                  ║
-            ║ Database:       Connected (alter: true)                    ║
-            ╚════════════════════════════════════════════════════════════╝
-      `);
-    });
+    logger.info(`SFI Dash Monitoring Backend Started on http://${HOST}:${PORT}`);
   } catch (err) {
-    console.error('[DATABASE] Erreur initialisation base de données:', err);
+    logger.error('[DATABASE] Erreur initialisation base de données:', { error: err.message, stack: err.stack });
     process.exit(1);
   }
 }
@@ -288,17 +278,17 @@ async function init() {
 init();
 
 process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down...');
+  logger.info('SIGTERM received, shutting down...');
   logService.stopLogStreaming();
   server.close(() => process.exit(0));
 });
 
 process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down...');
+  logger.info('SIGINT received, shutting down...');
   logService.stopLogStreaming();
   server.close(() => process.exit(0));
 });
 
 process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Rejection:', err);
+  logger.error('Unhandled Rejection:', { error: err?.message || err, stack: err?.stack });
 });
