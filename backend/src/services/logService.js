@@ -1,3 +1,5 @@
+const { logger } = require('../utils/logger');
+
 let pollingInterval = null;
 let connectedClients = 0;
 let lastCheckTimestamp = new Date();
@@ -5,7 +7,8 @@ let lastCheckTimestamp = new Date();
 async function fetchNewLogs(esClient, index = process.env.ES_INDEX || 'filebeat-*') {
   try {
     const now = new Date();
-    const result = await esClient.search({
+    const searchFn = esClient.protectedSearch ? esClient.protectedSearch.bind(esClient) : esClient.search.bind(esClient);
+    const result = await searchFn({
       index,
       body: {
         size: 100,
@@ -28,7 +31,7 @@ async function fetchNewLogs(esClient, index = process.env.ES_INDEX || 'filebeat-
     lastCheckTimestamp = now;
     return [];
   } catch (err) {
-    console.error('Erreur fetchNewLogs:', err.message);
+    logger.error(`Erreur fetchNewLogs: ${err.message}`, { error: err });
     return [];
   }
 }
@@ -76,12 +79,12 @@ function startLogStreaming(io, esClient, intervalMs = 2000) {
           const topApplications = Object.keys(byApp).map(k => ({ name: k, bytes: byApp[k].bytes, count: byApp[k].count })).sort((a, b) => b.bytes - a.bytes).slice(0, 10);
 
           io.emit('top-bandwidth', { timestamp: new Date().toISOString(), intervalMs, top, topProtocols, topApplications });
-          console.log(`📶 Bandwidth delta envoyé: total ${sumTotal} bytes (sent ${sumSent} / recv ${sumReceived}), top=${top.length}`);
+          logger.debug(`Bandwidth delta envoyé: total ${sumTotal} bytes (sent ${sumSent} / recv ${sumReceived}), top=${top.length}`);
         }
       } catch (err) {
-        console.error('Erreur en calculant bandwidth delta:', err?.message || err);
+        logger.error(`Erreur en calculant bandwidth delta: ${err?.message || err}`, { error: err });
       }
-      console.log(`📡 ${newLogs.length} nouveaux logs envoyés`);
+      logger.debug(`${newLogs.length} nouveaux logs envoyés`);
     }
   }, intervalMs);
 }
