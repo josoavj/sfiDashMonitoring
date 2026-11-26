@@ -1,6 +1,4 @@
-/**
- * Configuration de sécurité pour les variables d'environnement critiques
- */
+const { logger } = require('../utils/logger');
 
 function validateSecrets() {
   const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -10,20 +8,17 @@ function validateSecrets() {
   if (NODE_ENV === 'production') {
     const missingSecrets = requiredSecrets.filter(secret => !process.env[secret]);
     if (missingSecrets.length > 0) {
-      console.error('ERREUR CRITIQUE: Secrets manquants en production:');
-      missingSecrets.forEach(secret => console.error(`   - ${secret}`));
-      console.error('\nDéfinez ces variables d\'environnement avant de déployer!');
+      logger.error('ERREUR CRITIQUE: Secrets manquants en production:', { missingSecrets });
       process.exit(1);
     }
-    console.log(' Tous les secrets critiques sont définis');
+    logger.info('Tous les secrets critiques sont définis');
   }
 
   // En développement, utiliser des defaults sûrs (mais avertir)
   if (NODE_ENV === 'development') {
     const missingSecrets = requiredSecrets.filter(secret => !process.env[secret]);
     if (missingSecrets.length > 0) {
-      console.warn(' ATTENTION: En développement local, les secrets suivants utilisent des valeurs par défaut:');
-      missingSecrets.forEach(secret => console.warn(`   - ${secret} (utilisez une variable d'environnement en production!)`));
+      logger.warn('ATTENTION: En développement local, les secrets suivants utilisent des valeurs par défaut:', { missingSecrets });
     }
   }
 }
