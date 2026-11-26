@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { Session } = require('../models/Session');
 const { User } = require('../models/User');
 const { limitUserSessions } = require('../services/sessionService');
+const { logger } = require('../utils/logger');
 require('../config/secrets'); // Valider les secrets au démarrage
 
 const ACCESS_TOKEN_EXPIRATION = '15m';
@@ -83,7 +84,7 @@ exports.signUp = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Signup error:', error);
+    logger.error('Signup error:', { error: error.message, stack: error.stack });
     return res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -118,7 +119,7 @@ exports.signIn = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Signin error:', error);
+    logger.error('Signin error:', { error: error.message, stack: error.stack });
     return res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -187,7 +188,7 @@ exports.refresh = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Refresh error:', error);
+    logger.error('Refresh error:', { error: error.message, stack: error.stack });
     return res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -205,7 +206,7 @@ exports.signOut = async (req, res) => {
 
     return res.status(200).json({ message: 'Déconnexion réussie' });
   } catch (error) {
-    console.error('Signout error:', error);
+    logger.error('Signout error:', { error: error.message, stack: error.stack });
     return res.status(500).json({ error: 'Erreur serveur' });
   }
 };

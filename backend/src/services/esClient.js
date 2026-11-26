@@ -89,8 +89,8 @@ function createEsClientFromEnv() {
     metrics.circuitBreakerFailures.inc({ name: 'elasticsearch', type: 'timeout' });
   });
 
-  // Remplacer search par la version protégée avec monitoring
-  client.protectedSearch = async (params) => {
+  // Method de recherche protégée par le Circuit Breaker et instrumentée
+  const protectedSearch = async (params) => {
     const start = Date.now();
     try {
       const result = await searchBreaker.fire(params);
@@ -113,6 +113,10 @@ function createEsClientFromEnv() {
       throw err;
     }
   };
+
+  // On surcharge client.search et on conserve client.protectedSearch pour compatibilité
+  client.protectedSearch = protectedSearch;
+  client.search = protectedSearch;
 
   client.withTimeout = (promise) => withTimeout(promise, esConfig.requestTimeout);
   

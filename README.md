@@ -425,8 +425,8 @@ Problème?
 | **1** | FAIT | Sécurité (JWT HttpOnly, refresh tokens) |
 | **2** | FAIT | Tests, Swagger, Prometheus, CSRF |
 | **3** | TODO | TypeScript migration |
-| **4** | TODO | Logging centralisé (ELK/Winston) |
-| **5** | TODO | Circuit breaker Elasticsearch |
+| **4** | FAIT | Logging centralisé structuré JSON (Pino) |
+| **5** | FAIT | Circuit breaker Elasticsearch (Opossum) |
 | **6** | TODO | E2E tests (Playwright) |
 
 ---

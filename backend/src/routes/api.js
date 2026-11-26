@@ -10,7 +10,7 @@ const metrics = require('../services/metricsService');
 
 // Fonction helper pour sanitizer les erreurs
 function handleError(err, res, defaultMessage = 'Erreur lors du traitement de la requête') {
-  console.error('[API] Erreur API:', {
+  logger.error('[API] Erreur API:', {
     message: err.message,
     code: err.code,
     statusCode: err.statusCode
@@ -241,7 +241,7 @@ function mountApiRoutes(app, esClient, logService) {
 
       res.json({ timeline: result.aggregations.bandwidth_over_time.buckets });
     } catch (err) {
-      console.error('Erreur bandwidth-by-ip:', err.message);
+      logger.error(`Erreur bandwidth-by-ip: ${err.message}`, { error: err });
       res.status(500).json({ error: err.message });
     }
   });
@@ -275,7 +275,7 @@ function mountApiRoutes(app, esClient, logService) {
         avg_bytes: result.aggregations.avg_bytes.value || 0
       });
     } catch (err) {
-      console.error('Erreur ip-stats:', err.message);
+      logger.error(`Erreur ip-stats: ${err.message}`, { error: err });
       res.status(500).json({ error: err.message });
     }
   });
@@ -287,7 +287,7 @@ function mountApiRoutes(app, esClient, logService) {
       const result = await esClient.protectedSearch({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: 0, query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }, aggs: { top_consumers: { terms: { field, size, order: { total_bytes: 'desc' } }, aggs: { total_bytes: { sum: { field: 'network.bytes' } }, connection_count: { value_count: { field } } } } } } });
       res.json(result.aggregations.top_consumers.buckets);
     } catch (err) {
-      console.error('Erreur top-bandwidth:', err.message);
+      logger.error(`Erreur top-bandwidth: ${err.message}`, { error: err });
       res.status(500).json({ error: err.message });
     }
   });
@@ -298,7 +298,7 @@ function mountApiRoutes(app, esClient, logService) {
       const result = await esClient.protectedSearch({ index: process.env.ES_INDEX || 'filebeat-*', body: { size: 0, query: { range: { '@timestamp': { gte: timeRange.from, lte: timeRange.to } } }, aggs: { by_protocol: { terms: { field: 'network.protocol', size } }, by_destination_port: { terms: { field: 'destination.port', size }, aggs: { bytes: { sum: { field: 'network.bytes' } } } }, by_application: { terms: { field: 'network.application', size } } } } });
       res.json({ protocols: result.aggregations.by_protocol.buckets, ports: result.aggregations.by_destination_port.buckets, applications: result.aggregations.by_application.buckets });
     } catch (err) {
-      console.error('Erreur protocols:', err.message);
+      logger.error(`Erreur protocols: ${err.message}`, { error: err });
       res.status(500).json({ error: err.message });
     }
   });
@@ -604,7 +604,7 @@ function mountApiRoutes(app, esClient, logService) {
         }
       });
     } catch (err) {
-      console.error('Erreur generate report:', err.message);
+      logger.error(`Erreur generate report: ${err.message}`, { error: err });
       res.status(500).json({ error: err.message });
     }
   });
@@ -661,7 +661,7 @@ function mountApiRoutes(app, esClient, logService) {
 
       // Log first document to see structure
       if (result.hits.hits.length > 0) {
-        console.log('[EXPLORATION] Sample document:', JSON.stringify({
+        logger.debug('[EXPLORATION] Sample document:', {
           source_ip: result.hits.hits[0]._source.source?.ip,
           source_port: result.hits.hits[0]._source.source?.port,
           dest_ip: result.hits.hits[0]._source.destination?.ip,
@@ -669,7 +669,7 @@ function mountApiRoutes(app, esClient, logService) {
           network_bytes: result.hits.hits[0]._source.network?.bytes,
           network_protocol: result.hits.hits[0]._source.network?.protocol,
           application_service: result.hits.hits[0]._source.fortinet?.firewall?.dstinetsvc || result.hits.hits[0]._source.rule?.name || 'Unknown'
-        }, null, 2));
+        });
       }
 
       res.json({
@@ -740,7 +740,7 @@ function mountApiRoutes(app, esClient, logService) {
         packetCount: totalPackets
       });
     } catch (err) {
-      console.error('Erreur exploration stats:', err.message);
+      logger.error(`Erreur exploration stats: ${err.message}`, { error: err });
       res.status(500).json({ error: err.message });
     }
   });
@@ -804,14 +804,14 @@ function mountApiRoutes(app, esClient, logService) {
 
       // Log sample document
       if (result.hits.hits.length > 0) {
-        console.log('[EXPLORATION] IP Range Sample document:', JSON.stringify({
+        logger.debug('[EXPLORATION] IP Range Sample document:', {
           source_ip: result.hits.hits[0]._source.source?.ip,
           source_port: result.hits.hits[0]._source.source?.port,
           dest_ip: result.hits.hits[0]._source.destination?.ip,
           dest_port: result.hits.hits[0]._source.destination?.port,
           network_bytes: result.hits.hits[0]._source.network?.bytes,
           network_protocol: result.hits.hits[0]._source.network?.protocol
-        }, null, 2));
+        });
       }
 
       res.json({
@@ -820,7 +820,7 @@ function mountApiRoutes(app, esClient, logService) {
         took: result.took
       });
     } catch (err) {
-      console.error('Erreur IP range search:', err.message);
+      logger.error(`Erreur IP range search: ${err.message}`, { error: err });
       res.status(500).json({ error: err.message });
     }
   });
@@ -881,7 +881,7 @@ function mountApiRoutes(app, esClient, logService) {
         packetCount: totalPackets
       });
     } catch (err) {
-      console.error('Erreur IP range stats:', err.message);
+      logger.error(`Erreur IP range stats: ${err.message}`, { error: err });
       res.status(500).json({ error: err.message });
     }
   });
@@ -938,7 +938,7 @@ function mountApiRoutes(app, esClient, logService) {
         }
       });
     } catch (err) {
-      console.error('Erreur services by port:', err.message);
+      logger.error(`Erreur services by port: ${err.message}`, { error: err });
       res.status(500).json({ error: err.message });
     }
   });

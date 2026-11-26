@@ -1,3 +1,5 @@
+const { logger } = require('../utils/logger');
+
 /**
  * Middleware de gestion centralisée des erreurs
  * Sanitize les messages d'erreur pour éviter l'information disclosure
@@ -9,8 +11,7 @@ function errorHandler(err, req, res, next) {
   const isDevelopment = NODE_ENV === 'development';
 
   // Logger l'erreur complète (côté serveur uniquement)
-  console.error('Erreur:', {
-    message: err.message,
+  logger.error(`[ErrorHandler] ${err.message}`, {
     status: err.status || 500,
     stack: isDevelopment ? err.stack : undefined,
     path: req.path,
