@@ -5,6 +5,7 @@
  */
 
 const { Session } = require('../models/Session');
+const { logger } = require('../utils/logger');
 
 // Nettoyer les sessions expirées toutes les heures
 async function startSessionCleanup() {
@@ -25,7 +26,7 @@ async function startSessionCleanup() {
       });
       
       if (deleted > 0) {
-        console.log(`[SESSION] Nettoyage sessions: ${deleted} sessions revoquées supprimées`);
+        logger.info(`[SESSION] Nettoyage sessions: ${deleted} sessions revoquées supprimées`);
       }
       
       // Optionnel: Limiter le nombre de sessions actives par user (garde les 5 plus récentes)
@@ -40,14 +41,14 @@ async function startSessionCleanup() {
       });
       
       if (deletedOld > 0) {
-        console.log(`[SESSION] Nettoyage sessions: ${deletedOld} sessions inactives (>30j) supprimées`);
+        logger.info(`[SESSION] Nettoyage sessions: ${deletedOld} sessions inactives (>30j) supprimées`);
       }
     } catch (err) {
-      console.error('[SESSION] Erreur session cleanup:', err.message);
+      logger.error(`[SESSION] Erreur session cleanup: ${err.message}`, { error: err });
     }
   }, CLEANUP_INTERVAL);
   
-  console.log('[SESSION] Session cleanup scheduler démarré (toutes les heures)');
+  logger.info('[SESSION] Session cleanup scheduler démarré (toutes les heures)');
 }
 
 /**
@@ -60,10 +61,10 @@ async function revokeAllUserSessions(userId) {
       { revoked: true },
       { where: { userId } }
     );
-    console.log(`[SESSION] ${updated[0]} sessions révoquées pour user ${userId}`);
+    logger.info(`[SESSION] ${updated[0]} sessions révoquées pour user ${userId}`);
     return updated[0];
   } catch (err) {
-    console.error('[SESSION] Erreur revoke all sessions:', err.message);
+    logger.error(`[SESSION] Erreur revoke all sessions: ${err.message}`, { error: err });
     throw err;
   }
 }
@@ -86,12 +87,12 @@ async function limitUserSessions(userId, maxSessions = 5) {
       const deleted = await Session.destroy({
         where: { id: sessionsToDelete }
       });
-      console.log(`[SESSION] Limité à ${maxSessions} sessions pour user ${userId} (${deleted} supprimées)`);
+      logger.info(`[SESSION] Limité à ${maxSessions} sessions pour user ${userId} (${deleted} supprimées)`);
       return deleted;
     }
     return 0;
   } catch (err) {
-    console.error('[SESSION] Erreur limit user sessions:', err.message);
+    logger.error(`[SESSION] Erreur limit user sessions: ${err.message}`, { error: err });
     throw err;
   }
 }
