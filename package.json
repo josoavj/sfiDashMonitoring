@@ -4,7 +4,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "author": "SFI Team",
+  "author": "josoavj",
   "license": "MIT",
   "workspaces": [
     "frontend",
@@ -27,5 +27,11 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "allowScripts": {
+    "bcrypt@6.0.0": true,
+    "sqlite3@5.1.7": true,
+    "@scarf/scarf@1.4.0": true,
+    "esbuild@0.28.2": true
   }
 }
